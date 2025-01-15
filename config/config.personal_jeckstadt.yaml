@@ -87,4 +87,4 @@ clustering:
 
   temporal:
     resolution_elec: false
-    resolution_secotr: 169H  # Woche
+    resolution_sector: 169H  # Woche
