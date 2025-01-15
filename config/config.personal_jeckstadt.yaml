@@ -1,0 +1,90 @@
+# SPDX-FileCopyrightText: : 2017-2023 The PyPSA-Eur Authors
+#
+# SPDX-License-Identifier: CC0-1.0
+
+# IMPORTANT: Specify your personal configuration here. After having done so, run the following command to avoid git committing the file with your personal configurations:
+# git update-index --skip-worktree FILENAME
+# and if you want to track the changes again use this command:
+# git update-index --no-skip-worktree FILENAME
+# See also: https://stackoverflow.com/questions/13630849/git-difference-between-assume-unchanged-and-skip-worktree#
+
+run:
+  prefix: 20250115jeckstadt_test
+  name:
+  - 8Gt_Bal_v3
+  # - 8Gt_Elec_v3
+  # - 8Gt_H2_v3
+  scenarios:
+    enable: true
+    manual_file: config/scenarios.personal_jeckstadt.yaml
+    file: config/scenarios.automated.yaml
+  shared_resources:
+    policy: base #stops recalculating
+    exclude:
+    - existing_heating.csv   # specify files which should not be shared between scenarios
+    - costs
+    - retrieve_cost   # This is necessary to save retrieve_cost_data_{year}.log in the correct folder
+    - industry_sector_ratios
+    - build_industry_sector_ratios   # This is necessary to save build_industry_sector_ratios_data.log in the correct folder
+    - modify_existing_heating
+
+iiasa_database:
+  db_name: ariadne
+  leitmodelle:
+    general: REMIND-EU v1.1
+    buildings: REMod v1.0
+    transport: REMIND-EU v1.1
+    transport_stock: DLR-VECTOR21
+    industry: FORECAST v1.0
+  scenarios:
+  - 8Gt_Bal_v3
+  - 8Gt_Elec_v3
+  - 8Gt_H2_v3
+  reference_scenario: 8Gt_Bal_v3
+  region: Deutschland
+
+scenario:
+  ll:
+    - v1.0  # no line expansion
+  clusters:
+    - 27 # current options: 27, 49
+  planning_horizons:
+    - 2020
+    - 2030
+    - 2040
+
+#countries: ['DE', 'AT', 'CH', 'CZ', 'DK', 'FR', 'LU', 'NL', 'PL', 'BE', 'GB']
+
+# docs in https://pypsa-eur.readthedocs.io/en/latest/configuration.html#snapshots
+snapshots:
+  start: "2019-01-01"
+  end: "2020-01-01"
+  inclusive: 'left'
+
+enable:
+  retrieve: false
+  retrieve_databundle: false
+  retrieve_cost_data: false
+  build_cutout: false
+  retrieve_cutout: false
+  custom_busmap: false
+  drop_leap_day: true
+
+electricity:
+  extendable_carriers:
+    Generator: [solar, onwind, offwind-ac, offwind-dc, OCGT, CCGT] #solar-hsat, offwind-float
+
+  conventional_carriers: [ nuclear, oil, OCGT, CCGT, coal, lignite, geothermal, biomass ]
+  renewable_carriers: [ solar, onwind, offwind-ac, offwind-dc, hydro ] #  solar-hsat,  offwind-float,
+
+sector:
+  industry: false
+  agriculture: false
+
+clustering:
+#  simplify_network:
+#    to_substations: true
+
+  temporal:
+    resolution_elec: false
+    resolution_secotr: 169H  # Woche
