@@ -56,7 +56,7 @@ if os.path.exists(path_out):
     # Remove units from the parameter column
     sr['parameter'] = sr['parameter'].str.replace(r'\s\[.*\]$', '', regex=True)
 
-    # Add empty columns
+    # Add columns
     sr['source'] = "Danish Energy Agency, technology_data_for_el_and_dh.xlsx"
     sr['further description'] = None
     sr['currency_year'] = None
