@@ -472,9 +472,12 @@ def mock_snakemake(
         root_dir = Path(root_dir).resolve()
 
     user_in_script_dir = Path.cwd().resolve() == script_dir
+    user_in_scripts_pypsa_de = "scripts/pypsa-de" in str(Path.cwd().resolve())
     if str(submodule_dir) in __file__:
         # the submodule_dir path is only need to locate the project dir
         os.chdir(Path(__file__[: __file__.find(str(submodule_dir))]))
+    elif user_in_scripts_pypsa_de:
+        os.chdir(root_dir)
     elif user_in_script_dir:
         os.chdir(root_dir)
     elif Path.cwd().resolve() != root_dir:
