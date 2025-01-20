@@ -631,3 +631,17 @@ if config["enable"]["retrieve"] and (
                 "data/osm-raw/{country}/substations_relation.json",
                 country=config_provider("countries"),
             ),
+
+#if config["enable"]["retrieve"]:
+
+rule retrieve_space_requirement_data:
+    # params:
+    #     cost_horizon = config_provider("costs","horizon"),
+    output:
+        dea_sheet = "data/DEA_electricity_district_heat_data_sheet.xlsx",
+        # csv_files = expand(
+        #     "resources/space_requirements/{{est}}/space_requirement_{{year}}.csv",
+        #     est=["mean", "optimist","pessimist"],
+        #     year=[2020, 2030, 2040])
+    script:
+        "../scripts/retrieve_space_requirement_data.py"
