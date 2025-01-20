@@ -6,7 +6,6 @@
 
 # prio 1
 # todo: als snakemake skript: wildcards, outputs, logging
-# todo: werte für wind überschreiben
 # prio 2
 # todo: vergleichen mit anderen retrieve skripts
 # todo: mehr technologien mappen
