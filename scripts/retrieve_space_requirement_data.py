@@ -19,9 +19,6 @@ import urllib.request
 import os
 import pandas as pd
 import logging
-from pathlib import Path
-
-from joblib.testing import param
 
 from scripts._helpers import configure_logging, progress_retrieve, set_scenario_config
 
@@ -66,6 +63,18 @@ if __name__ == "__main__":
         # Filter rows where the "par" column contains the string "Space requirement"
         # and "cat" column contains the value "Energy/technical data"
         sr = data[(data['par'].str.contains("Space requirement", na=False)) & (data['cat'] == "Energy/technical data")]
+
+        # Adjust space requirements for onwind based on generating capacity
+        generating_capacity = data[(data['par'] == "Generating capacity for one unit [MW_e]")]
+        generating_capacity = generating_capacity.rename(columns={'val': 'capacity_value'})[['Technology', 'capacity_value', 'year', 'est']]
+
+        # Merge generating capacity with space requirements for onwind
+        sr = sr.merge(generating_capacity, on=['Technology', 'year', 'est'], how='left')
+        sr.loc[sr['Technology'] == 'Onshore wind turbine, utility - renewable power - wind - large', 'val'] \
+            = (50 * 50) / sr['capacity_value'] * 1e-3
+
+        # Drop the merged capacity column
+        sr = sr.drop(columns=['capacity_value'])
 
         # Drop unnecessary columns
         sr = sr.drop(columns=['ref', 'note', 'priceyear', 'cat', 'ws'])  # todo: priceyear wichtig?
