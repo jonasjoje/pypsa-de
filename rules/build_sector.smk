@@ -1126,6 +1126,7 @@ rule prepare_sector_network:
             if config_provider("sector", "enhanced_geothermal", "enable")(w)
             else []
         ),
+        space_requirements="resources/space_requirements/mean/space_requirement_{planning_horizons}.csv"  #todo: sauberere Ablage
     output:
         RESULTS
         + "prenetworks/base_s_{clusters}_l{ll}_{opts}_{sector_opts}_{planning_horizons}.nc",

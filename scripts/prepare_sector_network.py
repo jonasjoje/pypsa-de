@@ -4811,6 +4811,10 @@ def add_enhanced_geothermal(n, egs_potentials, egs_overlap, costs):
             )
 
 
+def add_space_requirements(n, space_requirements_file):
+    space_requirements = pd.read_csv(space_requirements_file, index_col=[0, 1]).sort_index()
+    return n
+
 # %%
 if __name__ == "__main__":
     if "snakemake" not in globals():
@@ -4988,6 +4992,8 @@ if __name__ == "__main__":
     maybe_adjust_costs_and_potentials(
         n, snakemake.params["adjustments"], investment_year
     )
+
+    add_space_requirements(n, snakemake.input.space_requirements)
 
     n.meta = dict(snakemake.config, **dict(wildcards=dict(snakemake.wildcards)))
 
