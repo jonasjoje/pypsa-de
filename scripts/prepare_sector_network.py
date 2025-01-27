@@ -4819,10 +4819,12 @@ if __name__ == "__main__":
         snakemake = mock_snakemake(
             "prepare_sector_network",
             opts="",
-            clusters="38",
-            ll="vopt",
-            sector_opts="",
+            clusters="27",
+            ll="v1.0",
+            sector_opts="none",
             planning_horizons="2030",
+            run="8Gt_Bal_v3",
+            configfiles="config/config.personal_jeckstadt.yaml",
         )
 
     configure_logging(snakemake)
