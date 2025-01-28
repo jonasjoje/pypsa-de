@@ -106,7 +106,7 @@ if __name__ == "__main__":
         sr = sr.dropna(subset=['technology'])
 
         # Filter for the specific year and only 'mean' values (ctrl)
-        year = int(snakemake.wildcards.year)
+        year = int(snakemake.wildcards.planning_horizons)
         year_df = sr[(sr['year'] == year) & (sr['est'] == 'ctrl')]
 
         if not year_df.empty:
