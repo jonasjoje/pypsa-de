@@ -4826,7 +4826,7 @@ if __name__ == "__main__":
             clusters="27",
             ll="v1.0",
             sector_opts="none",
-            planning_horizons="2030",
+            planning_horizons="2020",
             run="8Gt_Bal_v3",
             configfiles="config/config.personal_jeckstadt.yaml",
         )
