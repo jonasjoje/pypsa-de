@@ -639,6 +639,6 @@ rule retrieve_space_requirement_data:
         dea_sheet_path = "data/DEA_electricity_district_heat_data_sheet.xlsx",
         url = "https://ens.dk/media/5795/download"
     output:
-        csv_file = resources("space_requirements_{year}.csv"),
+        csv_file = resources("space_requirements_{planning_horizons}.csv"),
     script:
         "../scripts/retrieve_space_requirement_data.py"
