@@ -638,12 +638,7 @@ rule retrieve_space_requirement_data:
     params:
         dea_sheet_path = "data/DEA_electricity_district_heat_data_sheet.xlsx",
         url = "https://ens.dk/media/5795/download"
-    #     cost_horizon = config_provider("costs","horizon"),
     output:
         csv_file = resources("space_requirements_{year}.csv"),
-        # csv_files = expand(
-        #     "resources/space_requirements/{{est}}/space_requirement_{{year}}.csv",
-        #     est=["mean", "optimist","pessimist"],
-        #     year=[2020, 2030, 2040])
     script:
         "../scripts/retrieve_space_requirement_data.py"
