@@ -85,3 +85,4 @@ raw.githubusercontent.com
 
 # local ignores
 .gitignore.local
+.idea/
