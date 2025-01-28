@@ -633,12 +633,14 @@ if config["enable"]["retrieve"] and (
             ),
 
 #if config["enable"]["retrieve"]:
-
+# todo: vgl retrieve_cost_data für logging etc.
 rule retrieve_space_requirement_data:
-    # params:
+    params:
+        dea_sheet_path = "data/DEA_electricity_district_heat_data_sheet.xlsx",
+        url = "https://ens.dk/media/5795/download"
     #     cost_horizon = config_provider("costs","horizon"),
     output:
-        dea_sheet = "data/DEA_electricity_district_heat_data_sheet.xlsx",
+        csv_file = resources("space_requirements_{year}.csv"),
         # csv_files = expand(
         #     "resources/space_requirements/{{est}}/space_requirement_{{year}}.csv",
         #     est=["mean", "optimist","pessimist"],

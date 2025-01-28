@@ -5,7 +5,7 @@
 # creates separate csv for every available year and for mean, optimist, pessimist
 
 # prio 1
-# todo: als snakemake skript: wildcards, outputs, logging
+# todo: als snakemake skript: logging
 # prio 2
 # todo: vergleichen mit anderen retrieve skripts
 # todo: mehr technologien mappen
@@ -29,7 +29,7 @@ if __name__ == "__main__":
 
         snakemake = mock_snakemake(
             "retrieve_space_requirement_data",
-            #cost_horizon="mean"
+            year="2020",
         )
         rootpath = ".."
     else:
@@ -41,23 +41,20 @@ if __name__ == "__main__":
 
     disable_progress = snakemake.config["run"].get("disable_progressbar", False)
 
-    # URL of the latest Excel file
-    download_url = "https://ens.dk/media/5795/download"
-
     # Ensure the output directory exists
-    os.makedirs(os.path.dirname(snakemake.output.dea_sheet), exist_ok=True)
+    os.makedirs(os.path.dirname(snakemake.params.dea_sheet_path), exist_ok=True)
 
     # Download the file only if it does not already exist
-    if not os.path.exists(snakemake.output.dea_sheet):
-        urllib.request.urlretrieve(download_url, snakemake.output.dea_sheet)
-        print(f"File downloaded and saved to {snakemake.output.dea_sheet}")
+    if not os.path.exists(snakemake.params.dea_sheet_path):
+        urllib.request.urlretrieve(snakemake.params.url, snakemake.params.dea_sheet_path)
+        print(f"File downloaded and saved to {snakemake.params.dea_sheet_path}")
     else:
-        print(f"File already exists at {snakemake.output.dea_sheet}")
+        print(f"File already exists at {snakemake.params.dea_sheet_path}")
 
     # Extract rows with 'Space requirement' from the 'alldata_flat' sheet
-    if os.path.exists(snakemake.output.dea_sheet):
+    if os.path.exists(snakemake.params.dea_sheet_path):
         # Read the specific sheet "alldata_flat"
-        data = pd.read_excel(snakemake.output.dea_sheet, sheet_name='alldata_flat')
+        data = pd.read_excel(snakemake.params.dea_sheet_path, sheet_name='alldata_flat')
 
         # Filter rows where the "par" column contains the string "Space requirement"
         # and "cat" column contains the value "Energy/technical data"
@@ -108,25 +105,14 @@ if __name__ == "__main__":
         sr['technology'] = sr['technology'].map(technology_mapping)
         sr = sr.dropna(subset=['technology'])
 
-        # Split the dataframe by 'est' and 'year'
-        est_values = ['ctrl', 'upper', 'lower']
-        est_labels = {'ctrl': 'mean', 'upper': 'optimist', 'lower': 'pessimist'}
+        # Filter for the specific year and only 'mean' values (ctrl)
+        year = int(snakemake.wildcards.year)
+        year_df = sr[(sr['year'] == year) & (sr['est'] == 'ctrl')]
 
-        resources_dir = os.path.join(rootpath, "resources", "space_requirements")
-
-        for est in est_values:
-            est_dir = os.path.join(resources_dir, est_labels[est])
-            os.makedirs(est_dir, exist_ok=True)
-
-            est_df = sr[sr['est'] == est]
-            for year in sr['year'].unique():
-                year_df = est_df[est_df['year'] == year]
-                if not year_df.empty:
-                    # Drop the 'year' and 'est' columns
-                    year_df = year_df.drop(columns=['year', 'est'])
-                    file_name = f"space_requirement_{year}_{est_labels[est]}.csv"
-                    file_path = os.path.join(est_dir, file_name)
-                    year_df.to_csv(file_path, index=False)
-                    print(f"Saved dataframe to {file_path}")
+        if not year_df.empty:
+            # Drop the 'year' and 'est' columns
+            year_df = year_df.drop(columns=['year', 'est'])
+            year_df.to_csv(snakemake.output.csv_file, index=False)
+            print(f"Saved dataframe to {snakemake.output.csv_file}")
 
         print("Finished")
