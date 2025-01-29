@@ -97,7 +97,7 @@ if __name__ == "__main__":
 
         # Map technologies to standard names todo: map more
         technology_mapping = {
-            'PV - renewable power - solar - utility-scale, ground mounted': 'solar-utility',
+            'PV - renewable power - solar - utility-scale, ground mounted': 'solar',
             'Onshore wind turbine, utility - renewable power - wind - large': 'onwind'
         }
 
