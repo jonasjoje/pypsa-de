@@ -1052,8 +1052,19 @@ def solve_network(n, config, params, solving, **kwargs):
             "Solving status 'warning'. Results may not be reliable. Aborting."
         )
 
+    if status == "ok":
+        # post processing for spare requirement
+        # todo: woanders besser aufgehoben? z.B. pypsa.optimization.optimize.post_processing
+        n = space_req_post_processing(n)
+
     return n
 
+def space_req_post_processing(n):
+    # todo: woanders besser aufgehoben? z.B. pypsa.optimization.optimize.post_processing
+    # Fill space_req_opt with computed values
+    n.generators["space_req_opt"] = n.generators["p_nom_opt"] * n.generators["space_req_pu"]
+
+    return n
 
 # %%
 if __name__ == "__main__":
