@@ -4812,7 +4812,29 @@ def add_enhanced_geothermal(n, egs_potentials, egs_overlap, costs):
 
 
 def add_space_requirements(n, space_requirements_file):
+    # todo: docstring
+
+    ### Generators ###
+    # Load space requirements data
     space_requirements = pd.read_csv(space_requirements_file, index_col=[0, 1]).sort_index()
+
+    # Transform space requirements into a DataFrame with 'carrier' as index
+    space_req_df = space_requirements.xs('Space requirement', level='parameter')[['value']].rename(
+        columns={'value': 'space_req_pu'})
+
+    # Merge with generators using 'carrier' as the key and fill missing values with 0
+    n.generators = n.generators.join(space_req_df, on='carrier')
+    n.generators['space_req_pu'] = n.generators['space_req_pu'].fillna(0)
+
+    # Add an empty column for optimized space requirements
+    n.generators['space_req_opt'] = np.nan
+
+    ### Carriers ###
+    # todo
+
+    ### Other Components ###
+    # todo: lines, transformers, links, etcetc
+
     return n
 
 # %%
