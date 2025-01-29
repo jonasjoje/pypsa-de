@@ -1060,14 +1060,21 @@ if __name__ == "__main__":
     if "snakemake" not in globals():
         from scripts._helpers import mock_snakemake
 
+        # Change working directory to parent
+        os.chdir(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+        # Print working directory
+        print(os.getcwd())
+
         snakemake = mock_snakemake(
-            "solve_sector_network_perfect",
-            configfiles="../config/test/config.perfect.yaml",
+            "solve_sector_network_myopic",
             opts="",
-            clusters="5",
+            clusters="27",
             ll="v1.0",
-            sector_opts="",
-            # planning_horizons="2030",
+            sector_opts="none",
+            planning_horizons="2020",
+            run="8Gt_Bal_v3",
+            configfiles="config/config.personal_jeckstadt.yaml",
         )
     configure_logging(snakemake)
     set_scenario_config(snakemake)
