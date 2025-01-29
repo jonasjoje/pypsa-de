@@ -4811,6 +4811,32 @@ def add_enhanced_geothermal(n, egs_potentials, egs_overlap, costs):
             )
 
 
+def add_space_requirements(n, space_requirements_file):
+    # todo: docstring
+
+    ### Generators ###
+    # Load space requirements data
+    space_requirements = pd.read_csv(space_requirements_file, index_col=[0, 1]).sort_index()
+
+    # Transform space requirements into a DataFrame with 'carrier' as index
+    space_req_df = space_requirements.xs('Space requirement', level='parameter')[['value']].rename(
+        columns={'value': 'space_req_pu'})
+
+    # Merge with generators using 'carrier' as the key and fill missing values with 0
+    n.generators = n.generators.join(space_req_df, on='carrier')
+    n.generators['space_req_pu'] = n.generators['space_req_pu'].fillna(0)
+
+    # Add an empty column for optimized space requirements
+    n.generators['space_req_opt'] = np.nan
+
+    ### Carriers ###
+    # todo
+
+    ### Other Components ###
+    # todo: lines, transformers, links, etcetc
+
+    return n
+
 # %%
 if __name__ == "__main__":
     if "snakemake" not in globals():
@@ -4819,10 +4845,12 @@ if __name__ == "__main__":
         snakemake = mock_snakemake(
             "prepare_sector_network",
             opts="",
-            clusters="38",
-            ll="vopt",
-            sector_opts="",
-            planning_horizons="2030",
+            clusters="27",
+            ll="v1.0",
+            sector_opts="none",
+            planning_horizons="2020",
+            run="8Gt_Bal_v3",
+            configfiles="config/config.personal_jeckstadt.yaml",
         )
 
     configure_logging(snakemake)
@@ -4986,6 +5014,8 @@ if __name__ == "__main__":
     maybe_adjust_costs_and_potentials(
         n, snakemake.params["adjustments"], investment_year
     )
+
+    add_space_requirements(n, snakemake.input.space_requirements)
 
     n.meta = dict(snakemake.config, **dict(wildcards=dict(snakemake.wildcards)))
 
