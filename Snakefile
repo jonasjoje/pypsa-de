@@ -705,3 +705,20 @@ rule ariadne_report_only:
             RESULTS + "ariadne/report/elec_price_duration_curve.png",
             run=config_provider("run", "name"),
         ),
+
+
+rule evaluate_space_requirement:
+    input:
+        networks=expand(
+            RESULTS + "postnetworks/base_s_{clusters}_l{ll}_{opts}_{sector_opts}_{planning_horizons}.nc",
+            allow_missing=True,
+            clusters=config["scenario"]["clusters"],
+            ll=config["scenario"]["ll"],
+            opts=config["scenario"]["opts"],
+            sector_opts=config["scenario"]["sector_opts"],
+            planning_horizons=config["scenario"]["planning_horizons"]
+        )
+    output:
+        report=directory(RESULTS + "space_requirement_summary")
+    script:
+        "scripts/evaluate_space_requirement.py"
