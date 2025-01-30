@@ -2,6 +2,18 @@ import os
 import pypsa
 import pandas as pd
 
+#todo:
+# mock snakemake
+# in funktionen aufteilen
+# rule überarbeiten (können params auch als wildcard-definitionen genutzt werden?)
+# logging etc.
+# funktionsweise mit verschiedenen szenarien / wildcard-kombinationen
+
+#todo: inhaltlich
+# Fläche von DE absolut und in prozent
+# Fläche der Energieträger
+
+
 # Snakemake input is provided as a list
 networks = snakemake.input.networks
 planning_horizons = snakemake.params.planning_horizons
