@@ -708,6 +708,8 @@ rule ariadne_report_only:
 
 
 rule evaluate_space_requirement:
+    params:
+        planning_horizons=config_provider("scenario", "planning_horizons")
     input:
         networks=expand(
             RESULTS + "postnetworks/base_s_{clusters}_l{ll}_{opts}_{sector_opts}_{planning_horizons}.nc",
