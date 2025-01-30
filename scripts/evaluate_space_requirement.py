@@ -5,8 +5,8 @@ import pandas as pd
 #todo:
 # mock snakemake
 # in funktionen aufteilen
-# rule überarbeiten (können params auch als wildcard-definitionen genutzt werden?)
 # logging etc.
+# mehr params in rule
 # funktionsweise mit verschiedenen szenarien / wildcard-kombinationen
 
 #todo: inhaltlich
@@ -15,7 +15,7 @@ import pandas as pd
 
 
 # Snakemake input is provided as a list
-networks = snakemake.input.networks
+networks = snakemake.input
 planning_horizons = snakemake.params.planning_horizons
 
 # Print the loaded networks
