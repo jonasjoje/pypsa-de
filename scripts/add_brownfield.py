@@ -14,6 +14,7 @@ import pypsa
 import xarray as xr
 from add_existing_baseyear import add_build_year_to_new_assets
 from pypsa.clustering.spatial import normed_or_uniform
+from prepare_sector_network import add_space_requirements
 
 from scripts._helpers import (
     configure_logging,
@@ -292,6 +293,8 @@ if __name__ == "__main__":
     add_brownfield(n, n_p, year)
 
     disable_grid_expansion_if_limit_hit(n)
+
+    add_space_requirements(n, snakemake.input.space_requirements)
 
     n.meta = dict(snakemake.config, **dict(wildcards=dict(snakemake.wildcards)))
     n.export_to_netcdf(snakemake.output[0])
