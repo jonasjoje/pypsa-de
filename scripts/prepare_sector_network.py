@@ -4813,6 +4813,7 @@ def add_enhanced_geothermal(n, egs_potentials, egs_overlap, costs):
 
 def add_space_requirements(n, space_requirements_file):
     # todo: docstring
+    # todo: allow overwriting existing values
 
     ### Generators ###
     # Load space requirements data
@@ -4822,9 +4823,16 @@ def add_space_requirements(n, space_requirements_file):
     space_req_df = space_requirements.xs('Space requirement', level='parameter')[['value']].rename(
         columns={'value': 'space_req_pu'})
 
-    # Merge with generators using 'carrier' as the key and fill missing values with 0
-    n.generators = n.generators.join(space_req_df, on='carrier')
-    n.generators['space_req_pu'] = n.generators['space_req_pu'].fillna(0)
+    # Check if space_req_pu already exists
+    if 'space_req_pu' in n.generators.columns:
+        # Only update new generators (NaN values)
+        mask = n.generators['space_req_pu'].isna()
+        n.generators.loc[mask, 'space_req_pu'] = n.generators.loc[mask, 'carrier'].map(
+            space_req_df['space_req_pu']).fillna(0)
+    else:
+        # First-time assignment
+        n.generators = n.generators.join(space_req_df, on='carrier')
+        n.generators['space_req_pu'] = n.generators['space_req_pu'].fillna(0)
 
     # Add an empty column for optimized space requirements
     n.generators['space_req_opt'] = np.nan

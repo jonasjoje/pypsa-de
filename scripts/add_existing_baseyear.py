@@ -40,6 +40,7 @@ idx = pd.IndexSlice
 spatial = SimpleNamespace()
 
 from build_powerplants import add_custom_powerplants
+from prepare_sector_network import add_space_requirements
 
 
 def add_build_year_to_new_assets(n, baseyear):
@@ -1137,6 +1138,8 @@ if __name__ == "__main__":
 
     if options.get("cluster_heat_buses", False):
         cluster_heat_buses(n)
+
+    add_space_requirements(n, snakemake.input.space_requirements)
 
     n.meta = dict(snakemake.config, **dict(wildcards=dict(snakemake.wildcards)))
 
