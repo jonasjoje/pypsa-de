@@ -909,6 +909,9 @@ def add_flexible_egs_constraint(n):
         name="upper_bound_charging_capacity_of_geothermal_reservoir",
     )
 
+def add_space_requirement_constraint(n):
+    print("test add space requirement constraint")
+
 
 def add_co2_atmosphere_constraint(n, snapshots):
     glcs = n.global_constraints[n.global_constraints.type == "co2_atmosphere"]
@@ -977,6 +980,9 @@ def extra_functionality(n, snapshots):
 
     if config["sector"]["enhanced_geothermal"]["enable"]:
         add_flexible_egs_constraint(n)
+
+    # todo: if config...
+    add_space_requirement_constraint(n)
 
     if n.params.custom_extra_functionality:
         source_path = pathlib.Path(n.params.custom_extra_functionality).resolve()
