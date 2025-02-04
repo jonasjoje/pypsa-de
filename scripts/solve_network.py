@@ -910,7 +910,50 @@ def add_flexible_egs_constraint(n):
     )
 
 def add_space_requirement_constraint(n):
-    print("test add space requirement constraint")
+    """
+    Adds a global constraint for space requirement.
+    todo: more explanation and difference to land use constraints
+    """
+
+    logger.info("Adding space requirement constraint")
+
+    if "space_req_pu" not in n.generators.columns:
+        logger.warning("No space_req_pu column found in generators. Skipping constraint.")
+        return
+
+    # Retrieve optimized capacities of generators
+    gen_p_nom_opt = n.model.variables["Generator-p_nom"]
+
+    # Retrieve space requirements per unit capacity and filter out NaN values
+    space_requirements = n.generators["space_req_pu"].fillna(0)
+
+    # Maximum allowed land use (can be set via config or directly)
+    max_land_use = 2000e3  # Default: 2000 km², result im Beispiel ohne constraint ist 2038.8600 km³
+
+    # Ensure only valid values are used in the constraint
+    valid_generators = space_requirements.dropna().index.intersection(gen_p_nom_opt.coords["Generator-ext"].values)
+    total_land_use = (gen_p_nom_opt.sel({"Generator-ext": valid_generators}) * space_requirements.loc[valid_generators]).sum()
+
+    # Define constraint using lhs and rhs
+    lhs = total_land_use
+    rhs = xr.DataArray([max_land_use * 1e3], dims=["global_constraint"])
+
+    # Add constraint to the optimization model
+    n.model.add_constraints(lhs <= rhs, name="TotalSpaceRequirement")
+
+    # Register constraint in n.global_constraints
+    n.global_constraints.loc["TotalSpaceRequirement"] = {
+        "type": "space_limit",
+        "investment_period": np.nan,
+        "carrier_attribute": np.nan,
+        "sense": "<=",
+        "constant": max_land_use * 1e3,
+        "mu": np.nan
+    }
+
+    logger.info(f"Added space requirement constraint with max {max_land_use} km²")
+
+    return n
 
 
 def add_co2_atmosphere_constraint(n, snapshots):
