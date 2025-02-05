@@ -918,11 +918,11 @@ def add_space_requirement_constraint(n):
     logger.info("Adding space requirement constraint")
 
     if "space_req_pu" not in n.generators.columns:
-        logger.warning("No space_req_pu column found in generators. Skipping constraint.")
+        logger.warning("No space_req_pu column found in generators. Skipping constraint.")  # todo: runtime error instead?
         return
 
     space_in_use = (n.generators["p_nom"] * n.generators["space_req_pu"]).sum()
-    print("Space used by existing generators: ", space_in_use) # extendable und nicht extendable
+    logger.info(f"Space used by existing generators: {space_in_use:,.2f} m²")
 
     # Retrieve optimized capacities of generators
     gen_p_nom_opt = n.model.variables["Generator-p_nom"]
@@ -931,54 +931,32 @@ def add_space_requirement_constraint(n):
     space_requirements = n.generators["space_req_pu"].dropna()
     space_requirements = space_requirements[space_requirements > 0]
 
-    # Maximum allowed space used
-    max_land_use = 2122736.412853386 - space_in_use - 91130 #
+    # Maximum allowed additional land use
+    max_land_use_total = 2035000  # todo: parameter in config
+    max_land_use_additional = max_land_use_total - space_in_use
 
-    ### Testing ###
-    # ---- 2030
-    # space used by existing: 2031598.0903299074
-    # optimized without binding constraint
-    #          -> 2122736.412853386  /  91138
-    # optimized - space_in_use + 1e5 = 191138.32252347842
-    #          -> 2122733.314620249  /  91135.2242903414
-    # optimized - space_in_use - 1e3 =  90138.32252347842
-    #          -> 2121736.4127607658 /  90138.32243085837 -> binding!!!
-    # optimized - space_in_use - 4e4 =  51138.32252347842
-    #          -> 2082736.412985827  /  51138.32265591977
-    # optimized - space_in_use -91130=      8.322523478418589
-    #          -> 2031606.4128751303 /      8.322545223007133
+    # Check if max_land_use_additional is negative
+    if max_land_use_additional < 0:
+        logger.warning(f"Max additional land use is negative: {max_land_use_additional} m². Skipping constraint.")
+        return
 
-
-    # Ensure only valid values are used in the constraint
-    valid_generators = space_requirements.dropna().index.intersection(gen_p_nom_opt.coords["Generator-ext"].values)
-    # total_land_use = (gen_p_nom_opt.loc[valid_generators] * space_requirements.loc[valid_generators]).sum()
-    # todo: ziehe bereits genutzte fläche von rhs ab. was ist mit generators, die rausfallen?
-
-    # Initialize the expression for total land use
-    total_land_use = 0
-    valid_generators = []
-
-    # Construct the constraint expression using a loop
+    # Initialize the expression for additional land use
+    additional_land_use = 0
+    # Construct the constraint expression using a loop  # todo: cleaner way? Make sure correct product ist built!
     for gen in space_requirements.index:
         if gen in gen_p_nom_opt.coords["Generator-ext"]:
-            total_land_use += gen_p_nom_opt[gen] * space_requirements[gen]
-            valid_generators.append(gen)
+            additional_land_use += gen_p_nom_opt.at[gen] * space_requirements[gen]
 
-    n.valid_generators = valid_generators
-
-    # Compute space requirement of non-extendable generators
-    # non_extendable_generators = n.generators[~n.generators.p_nom_extendable]
-    # fixed_land_use = (non_extendable_generators.p_nom * non_extendable_generators.space_req_pu).sum() # 1301 km²
 
     # Define constraint using lhs and rhs
-    lhs = total_land_use
-    rhs = max_land_use # * 1e3 #- fixed_land_use  # km² to 1000 m²
+    lhs = additional_land_use
+    rhs = max_land_use_additional
 
     # Add constraint to the optimization model
     n.model.add_constraints(lhs <= rhs, name="TotalSpaceRequirement")
-    logger.info(f"Added space requirement constraint with max {max_land_use} km²")
-
-    #n.optimize.create_model()
+    logger.info(f"Added space requirement constraint with \n"
+                f"max total:      {max_land_use_total:>13,.2f} m²\n"
+                f"max additional: {max_land_use_additional:>13,.2f} m²")
 
     return n
 
