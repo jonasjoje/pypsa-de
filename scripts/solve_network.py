@@ -921,37 +921,64 @@ def add_space_requirement_constraint(n):
         logger.warning("No space_req_pu column found in generators. Skipping constraint.")
         return
 
+    space_in_use = (n.generators["p_nom"] * n.generators["space_req_pu"]).sum()
+    print("Space used by existing generators: ", space_in_use) # extendable und nicht extendable
+
     # Retrieve optimized capacities of generators
     gen_p_nom_opt = n.model.variables["Generator-p_nom"]
 
-    # Retrieve space requirements per unit capacity and filter out NaN values
-    space_requirements = n.generators["space_req_pu"].fillna(0)
+    # Retrieve space requirements per unit capacity, filter out NaN and zero values
+    space_requirements = n.generators["space_req_pu"].dropna()
+    space_requirements = space_requirements[space_requirements > 0]
 
-    # Maximum allowed land use (can be set via config or directly)
-    max_land_use = 2000e3  # Default: 2000 km², result im Beispiel ohne constraint ist 2038.8600 km³
+    # Maximum allowed space used
+    max_land_use = 2122736.412853386 - space_in_use - 91130 #
+
+    ### Testing ###
+    # ---- 2030
+    # space used by existing: 2031598.0903299074
+    # optimized without binding constraint
+    #          -> 2122736.412853386  /  91138
+    # optimized - space_in_use + 1e5 = 191138.32252347842
+    #          -> 2122733.314620249  /  91135.2242903414
+    # optimized - space_in_use - 1e3 =  90138.32252347842
+    #          -> 2121736.4127607658 /  90138.32243085837 -> binding!!!
+    # optimized - space_in_use - 4e4 =  51138.32252347842
+    #          -> 2082736.412985827  /  51138.32265591977
+    # optimized - space_in_use -91130=      8.322523478418589
+    #          -> 2031606.4128751303 /      8.322545223007133
+
 
     # Ensure only valid values are used in the constraint
     valid_generators = space_requirements.dropna().index.intersection(gen_p_nom_opt.coords["Generator-ext"].values)
-    total_land_use = (gen_p_nom_opt.sel({"Generator-ext": valid_generators}) * space_requirements.loc[valid_generators]).sum()
+    # total_land_use = (gen_p_nom_opt.loc[valid_generators] * space_requirements.loc[valid_generators]).sum()
+    # todo: ziehe bereits genutzte fläche von rhs ab. was ist mit generators, die rausfallen?
+
+    # Initialize the expression for total land use
+    total_land_use = 0
+    valid_generators = []
+
+    # Construct the constraint expression using a loop
+    for gen in space_requirements.index:
+        if gen in gen_p_nom_opt.coords["Generator-ext"]:
+            total_land_use += gen_p_nom_opt[gen] * space_requirements[gen]
+            valid_generators.append(gen)
+
+    n.valid_generators = valid_generators
+
+    # Compute space requirement of non-extendable generators
+    # non_extendable_generators = n.generators[~n.generators.p_nom_extendable]
+    # fixed_land_use = (non_extendable_generators.p_nom * non_extendable_generators.space_req_pu).sum() # 1301 km²
 
     # Define constraint using lhs and rhs
     lhs = total_land_use
-    rhs = xr.DataArray([max_land_use * 1e3], dims=["global_constraint"])
+    rhs = max_land_use # * 1e3 #- fixed_land_use  # km² to 1000 m²
 
     # Add constraint to the optimization model
     n.model.add_constraints(lhs <= rhs, name="TotalSpaceRequirement")
-
-    # Register constraint in n.global_constraints
-    n.global_constraints.loc["TotalSpaceRequirement"] = {
-        "type": "space_limit",
-        "investment_period": np.nan,
-        "carrier_attribute": np.nan,
-        "sense": "<=",
-        "constant": max_land_use * 1e3,
-        "mu": np.nan
-    }
-
     logger.info(f"Added space requirement constraint with max {max_land_use} km²")
+
+    #n.optimize.create_model()
 
     return n
 
@@ -1132,7 +1159,7 @@ if __name__ == "__main__":
             clusters="27",
             ll="v1.0",
             sector_opts="none",
-            planning_horizons="2020",
+            planning_horizons="2030",
             run="8Gt_Bal_v3",
             configfiles="config/config.personal_jeckstadt.yaml",
         )
