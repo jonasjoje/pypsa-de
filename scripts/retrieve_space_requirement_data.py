@@ -23,6 +23,68 @@ from scripts._helpers import configure_logging, progress_retrieve, set_scenario_
 
 logger = logging.getLogger(__name__)
 
+# Define retrieve parameter
+retrieve = False  # todo: config parameter
+
+
+def download_file(url, path, retrieve_flag):
+    if retrieve_flag:
+        if os.path.exists(path):
+            logger.warning(f"File exists at {path}, will be overwritten")
+        urllib.request.urlretrieve(url, path)
+        logger.info(f"File downloaded and saved to {path}")
+    else:
+        if os.path.exists(path):
+            logger.info(f"Retrieve disabled, using existing file at {path}")
+        else:
+            raise RuntimeError(f"File {path} does not exist and retrieve is disabled")
+
+
+def adjust_space_requirement_values(sr):
+    sr.loc[sr['val'].notna(), 'val'] = sr["val"].notna() *1e3
+    sr.loc[:, 'unit'] = sr['unit'].str.replace(r'^1000m2/', '', regex=True)
+    return sr
+
+
+def adjust_onwind_values(sr, data):
+    generating_capacity = data[data['par'] == "Generating capacity for one unit [MW_e]"]
+    generating_capacity = generating_capacity.rename(columns={'val': 'capacity_value'})[
+        ['Technology', 'capacity_value', 'year', 'est']]
+    sr = sr.merge(generating_capacity, on=['Technology', 'year', 'est'], how='left')
+    sr.loc[sr['Technology'] == 'Onshore wind turbine, utility - renewable power - wind - large', 'val'] = (
+            (50 * 50) / sr['capacity_value'])
+    sr = sr.drop(columns=['capacity_value'])
+    return sr
+
+
+def cleanup_dataframe(sr, mapping, year):
+    # Drop unnecessary columns
+    sr = sr.drop(columns=['ref', 'note', 'priceyear', 'cat', 'ws'])
+    # Rename columns
+    sr = sr.rename(columns={
+        'Technology': 'technology',
+        'par': 'parameter',
+        'val': 'value',
+        'unit': 'unit'
+    })
+    # Remove units from the parameter column
+    sr['parameter'] = sr['parameter'].str.replace(r'\s\[.*\]$', '', regex=True)
+    # Filter for the specific year and only 'ctrl' values
+    sr = sr[(sr['year'] == year) & (sr['est'] == 'ctrl')]
+    # Apply mapping and drop rows with no mapping
+    sr['technology'] = sr['technology'].map(mapping)
+    sr = sr.dropna(subset=['technology'])
+    # Drop 'year' and 'est' columns
+    sr = sr.drop(columns=['year', 'est'])
+    # Add extra columns
+    sr['source'] = "Danish Energy Agency, technology_data_for_el_and_dh.xlsx"
+    sr['further description'] = None
+    sr['currency_year'] = None
+    # Reorder columns
+    sr = sr[['technology', 'parameter', 'value', 'unit', 'source', 'further description', 'currency_year']]
+    return sr
+
+
 if __name__ == "__main__":
     if "snakemake" not in globals():
         from scripts._helpers import mock_snakemake, get_scenarios
@@ -30,13 +92,12 @@ if __name__ == "__main__":
         snakemake = mock_snakemake(
             "retrieve_space_requirement_data",
             planning_horizons="2020",
-            # run="20250128jeckstadt_test_space_data",
             run="8Gt_Bal_v3",
-            #configfiles="config/config.personal_jeckstadt.yaml",
         )
         rootpath = ".."
     else:
         from scripts._helpers import get_scenarios
+
         rootpath = "."
 
     configure_logging(snakemake)
@@ -47,79 +108,29 @@ if __name__ == "__main__":
     # Ensure the output directory exists
     os.makedirs(os.path.dirname(snakemake.params.dea_sheet_path), exist_ok=True)
 
-    # Download the file only if it does not already exist
-    if not os.path.exists(snakemake.params.dea_sheet_path):
-        urllib.request.urlretrieve(snakemake.params.url, snakemake.params.dea_sheet_path)
-        print(f"File downloaded and saved to {snakemake.params.dea_sheet_path}")
-    else:
-        print(f"File already exists at {snakemake.params.dea_sheet_path}")
+    # Download file depending on 'retrieve'
+    download_file(snakemake.params.url, snakemake.params.dea_sheet_path, retrieve)
 
-    # Extract rows with 'Space requirement' from the 'alldata_flat' sheet
-    if os.path.exists(snakemake.params.dea_sheet_path):
-        # Read the specific sheet "alldata_flat"
-        data = pd.read_excel(snakemake.params.dea_sheet_path, sheet_name='alldata_flat')
+    # Read the specific sheet "alldata_flat"
+    data = pd.read_excel(snakemake.params.dea_sheet_path, sheet_name='alldata_flat')
 
-        # Filter rows where the "par" column contains the string "Space requirement"
-        # and "cat" column contains the value "Energy/technical data"
-        sr = data[(data['par'].str.contains("Space requirement", na=False)) & (data['cat'] == "Energy/technical data")]
+    # Filter rows where the "par" column contains "Space requirement" and "cat" equals "Energy/technical data"
+    sr = data[(data['par'].str.contains("Space requirement", na=False)) & (data['cat'] == "Energy/technical data")]
 
-        # Multiply all space requirement values by 1e3 to convert from 1000 m²/MW_e to m²/MW_e
-        sr.loc[sr['val'].notna(), 'val'] = sr["val"].notna() *1e3
-        sr['unit'] = sr['unit'].str.replace(r'^1000m2/', '', regex=True)
+    # Adjust the space requirement values and unit strings
+    sr = adjust_space_requirement_values(sr)
+    # Overwrite wind values based on generating capacity
+    sr = adjust_onwind_values(sr, data)
 
-        # Adjust space requirements for onwind based on generating capacity
-        generating_capacity = data[(data['par'] == "Generating capacity for one unit [MW_e]")]
-        generating_capacity = generating_capacity.rename(columns={'val': 'capacity_value'})[['Technology', 'capacity_value', 'year', 'est']]
+    # Define mapping dictionary (todo: map more)
+    technology_mapping = {
+        'PV - renewable power - solar - utility-scale, ground mounted': 'solar',
+        'Onshore wind turbine, utility - renewable power - wind - large': 'onwind'
+    }
+    # Cleanup, filter for year and mapping
+    year = snakemake.wildcards.planning_horizons
+    sr = cleanup_dataframe(sr, technology_mapping, year)
 
-        # Merge generating capacity with space requirements for onwind
-        sr = sr.merge(generating_capacity, on=['Technology', 'year', 'est'], how='left')
-        sr.loc[sr['Technology'] == 'Onshore wind turbine, utility - renewable power - wind - large', 'val'] \
-            = (50 * 50) / sr['capacity_value']   # in m²/MW_e
-
-        # Drop the merged capacity column
-        sr = sr.drop(columns=['capacity_value'])
-
-        # Drop unnecessary columns
-        sr = sr.drop(columns=['ref', 'note', 'priceyear', 'cat', 'ws'])  # todo: priceyear wichtig?
-
-        # Rename and reorder columns
-        sr = sr.rename(columns={
-            'Technology': 'technology',
-            'par': 'parameter',
-            'val': 'value',
-            'unit': 'unit'
-        })
-
-        # Remove units from the parameter column
-        sr['parameter'] = sr['parameter'].str.replace(r'\s\[.*\]$', '', regex=True)
-
-        # Add columns
-        sr['source'] = "Danish Energy Agency, technology_data_for_el_and_dh.xlsx"
-        sr['further description'] = None
-        sr['currency_year'] = None
-
-        # Reorder columns
-        sr = sr[
-            ['technology', 'parameter', 'value', 'unit', 'est', 'year', 'source', 'further description', 'currency_year']]
-
-        # Map technologies to standard names todo: map more
-        technology_mapping = {
-            'PV - renewable power - solar - utility-scale, ground mounted': 'solar',
-            'Onshore wind turbine, utility - renewable power - wind - large': 'onwind'
-        }
-
-        # Apply the mapping and drop rows with no mapping
-        sr['technology'] = sr['technology'].map(technology_mapping)
-        sr = sr.dropna(subset=['technology'])
-
-        # Filter for the specific year and only 'mean' values (ctrl)
-        year = int(snakemake.wildcards.planning_horizons)
-        year_df = sr[(sr['year'] == year) & (sr['est'] == 'ctrl')]
-
-        if not year_df.empty:
-            # Drop the 'year' and 'est' columns
-            year_df = year_df.drop(columns=['year', 'est'])
-            year_df.to_csv(snakemake.output.csv_file, index=False)
-            print(f"Saved dataframe to {snakemake.output.csv_file}")
-
-        print("Finished")
+    # Save final dataframe as CSV
+    sr.to_csv(snakemake.output.csv_file, index=False)
+    logger.info(f"Saved dataframe to {snakemake.output.csv_file}")
