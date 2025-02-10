@@ -30,8 +30,9 @@ if __name__ == "__main__":
         snakemake = mock_snakemake(
             "retrieve_space_requirement_data",
             planning_horizons="2020",
-            run="20250128jeckstadt_test_space_data",
-            scenario="8Gt_Bal_v3",
+            # run="20250128jeckstadt_test_space_data",
+            run="8Gt_Bal_v3",
+            #configfiles="config/config.personal_jeckstadt.yaml",
         )
         rootpath = ".."
     else:
@@ -63,7 +64,8 @@ if __name__ == "__main__":
         sr = data[(data['par'].str.contains("Space requirement", na=False)) & (data['cat'] == "Energy/technical data")]
 
         # Multiply all space requirement values by 1e3 to convert from 1000 m²/MW_e to m²/MW_e
-        sr['val'] = sr['val'] * 1e3
+        sr.loc[sr['val'].notna(), 'val'] = sr["val"].notna() *1e3
+        sr['unit'] = sr['unit'].str.replace(r'^1000m2/', '', regex=True)
 
         # Adjust space requirements for onwind based on generating capacity
         generating_capacity = data[(data['par'] == "Generating capacity for one unit [MW_e]")]
