@@ -29,7 +29,9 @@ if __name__ == "__main__":
 
         snakemake = mock_snakemake(
             "retrieve_space_requirement_data",
-            year="2020",
+            planning_horizons="2020",
+            run="20250128jeckstadt_test_space_data",
+            scenario="8Gt_Bal_v3",
         )
         rootpath = ".."
     else:
@@ -60,6 +62,9 @@ if __name__ == "__main__":
         # and "cat" column contains the value "Energy/technical data"
         sr = data[(data['par'].str.contains("Space requirement", na=False)) & (data['cat'] == "Energy/technical data")]
 
+        # Multiply all space requirement values by 1e3 to convert from 1000 m²/MW_e to m²/MW_e
+        sr['val'] = sr['val'] * 1e3
+
         # Adjust space requirements for onwind based on generating capacity
         generating_capacity = data[(data['par'] == "Generating capacity for one unit [MW_e]")]
         generating_capacity = generating_capacity.rename(columns={'val': 'capacity_value'})[['Technology', 'capacity_value', 'year', 'est']]
@@ -67,7 +72,7 @@ if __name__ == "__main__":
         # Merge generating capacity with space requirements for onwind
         sr = sr.merge(generating_capacity, on=['Technology', 'year', 'est'], how='left')
         sr.loc[sr['Technology'] == 'Onshore wind turbine, utility - renewable power - wind - large', 'val'] \
-            = (50 * 50) / sr['capacity_value'] * 1e-3
+            = (50 * 50) / sr['capacity_value']   # in m²/MW_e
 
         # Drop the merged capacity column
         sr = sr.drop(columns=['capacity_value'])
