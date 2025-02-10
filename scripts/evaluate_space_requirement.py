@@ -29,7 +29,7 @@ space_requirements = {}
 # Process each network file
 for network_file, year in zip(networks, planning_horizons):
     n = pypsa.Network(network_file)
-    total_space = n.generators["space_req_opt"].sum() * 1e-3  # Convert from 1000 m² to km²
+    total_space = n.generators["space_req_opt"].sum() * 1e-6  # Convert from m² to km²
     space_requirements[year] = total_space
 
 # Ensure the output directory exists
