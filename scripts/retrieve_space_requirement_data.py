@@ -42,7 +42,7 @@ def download_file(url, path, retrieve_flag):
 
 def adjust_space_requirement_values(sr):
     sr.loc[sr['val'].notna(), 'val'] = sr["val"].notna() *1e3
-    sr.loc[:, 'unit'] = sr['unit'].str.replace(r'^1000m2/', '', regex=True)
+    sr.loc[:, 'unit'] = sr['unit'].str.replace(r'^1000', '', regex=True)
     return sr
 
 
@@ -70,7 +70,7 @@ def cleanup_dataframe(sr, mapping, year):
     # Remove units from the parameter column
     sr['parameter'] = sr['parameter'].str.replace(r'\s\[.*\]$', '', regex=True)
     # Filter for the specific year and only 'ctrl' values
-    sr = sr[(sr['year'] == year) & (sr['est'] == 'ctrl')]
+    sr = sr[(sr['year'] == int(year)) & (sr['est'] == 'ctrl')]
     # Apply mapping and drop rows with no mapping
     sr['technology'] = sr['technology'].map(mapping)
     sr = sr.dropna(subset=['technology'])
