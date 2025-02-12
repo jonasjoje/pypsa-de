@@ -2321,7 +2321,7 @@ def add_heat(
     )
 
     cop = xr.open_dataarray(cop_profiles_file)
-    #direct_heat_profile = xr.open_dataarray(direct_heat_source_utilisation_profile_file)
+    direct_heat_profile = xr.open_dataarray(direct_heat_source_utilisation_profile_file)
     district_heat_info = pd.read_csv(district_heat_share_file, index_col=0)
     dist_fraction = district_heat_info["district fraction of node"]
     urban_fraction = district_heat_info["urban fraction"]

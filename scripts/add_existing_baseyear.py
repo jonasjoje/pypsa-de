@@ -211,6 +211,7 @@ def add_power_capacities_installed_before_baseyear(n, grouping_years, costs, bas
     # split biogas and solid biomass
     biogas_i = biomass_i.intersection(df_agg.loc[df_agg.Capacity < 2].index)
     df_agg.loc[biogas_i, "Fueltype"] = "biogas"
+    df_agg = df_agg[df_agg.Fueltype != "biogas"] # todo: workaround für biogas-problem
 
     # include renewables in df_agg
     add_existing_renewables(df_agg, costs)
@@ -1073,13 +1074,13 @@ if __name__ == "__main__":
 
         snakemake = mock_snakemake(
             "add_existing_baseyear",
-            configfiles="config/config.yaml",
+            configfiles="config/config.personal_jeckstadt.yaml",
             clusters="27",
-            ll="vopt",
+            ll="v1.0",
             opts="",
             sector_opts="none",
             planning_horizons="2020",
-            run="KN2045_Bal_v4",
+            run="8Gt_Bal_v3",
         )
 
     configure_logging(snakemake)
