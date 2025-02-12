@@ -480,6 +480,18 @@ sector:
       heat_exchanger_pinch_point_temperature_difference: 5 #K
       isentropic_compressor_efficiency: 0.8
       heat_loss: 0.0
+    heat_utilisation_potentials:
+      geothermal:
+        # activate for 85C hydrothermal
+        # key: hydrothermal_85
+        # constant_temperature_celsius: 85
+        key: hydrothermal_65
+        constant_temperature_celsius: 65
+        column_name: Energy_TWh
+        unit: TWh
+        full_load_hours: 4000
+    direct_utilisation_heat_sources:
+      #- geothermal
   heat_pump_sources:
     urban central:
     - air
@@ -599,8 +611,12 @@ sector:
   overdimension_heat_generators:
     decentral: 1.1  #to cover demand peaks bigger than data
     central: 1.0
-  chp: true
-  micro_chp: false
+  chp:
+    enable: true
+    fuel:
+      - solid biomass # For solid biomass, CHP with and without CC are added
+      - gas # For all other fuels the same techno economic data from gas CHP is taken
+    micro_chp: false # Only gas is used for micro_chp
   solar_thermal: true
   solar_cf_correction: 0.788457  # =  >>> 1/1.2683
   marginal_cost_storage: 0. #1e-4
@@ -639,6 +655,7 @@ sector:
   co2_sequestration_lifetime: 50
   co2_spatial: false
   co2network: false
+  co2_network: false
   co2_network_cost_factor: 1
   cc_fraction: 0.9
   hydrogen_underground_storage: true

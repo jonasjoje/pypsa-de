@@ -1030,6 +1030,12 @@ rule prepare_sector_network:
         heat_pump_sources=config_provider("sector", "heat_pump_sources"),
         heat_systems=config_provider("sector", "heat_systems"),
         energy_totals_year=config_provider("energy", "energy_totals_year"),
+        heat_utilisation_potentials=config_provider(
+        "sector","district_heating","heat_utilisation_potentials"
+            ),
+        direct_utilisation_heat_sources=config_provider(
+        "sector","district_heating","direct_utilisation_heat_sources"
+            ),
     input:
         unpack(input_profile_offwind),
         **rules.cluster_gas_network.output,
@@ -1125,6 +1131,9 @@ rule prepare_sector_network:
             resources("egs_capacity_factors_{clusters}.csv")
             if config_provider("sector", "enhanced_geothermal", "enable")(w)
             else []
+        ),
+        direct_heat_source_utilisation_profiles=resources(
+        "direct_heat_source_utilisation_profiles_base_s_{clusters}_{planning_horizons}.nc"
         ),
         space_requirements=resources("space_requirements_{planning_horizons}.csv")
     output:
