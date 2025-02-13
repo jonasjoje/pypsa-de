@@ -131,6 +131,21 @@ if __name__ == "__main__":
     year = snakemake.wildcards.planning_horizons
     sr = cleanup_dataframe(sr, technology_mapping, year)
 
+    # Define a manual entry for solid biomass
+    biomass_entry = {
+        'technology': 'solid biomass',
+        'parameter': 'Space requirement',
+        'value': 10000.0,
+        'unit': 'm2/MWh',
+        'source': 'Test',
+        'further description': None,
+        'currency_year': None
+    }
+
+    # Convert dictionary to DataFrame and append to sr
+    biomass_df = pd.DataFrame([biomass_entry])
+    sr = pd.concat([sr, biomass_df], ignore_index=True)
+
     # Save final dataframe as CSV
     sr.to_csv(snakemake.output.csv_file, index=False)
     logger.info(f"Saved dataframe to {snakemake.output.csv_file}")
