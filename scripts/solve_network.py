@@ -944,32 +944,23 @@ def add_space_requirement_constraint(n):
         logger.warning(f"Max additional land use is negative: {max_land_use_additional} m². Skipping constraint.")
         return
 
-    # Collect individual terms in a list
-    terms = []
+    # Initialize expression
+    additional_land_use = 0
 
     # Construct the constraint expression using a loop
     for gen in space_requirements.index:
         if n.generators.at[gen, "carrier"] in energy_specific_carriers:
             # For energy-specific generators, compute weighted energy output per generator by summing over snapshots.
-            energy_expr = sum(
-                n.snapshot_weightings["generators"].loc[s] *
-                n.model.variables["Generator-p"].loc[{"snapshot": s, "Generator": gen}]
-                for s in n.snapshot_weightings.index
-            )
+            energy_expr = (n.model.variables["Generator-p"].loc[{"Generator": gen}] *
+                           n.snapshot_weightings["generators"]).sum("snapshot")
             term = energy_expr * n.generators.at[gen, "space_req_pu"]
             # energy-specific term calculated.
         else:
             # For power-specific generators, use the optimized capacity.
             if gen in gen_p_nom_opt.coords["Generator-ext"]:
                 term = (gen_p_nom_opt.at[gen] * n.generators.at[gen, "space_req_pu"]).to_linexpr()
-            else:
-                logger.warning(f"Generator {gen} not found in optimized capacities. Skipping.")
-                continue
-        terms.append(term)
-        # each term is appended to the list.
-
-    # Sum up the terms (using the first term als Start)
-    additional_land_use = sum(terms[1:], terms[0]) if terms else 0
+        additional_land_use += term
+        # each term is appended to the expression.
 
     # Define constraint using lhs and rhs
     lhs = additional_land_use
