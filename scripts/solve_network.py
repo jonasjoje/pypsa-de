@@ -921,8 +921,12 @@ def add_space_requirement_constraint(n):
         logger.warning("No space_req_pu column found in generators. Skipping constraint.")  # todo: runtime error instead?
         return
 
-    space_in_use = (n.generators["p_nom"] * n.generators["space_req_pu"]).sum()
-    logger.info(f"Space used by existing generators: {space_in_use:,.2f} m²")
+    energy_specific_carriers = ["solid biomass"]
+
+    # Calculate space used by existing non-biomass generators (using capacity)
+    power_specific_gens = n.generators[~n.generators["carrier"].isin(energy_specific_carriers)]
+    space_in_use = (power_specific_gens["p_nom"] * power_specific_gens["space_req_pu"]).sum()
+    logger.info(f"Space used by existing power-specific generators: {space_in_use:,.2f} m²")
 
     # Retrieve optimized capacities of generators
     gen_p_nom_opt = n.model.variables["Generator-p_nom"]
@@ -932,7 +936,7 @@ def add_space_requirement_constraint(n):
     space_requirements = space_requirements[space_requirements > 0]
 
     # Maximum allowed additional land use
-    max_land_use_total = 2035000  # todo: parameter in config
+    max_land_use_total = 250e6  # todo: parameter in config
     max_land_use_additional = max_land_use_total - space_in_use
 
     # Check if max_land_use_additional is negative
@@ -940,13 +944,32 @@ def add_space_requirement_constraint(n):
         logger.warning(f"Max additional land use is negative: {max_land_use_additional} m². Skipping constraint.")
         return
 
-    # Initialize the expression for additional land use
-    additional_land_use = 0
-    # Construct the constraint expression using a loop  # todo: cleaner way? Make sure correct product ist built!
-    for gen in space_requirements.index:
-        if gen in gen_p_nom_opt.coords["Generator-ext"]:
-            additional_land_use += gen_p_nom_opt.at[gen] * space_requirements[gen]
+    # Collect individual terms in a list
+    terms = []
 
+    # Construct the constraint expression using a loop
+    for gen in space_requirements.index:
+        if n.generators.at[gen, "carrier"] in energy_specific_carriers:
+            # For energy-specific generators, compute weighted energy output per generator by summing over snapshots.
+            energy_expr = sum(
+                n.snapshot_weightings["generators"].loc[s] *
+                n.model.variables["Generator-p"].loc[{"snapshot": s, "Generator": gen}]
+                for s in n.snapshot_weightings.index
+            )
+            term = energy_expr * n.generators.at[gen, "space_req_pu"]
+            # energy-specific term calculated.
+        else:
+            # For power-specific generators, use the optimized capacity.
+            if gen in gen_p_nom_opt.coords["Generator-ext"]:
+                term = (gen_p_nom_opt.at[gen] * n.generators.at[gen, "space_req_pu"]).to_linexpr()
+            else:
+                logger.warning(f"Generator {gen} not found in optimized capacities. Skipping.")
+                continue
+        terms.append(term)
+        # each term is appended to the list.
+
+    # Sum up the terms (using the first term als Start)
+    additional_land_use = sum(terms[1:], terms[0]) if terms else 0
 
     # Define constraint using lhs and rhs
     lhs = additional_land_use
