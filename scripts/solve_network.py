@@ -913,6 +913,8 @@ def add_space_requirement_constraint(n):
     """
     Adds a global constraint for space requirement.
     todo: more explanation and difference to land use constraints
+    Generators with energy-specific carriers (e.g. "solid biomass") have their space requirement
+    computed from generated energy (weighted over snapshots) instead of capacity.
     """
 
     logger.info("Adding space requirement constraint")
