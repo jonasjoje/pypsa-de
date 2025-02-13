@@ -938,7 +938,7 @@ def add_space_requirement_constraint(n):
     space_requirements = space_requirements[space_requirements > 0]
 
     # Maximum allowed additional land use
-    max_land_use_total = 250e6  # todo: parameter in config
+    max_land_use_total = 250e10  # todo: parameter in config
     max_land_use_additional = max_land_use_total - space_in_use
 
     # Check if max_land_use_additional is negative
@@ -1130,9 +1130,16 @@ def solve_network(n, config, params, solving, **kwargs):
     return n
 
 def space_req_post_processing(n):
-    # todo: woanders besser aufgehoben? z.B. pypsa.optimization.optimize.post_processing
+    energy_specific_carriers = ["solid biomass"]  # todo: als parameter
     # Fill space_req_opt with computed values
     n.generators["space_req_opt"] = n.generators["p_nom_opt"] * n.generators["space_req_pu"]
+
+    # For energy-specific generators, overwrite with weighted energy output * space_req_pu:
+    weighted_energy = (n.generators_t.p.multiply(n.snapshot_weightings["generators"], axis=0)).sum(axis=0)
+    mask = n.generators["carrier"].isin(energy_specific_carriers)
+    n.generators.loc[mask, "space_req_opt"] = (
+            weighted_energy.loc[n.generators.index[mask]] * n.generators.loc[mask, "space_req_pu"]
+    )
 
     return n
 
