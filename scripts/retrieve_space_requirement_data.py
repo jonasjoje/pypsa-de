@@ -88,6 +88,24 @@ def cleanup_dataframe(sr, mapping, year, power_specific_generators):
     sr = sr[['technology', 'parameter', 'value', 'unit', 'source', 'further description', 'currency_year']]
     return sr
 
+def add_energy_specific_technologies(sr, energy_specific_generators):
+    # Convert dictionary to DataFrame
+    energy_df = pd.DataFrame([
+        {
+            'technology': tech,
+            'parameter': 'Space requirement',
+            'value': value,
+            'unit': 'm2/MWh',
+            'source': 'Manually defined in config',
+            'further description': None,
+            'currency_year': None
+        }
+        for tech, value in energy_specific_generators.items()
+    ])
+
+    # Append to the existing DataFrame
+    return pd.concat([sr, energy_df], ignore_index=True)
+
 
 if __name__ == "__main__":
     if "snakemake" not in globals():
@@ -136,20 +154,9 @@ if __name__ == "__main__":
     power_specific_generators = snakemake.params.power_specific_generators
     sr = cleanup_dataframe(sr, technology_mapping, year, power_specific_generators)
 
-    # Define a manual entry for solid biomass
-    biomass_entry = {
-        'technology': 'solid biomass',
-        'parameter': 'Space requirement',
-        'value': 10000.0,
-        'unit': 'm2/MWh',
-        'source': 'Test',
-        'further description': None,
-        'currency_year': None
-    }
-
-    # Convert dictionary to DataFrame and append to sr
-    biomass_df = pd.DataFrame([biomass_entry])
-    sr = pd.concat([sr, biomass_df], ignore_index=True)
+    # Add energy specific technologies
+    if snakemake.params.energy_specific_generators:
+        sr = add_energy_specific_technologies(sr, snakemake.params.energy_specific_generators)
 
     # Save final dataframe as CSV
     sr.to_csv(snakemake.output.csv_file, index=False)
