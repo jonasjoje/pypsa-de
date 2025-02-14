@@ -129,6 +129,7 @@ if __name__ == "__main__":
     }
     # Cleanup, filter for year and mapping
     year = snakemake.wildcards.planning_horizons
+    power_specific_generators = snakemake.params.power_specific_generators
     sr = cleanup_dataframe(sr, technology_mapping, year)
 
     # Define a manual entry for solid biomass

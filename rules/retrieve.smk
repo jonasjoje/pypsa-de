@@ -632,13 +632,15 @@ if config["enable"]["retrieve"] and (
                 country=config_provider("countries"),
             ),
 
-#if config["enable"]["retrieve"]:
+if config["land_use_module"]["enable"]:
 # todo: vgl retrieve_cost_data für logging etc.
-rule retrieve_space_requirement_data:
-    params:
-        dea_sheet_path = "data/DEA_electricity_district_heat_data_sheet.xlsx",
-        url = "https://ens.dk/media/5795/download"
-    output:
-        csv_file = resources("space_requirements_{planning_horizons}.csv"),
-    script:
-        "../scripts/retrieve_space_requirement_data.py"
+    rule retrieve_space_requirement_data:
+        params:
+            dea_sheet_path = "data/DEA_electricity_district_heat_data_sheet.xlsx",
+            url = "https://ens.dk/media/5795/download",
+            power_specific_generators=config_provider("land_use_module", "power_specific_generators"),
+            energy_specific_generators=config_provider("land_use_module", "energy_specific_generators"),
+        output:
+            csv_file = resources("space_requirements_{planning_horizons}.csv"),
+        script:
+            "../scripts/retrieve_space_requirement_data.py"
