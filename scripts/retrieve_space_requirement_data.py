@@ -57,7 +57,7 @@ def adjust_onwind_values(sr, data):
     return sr
 
 
-def cleanup_dataframe(sr, mapping, year):
+def cleanup_dataframe(sr, mapping, year, power_specific_generators):
     # Drop unnecessary columns
     sr = sr.drop(columns=['ref', 'note', 'priceyear', 'cat', 'ws'])
     # Rename columns
@@ -71,9 +71,13 @@ def cleanup_dataframe(sr, mapping, year):
     sr['parameter'] = sr['parameter'].str.replace(r'\s\[.*\]$', '', regex=True)
     # Filter for the specific year and only 'ctrl' values
     sr = sr[(sr['year'] == int(year)) & (sr['est'] == 'ctrl')]
-    # Apply mapping and drop rows with no mapping
+    # Check if all power-specific generators exist in mapping
+    unmapped_generators = set(power_specific_generators) - set(mapping.values())
+    if unmapped_generators:
+        raise RuntimeError(f"These power-specific generators are not in the DEA-mapping: {unmapped_generators}")
+    # Apply mapping, filter
     sr['technology'] = sr['technology'].map(mapping)
-    sr = sr.dropna(subset=['technology'])
+    sr = sr.loc[sr['technology'].isin(power_specific_generators)]
     # Drop 'year' and 'est' columns
     sr = sr.drop(columns=['year', 'est'])
     # Add extra columns
@@ -130,7 +134,7 @@ if __name__ == "__main__":
     # Cleanup, filter for year and mapping
     year = snakemake.wildcards.planning_horizons
     power_specific_generators = snakemake.params.power_specific_generators
-    sr = cleanup_dataframe(sr, technology_mapping, year)
+    sr = cleanup_dataframe(sr, technology_mapping, year, power_specific_generators)
 
     # Define a manual entry for solid biomass
     biomass_entry = {
