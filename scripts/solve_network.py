@@ -909,7 +909,7 @@ def add_flexible_egs_constraint(n):
         name="upper_bound_charging_capacity_of_geothermal_reservoir",
     )
 
-def add_space_requirement_constraint(n):
+def add_space_requirement_constraint(n, max_limit):
     """
     Adds a global constraint for space requirement.
     todo: more explanation and difference to land use constraints
@@ -917,7 +917,7 @@ def add_space_requirement_constraint(n):
     computed from generated energy (weighted over snapshots) instead of capacity.
     """
 
-    logger.info("Adding space requirement constraint")
+    logger.info(f"Adding space requirement constraint with max_limit = {max_limit:,.2f} m²")
 
     if "space_req_pu" not in n.generators.columns:
         logger.warning("No space_req_pu column found in generators. Skipping constraint.")  # todo: runtime error instead?
@@ -938,7 +938,7 @@ def add_space_requirement_constraint(n):
     space_requirements = space_requirements[space_requirements > 0]
 
     # Maximum allowed additional land use
-    max_land_use_total = 250e10  # todo: parameter in config
+    max_land_use_total = max_limit
     max_land_use_additional = max_land_use_total - space_in_use
 
     # Check if max_land_use_additional is negative
@@ -971,8 +971,8 @@ def add_space_requirement_constraint(n):
     # Add constraint to the optimization model
     n.model.add_constraints(lhs <= rhs, name="TotalSpaceRequirement")
     logger.info(f"Added space requirement constraint with \n"
-                f"max total:      {max_land_use_total:>13,.2f} m²\n"
-                f"max additional: {max_land_use_additional:>13,.2f} m²")
+                f"max total:      {max_land_use_total:20,.2f} m²\n"
+                f"max additional: {max_land_use_additional:20,.2f} m²")
 
     return n
 
@@ -1045,8 +1045,9 @@ def extra_functionality(n, snapshots):
     if config["sector"]["enhanced_geothermal"]["enable"]:
         add_flexible_egs_constraint(n)
 
-    # todo: if config...
-    add_space_requirement_constraint(n)
+    if snakemake.config["land_use_module"]["enable"] and snakemake.config["land_use_module"]["constraint"]["enable"]:
+        max_limit = float(snakemake.config["land_use_module"]["constraint"]["max_limit"][int(snakemake.wildcards.planning_horizons)])
+        add_space_requirement_constraint(n, max_limit)
 
     if n.params.custom_extra_functionality:
         source_path = pathlib.Path(n.params.custom_extra_functionality).resolve()
