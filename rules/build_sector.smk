@@ -1068,6 +1068,7 @@ rule prepare_sector_network:
         direct_utilisation_heat_sources=config_provider(
         "sector","district_heating","direct_utilisation_heat_sources"
             ),
+        land_use_module=config_provider("land_use_module"),
     input:
         unpack(input_profile_offwind),
         **rules.cluster_gas_network.output,
@@ -1167,7 +1168,11 @@ rule prepare_sector_network:
         direct_heat_source_utilisation_profiles=resources(
         "direct_heat_source_utilisation_profiles_base_s_{clusters}_{planning_horizons}.nc"
         ),
-        space_requirements=resources("space_requirements_{planning_horizons}.csv")
+        space_requirements=lambda w: (
+            resources("space_requirements_{planning_horizons}.csv")
+            if config_provider("land_use_module","enable")(w)
+            else []
+        ),
     output:
         RESULTS
         + "prenetworks/base_s_{clusters}_l{ll}_{opts}_{sector_opts}_{planning_horizons}.nc",
