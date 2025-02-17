@@ -1140,7 +1140,8 @@ if __name__ == "__main__":
     if options.get("cluster_heat_buses", False):
         cluster_heat_buses(n)
 
-    add_space_requirements(n, snakemake.input.space_requirements)
+    if snakemake.config["land_use_module"]["enable"]:
+        add_space_requirements(n, snakemake.input.space_requirements)
 
     n.meta = dict(snakemake.config, **dict(wildcards=dict(snakemake.wildcards)))
 

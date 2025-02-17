@@ -11,6 +11,7 @@ rule add_existing_baseyear:
         costs=config_provider("costs"),
         heat_pump_sources=config_provider("sector", "heat_pump_sources"),
         energy_totals_year=config_provider("energy", "energy_totals_year"),
+        land_use_module=config_provider("land_use_module"),
     input:
         network=RESULTS
         + "prenetworks/base_s_{clusters}_l{ll}_{opts}_{sector_opts}_{planning_horizons}.nc",
@@ -29,7 +30,11 @@ rule add_existing_baseyear:
         ),
         heating_efficiencies=resources("heating_efficiencies.csv"),
         custom_powerplants=resources("german_chp_{clusters}.csv"),
-        space_requirements=resources("space_requirements_{planning_horizons}.csv"),
+        space_requirements=lambda w: (
+            resources("space_requirements_{planning_horizons}.csv")
+            if config_provider("land_use_module","enable")(w)
+            else []
+        ),
     output:
         RESULTS
         + "prenetworks-brownfield/base_s_{clusters}_l{ll}_{opts}_{sector_opts}_{planning_horizons}.nc",
@@ -74,6 +79,7 @@ rule add_brownfield:
         drop_leap_day=config_provider("enable", "drop_leap_day"),
         carriers=config_provider("electricity", "renewable_carriers"),
         heat_pump_sources=config_provider("sector", "heat_pump_sources"),
+        land_use_module=config_provider("land_use_module"),
     input:
         unpack(input_profile_tech_brownfield),
         simplify_busmap=resources("busmap_base_s.csv"),
@@ -83,7 +89,11 @@ rule add_brownfield:
         network_p=solved_previous_horizon,  #solved network at previous time step
         costs=resources("costs_{planning_horizons}.csv"),
         cop_profiles=resources("cop_profiles_base_s_{clusters}_{planning_horizons}.nc"),
-        space_requirements=resources("space_requirements_{planning_horizons}.csv"),
+        space_requirements=lambda w: (
+            resources("space_requirements_{planning_horizons}.csv")
+            if config_provider("land_use_module","enable")(w)
+            else []
+        ),
     output:
         RESULTS
         + "prenetworks-brownfield/base_s_{clusters}_l{ll}_{opts}_{sector_opts}_{planning_horizons}.nc",
