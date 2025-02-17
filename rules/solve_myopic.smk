@@ -130,6 +130,7 @@ rule solve_sector_network_myopic:
         #     os.path.dirname(workflow.snakefile), "scripts/pypsa-de/additional_functionality.py"
         # ),
         energy_year=config_provider("energy", "energy_totals_year"),
+        land_use_module=config_provider("land_use_module"),
     input:
         network=RESULTS
         + "prenetworks-final/base_s_{clusters}_l{ll}_{opts}_{sector_opts}_{planning_horizons}.nc",
