@@ -81,10 +81,54 @@ sector:
   industry: false
   agriculture: false
 
+biomass:
+  year: 2030
+  scenario: ENS_Med
+  classes:
+    solid biomass:
+    - Agricultural waste
+    - Fuelwood residues
+    - Secondary Forestry residues - woodchips
+    - Sawdust
+    - Residues from landscape care
+    not included:
+    #- Sugar from sugar beet
+    - Rape seed
+    - "Sunflower, soya seed "
+    - Bioethanol barley, wheat, grain maize, oats, other cereals and rye
+    #- Miscanthus, switchgrass, RCG
+    - Willow
+    - Poplar
+    - FuelwoodRW
+    - C&P_RW
+    biogas:
+    - Manure solid, liquid
+    - Sludge
+    municipal solid waste:
+    - Municipal waste
+    biocrops:
+    - Sugar from sugar beet
+    - Miscanthus, switchgrass, RCG
+  share_unsustainable_use_retained:
+    2020: 1
+    2025: 0.66
+    2030: 0.33
+    2035: 0
+    2040: 0
+    2045: 0
+    2050: 0
+  share_sustainable_potential_available:
+    2020: 0
+    2025: 0.33
+    2030: 0.66
+    2035: 1
+    2040: 1
+    2045: 1
+    2050: 1
+
 clustering:
 #  simplify_network:
 #    to_substations: true
-
   temporal:
     resolution_elec: false
     resolution_sector: 169H  # Woche
@@ -97,7 +141,7 @@ land_use_module:
   energy_specific_generators:  # unit: m2/MWh. space_req_pu is manually defined here
     solid biomass: 10000.0
   constraint:  # todo: different levels (global, national, nodal)
-    enable: true
+    enable: false
     max_limit:
       2020: 250e6
       2030: 250e6
