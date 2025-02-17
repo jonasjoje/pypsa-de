@@ -100,5 +100,5 @@ land_use_module:
     enable: true
     max_limit:
       2020: 250e6
-      2030: 250e6
+      2030: 250e10
       2040: 250e6

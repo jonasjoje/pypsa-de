@@ -1126,20 +1126,35 @@ def solve_network(n, config, params, solving, **kwargs):
     if status == "ok":
         # post processing for spare requirement
         # todo: woanders besser aufgehoben? z.B. pypsa.optimization.optimize.post_processing
-        n = space_req_post_processing(n)
+        if snakemake.config["land_use_module"]["enable"]:
+            n = space_req_post_processing(n, snakemake.params.land_use_module)
 
     return n
 
-def space_req_post_processing(n):
-    energy_specific_carriers = ["solid biomass"]  # todo: als parameter
-    # Fill space_req_opt with computed values
-    n.generators["space_req_opt"] = n.generators["p_nom_opt"] * n.generators["space_req_pu"]
 
-    # For energy-specific generators, overwrite with weighted energy output * space_req_pu:
+def space_req_post_processing(n, land_use_module):
+    """
+    Post-processes space requirements using land_use_module parameters.
+
+    This function computes an optimized space requirement (space_req_opt)
+    based on p_nom_opt and space_req_pu. For generators with energy-specific
+    carriers (defined in land_use_module["energy_specific_generators"]), the
+    optimized value is computed using weighted energy output.
+    """
+    power_specific = land_use_module.get("power_specific_generators", [])
+    energy_specific = list(land_use_module.get("energy_specific_generators", {}).keys())
+
+    # Process power-specific generators.
+    mask_power = n.generators["carrier"].isin(power_specific)
+    n.generators.loc[mask_power, "space_req_opt"] = (
+        n.generators.loc[mask_power, "p_nom_opt"] * n.generators.loc[mask_power, "space_req_pu"]
+    )
+
+    # Process energy-specific generators.
     weighted_energy = (n.generators_t.p.multiply(n.snapshot_weightings["generators"], axis=0)).sum(axis=0)
-    mask = n.generators["carrier"].isin(energy_specific_carriers)
-    n.generators.loc[mask, "space_req_opt"] = (
-            weighted_energy.loc[n.generators.index[mask]] * n.generators.loc[mask, "space_req_pu"]
+    mask_energy = n.generators["carrier"].isin(energy_specific)
+    n.generators.loc[mask_energy, "space_req_opt"] = (
+        weighted_energy.loc[n.generators.index[mask_energy]] * n.generators.loc[mask_energy, "space_req_pu"]
     )
 
     return n
