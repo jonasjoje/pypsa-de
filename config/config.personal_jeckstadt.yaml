@@ -92,11 +92,11 @@ biomass:
     - Sawdust
     - Residues from landscape care
     not included:
-    #- Sugar from sugar beet
+    - Sugar from sugar beet
     - Rape seed
     - "Sunflower, soya seed "
     - Bioethanol barley, wheat, grain maize, oats, other cereals and rye
-    #- Miscanthus, switchgrass, RCG
+    - Miscanthus, switchgrass, RCG
     - Willow
     - Poplar
     - FuelwoodRW
@@ -106,9 +106,9 @@ biomass:
     - Sludge
     municipal solid waste:
     - Municipal waste
-    biocrops:
-    - Sugar from sugar beet
-    - Miscanthus, switchgrass, RCG
+#    biocrops:
+#    - Sugar from sugar beet
+#    - Miscanthus, switchgrass, RCG
   share_unsustainable_use_retained:
     2020: 1
     2025: 0.66
