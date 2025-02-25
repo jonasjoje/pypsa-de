@@ -86,12 +86,14 @@ sector:
   agriculture: false
 
 clustering:
-#  simplify_network:
-#    to_substations: true
-
   temporal:
     resolution_elec: false
     resolution_sector: 169H  # Woche
+
+solving:
+  mem_mb: 100000 #memory in MB; 20 GB enough for 50+B+I+H2; 100 GB for 181+B+I+H2
+  memory_logging_frequency: 30 # in seconds
+  runtime: 24h #runtime in humanfriendly style https://humanfriendly.readthedocs.io/en/latest/
 
 land_use_module:
   enable: true
