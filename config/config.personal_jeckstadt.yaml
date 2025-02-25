@@ -8,6 +8,10 @@
 # git update-index --no-skip-worktree FILENAME
 # See also: https://stackoverflow.com/questions/13630849/git-difference-between-assume-unchanged-and-skip-worktree#
 
+remote:
+  ssh: "zecm"
+  path: "scratch/pypsa-de"
+
 run:
   prefix: 20250212jeckstadt_biomass_update
   name:
