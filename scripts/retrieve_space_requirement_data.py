@@ -23,10 +23,6 @@ from scripts._helpers import configure_logging, progress_retrieve, set_scenario_
 
 logger = logging.getLogger(__name__)
 
-# Define retrieve parameter
-retrieve = False  # todo: config parameter
-
-
 def download_file(url, path, retrieve_flag):
     if retrieve_flag:
         if os.path.exists(path):
@@ -131,7 +127,7 @@ if __name__ == "__main__":
     os.makedirs(os.path.dirname(snakemake.params.dea_sheet_path), exist_ok=True)
 
     # Download file depending on 'retrieve'
-    download_file(snakemake.params.url, snakemake.params.dea_sheet_path, retrieve)
+    download_file(snakemake.params.url, snakemake.params.dea_sheet_path, snakemake.params.retrieve)
 
     # Read the specific sheet "alldata_flat"
     data = pd.read_excel(snakemake.params.dea_sheet_path, sheet_name='alldata_flat')
