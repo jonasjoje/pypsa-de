@@ -1060,7 +1060,7 @@ def set_defaults(n):
     Returns:
         None
     """
-    if "Link" in n.components:
+    if "Link" in n.components.keys():
         if "reversed" in n.links.columns:
             # Replace NA values with default value False
             n.links.loc[n.links.reversed.isna(), "reversed"] = False
