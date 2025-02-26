@@ -637,7 +637,7 @@ if config["land_use_module"]["enable"]:
     rule retrieve_space_requirement_data:
         params:
             dea_sheet_path = "data/DEA_electricity_district_heat_data_sheet.xlsx",
-            url = "https://ens.dk/media/5795/download",
+            url = "https://ens.dk/media/6378/download",
             power_specific_generators=config_provider("land_use_module", "power_specific_generators"),
             energy_specific_generators=config_provider("land_use_module", "energy_specific_generators"),
             retrieve = config_provider("enable","retrieve"),
