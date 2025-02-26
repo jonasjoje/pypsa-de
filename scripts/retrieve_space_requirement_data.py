@@ -5,7 +5,7 @@
 # creates separate csv for every available year and for mean, optimist, pessimist
 
 # prio 1
-# todo: als snakemake skript: logging
+#
 # prio 2
 # todo: vergleichen mit anderen retrieve skripts
 # todo: mehr technologien mappen

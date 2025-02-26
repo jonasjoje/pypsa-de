@@ -642,5 +642,9 @@ if config["land_use_module"]["enable"]:
             energy_specific_generators=config_provider("land_use_module", "energy_specific_generators"),
         output:
             csv_file = resources("space_requirements_{planning_horizons}.csv"),
+        log:
+            logs("retrieve_space_requirement_data_{planning_horizons}.log"),
+        resources:
+            mem_mb=1000,
         script:
             "../scripts/retrieve_space_requirement_data.py"
