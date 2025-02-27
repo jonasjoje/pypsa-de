@@ -103,8 +103,8 @@ land_use_module:
   energy_specific_generators:  # unit: m2/MWh. space_req_pu is manually defined here
     solid biomass: 10000.0
   constraint:  # todo: different levels (global, national, nodal)
-    enable: true
+    enable: false
     max_limit:
-      2020: 250e6
+      2020: 250e10
       2030: 250e6
       2040: 250e6
