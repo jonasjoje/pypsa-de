@@ -13,7 +13,7 @@ remote:
   path: "scratch/pypsa-de"
 
 run:
-  prefix: 20250225jeckstadt_cluster_test
+  prefix: 20250304jeckstadt_scenario_test
   name:
   - 8Gt_Bal_v3
   - no_unsus_phaseout
