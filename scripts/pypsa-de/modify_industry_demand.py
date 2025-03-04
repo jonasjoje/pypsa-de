@@ -24,14 +24,16 @@ from scripts._helpers import configure_logging, mock_snakemake
 
 if __name__ == "__main__":
     if "snakemake" not in globals():
+        import os
+        os.chdir(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
         snakemake = mock_snakemake(
             "modify_industry_demand",
             simpl="",
-            clusters=22,
+            clusters=27,
             opts="",
-            ll="vopt",
+            ll="v1.0",
             sector_opts="None",
-            run="KN2045_Bal_v4",
+            run="8Gt_Bal_v3",
             planning_horizons=2020,
         )
 

@@ -44,6 +44,7 @@ iiasa_database:
   - 8Gt_Bal_v3
   #- 8Gt_Elec_v3  # unused scenario
   #- 8Gt_H2_v3  # unused scenario
+  reference_scenario: 8Gt_Bal_v3
   region: Deutschland
 
 
