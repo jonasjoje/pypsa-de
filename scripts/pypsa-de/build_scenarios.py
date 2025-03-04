@@ -224,6 +224,7 @@ def write_to_scenario_yaml(input, output, scenarios, df):
 
 if __name__ == "__main__":
     if "snakemake" not in globals():
+        os.chdir(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
         snakemake = mock_snakemake("build_scenarios")
 
     configure_logging(snakemake)
