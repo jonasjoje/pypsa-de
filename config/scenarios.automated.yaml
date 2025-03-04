@@ -16,9 +16,9 @@
 
   ### pypsa-de default configs
   costs:
-    horizon: mean
+    horizon: "mean"
     NEP: 2023
-    transmission: overhead   # either overhead line ("overhead") or underground cable ("underground")
+    transmission: "overhead"   # either overhead line ("overhead") or underground cable ("underground")
 
   solving:
     constraints:
