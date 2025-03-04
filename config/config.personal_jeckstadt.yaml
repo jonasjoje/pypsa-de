@@ -16,8 +16,6 @@ run:
   prefix: 20250225jeckstadt_cluster_test
   name:
   - 8Gt_Bal_v3
-  # - 8Gt_Elec_v3
-  # - 8Gt_H2_v3
   scenarios:
     enable: true
     manual_file: config/scenarios.personal_jeckstadt.yaml
@@ -42,8 +40,8 @@ iiasa_database:
     industry: FORECAST v1.0
   scenarios:
   - 8Gt_Bal_v3
-  - 8Gt_Elec_v3
-  - 8Gt_H2_v3
+  #- 8Gt_Elec_v3  # unused scenario
+  #- 8Gt_H2_v3  # unused scenario
   reference_scenario: 8Gt_Bal_v3
   region: Deutschland
 
