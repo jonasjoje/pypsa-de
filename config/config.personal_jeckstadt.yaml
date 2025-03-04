@@ -101,7 +101,9 @@ land_use_module:
   overwrite_value:  # unit: m2/MW todo: implement
     # onwind: 1000.0
   energy_specific_generators:  # unit: m2/MWh. space_req_pu is manually defined here
-    solid biomass: 10000.0
+    unsustainable solid biomass: 434.8  # woody biocrops
+    unsustainable biogas: 120.5  # digestible biocrops
+    unsustainable bioliquid: 120.5  # oily biocrops
   constraint:  # todo: different levels (global, national, nodal)
     enable: false
     max_limit:
