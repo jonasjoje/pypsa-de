@@ -16,6 +16,8 @@ run:
   prefix: 20250225jeckstadt_cluster_test
   name:
   - 8Gt_Bal_v3
+  - no_unsus_phaseout
+  #- constrained
   scenarios:
     enable: true
     manual_file: config/scenarios.personal_jeckstadt.yaml
@@ -43,7 +45,15 @@ iiasa_database:
   #- 8Gt_Elec_v3  # unused scenario
   #- 8Gt_H2_v3  # unused scenario
   reference_scenario: 8Gt_Bal_v3
+  fallback_reference_scenario: 8Gt_Bal_v3  # moved here from scenarios.automated.yaml
   region: Deutschland
+
+co2_budget_DE_source: KSG  # moved here from scenarios.automated.yaml
+
+costs:  # moved here from scenarios.automated.yaml
+  horizon: "mean"
+  NEP: 2023
+  transmission: "overhead" # either overhead line ("overhead") or underground cable ("underground")
 
 scenario:
   ll:
@@ -83,6 +93,11 @@ sector:
   industry: false
   agriculture: false
 
+industry:  # moved here from scenarios.automated.yaml
+  steam_biomass_fraction: 0.4
+  steam_hydrogen_fraction: 0.3
+  steam_electricity_fraction: 0.3
+
 clustering:
   temporal:
     resolution_elec: false
@@ -92,6 +107,57 @@ solving:
   mem_mb: 100000 #memory in MB; 20 GB enough for 50+B+I+H2; 100 GB for 181+B+I+H2
   memory_logging_frequency: 30 # in seconds
   runtime: 24h #runtime in humanfriendly style https://humanfriendly.readthedocs.io/en/latest/
+
+  constraints:  # moved here from scenarios.automated.yaml
+    # boundary condition of maximum volumes
+    limits_volume_max:
+      # constrain electricity import in TWh
+      electricity_import:
+        DE:
+          2020: -20
+          2025: 0
+          2030: 0
+          2035: 40
+          2040: 80
+          2045: 125
+      electrolysis:
+        DE:
+          2020: 0
+          2025: 5
+          2030: 45
+          2035: 130
+          2040: 215
+          2045: 300
+      h2_derivate_import:
+        DE:
+          2020: 0
+          2025: 0
+          2030: 10
+          2035: 105
+          2040: 200
+          2045: 300
+      h2_import:
+        DE:
+          2020: 0
+          2025: 5
+          2030: 15
+          2035: 115
+          2040: 220
+          2045: 325
+    limits_volume_min:
+      electrolysis:
+        DE:
+          2020: 0
+          2025: 0
+          2030: 0
+          2035: 0
+          2040: 0
+          2045: 0
+    limits_capacity_min:
+      Link:
+        H2 Electrolysis:
+          DE:
+            2030: 5
 
 land_use_module:
   enable: true

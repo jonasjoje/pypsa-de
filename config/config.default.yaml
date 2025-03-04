@@ -874,19 +874,19 @@ costs:
     co2: 0.
     co2_monthly_prices: false
 
-land_use_module:
-  enable: true
-  power_specific_generators: [onwind, solar]  # space_req_pu is taken from DEA-Dataset if not overwritten below.
-  overwrite_value:  # unit: m2/MW. Not implemented yet.
-    # onwind: 1000.0
-  energy_specific_generators:  # unit: m2/MWh. space_req_pu is manually defined here
-    solid biomass: 10000.0
-  constraint:
-    enable: true
-    max_limit:
-      2020: 250e6
-      2030: 250e6
-      2040: 250e6
+#land_use_module: todo: define default configuration
+#  enable: true
+#  power_specific_generators: [onwind, solar]  # space_req_pu is taken from DEA-Dataset if not overwritten below.
+#  overwrite_value:  # unit: m2/MW. Not implemented yet.
+#    # onwind: 1000.0
+#  energy_specific_generators:  # unit: m2/MWh. space_req_pu is manually defined here
+#    solid biomass: 10000.0
+#  constraint:
+#    enable: true
+#    max_limit:
+#      2020: 250e6
+#      2030: 250e6
+#      2040: 250e6
 
 # docs in https://pypsa-eur.readthedocs.io/en/latest/configuration.html#clustering
 clustering:

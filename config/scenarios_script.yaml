@@ -1,0 +1,48 @@
+
+scenario0:
+    config_section:
+        config_key: true
+    config_section2:
+        config_key2: 1
+
+scenario1:
+    config_section:
+        config_key: true
+    config_section2:
+        config_key2: 2
+
+scenario2:
+    config_section:
+        config_key: true
+    config_section2:
+        config_key2: 3
+
+scenario3:
+    config_section:
+        config_key: true
+    config_section2:
+        config_key2: 4
+
+scenario4:
+    config_section:
+        config_key: false
+    config_section2:
+        config_key2: 1
+
+scenario5:
+    config_section:
+        config_key: false
+    config_section2:
+        config_key2: 2
+
+scenario6:
+    config_section:
+        config_key: false
+    config_section2:
+        config_key2: 3
+
+scenario7:
+    config_section:
+        config_key: false
+    config_section2:
+        config_key2: 4
