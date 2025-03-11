@@ -3333,7 +3333,7 @@ def add_biomass(
                 "GlobalConstraint",
                 "unsustainable biomass limit",
                 carrier_attribute="unsustainable solid biomass",
-                sense="==",
+                sense="<=",
                 constant=biomass_potentials["unsustainable solid biomass"].sum(),
                 type="operational_limit",
             )
