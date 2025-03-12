@@ -16,8 +16,8 @@ run:
   prefix: 20250304jeckstadt_scenario_test
   name:
   - 8Gt_Bal_v3
-  - no_unsus_phaseout
-  #- constrained
+  - ENS_sus_unsus_share
+  - ENS_share_constrained
   scenarios:
     enable: true
     manual_file: config/scenarios.personal_jeckstadt.yaml
