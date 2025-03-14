@@ -246,9 +246,9 @@ ENS_share_constrained:
     constraint:
       enable: true
       max_limit:
-        2020: 5e11  # 50 000 km²
+        2020: 5e10  # 50 000 km²
         2030: 5e10
-        2040: 5e11
+        2040: 5e10
 
   ### pypsa-de default configs
   costs:
