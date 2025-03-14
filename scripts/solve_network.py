@@ -920,8 +920,8 @@ def add_space_requirement_constraint(n, max_limit, energy_specific_carriers=[]):
     logger.info(f"Adding space requirement constraint with max_limit = {max_limit:,.2f} m²")
 
     if "space_req_pu" not in n.generators.columns:
-        logger.warning("No space_req_pu column found in generators. Skipping constraint.")  # todo: runtime error instead?
-        return
+        logger.error("No space_req_pu column found in generators. Aborting.")
+        raise RuntimeError("No space_req_pu column found in generators. Aborting.")
 
     # Calculate space used by existing non-biomass generators (using capacity)
     power_specific_gens = n.generators[~n.generators["carrier"].isin(energy_specific_carriers)]
@@ -941,8 +941,8 @@ def add_space_requirement_constraint(n, max_limit, energy_specific_carriers=[]):
 
     # Check if max_land_use_additional is negative
     if max_land_use_additional < 0:
-        logger.warning(f"Max additional land use is negative: {max_land_use_additional} m². Skipping constraint.") # todo: runtime error instead?
-        return
+        logger.error(f"Max additional land use is negative: {max_land_use_additional} m². Aborting.")
+        raise RuntimeError(f"Max additional land use is negative: {max_land_use_additional} m². Aborting.")
 
     # Initialize expression
     additional_land_use = 0
