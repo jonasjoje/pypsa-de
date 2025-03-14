@@ -909,7 +909,7 @@ def add_flexible_egs_constraint(n):
         name="upper_bound_charging_capacity_of_geothermal_reservoir",
     )
 
-def add_space_requirement_constraint(n, max_limit):
+def add_space_requirement_constraint(n, max_limit, energy_specific_carriers=[]):
     """
     Adds a global constraint for space requirement.
     todo: more explanation and difference to land use constraints
@@ -922,8 +922,6 @@ def add_space_requirement_constraint(n, max_limit):
     if "space_req_pu" not in n.generators.columns:
         logger.warning("No space_req_pu column found in generators. Skipping constraint.")  # todo: runtime error instead?
         return
-
-    energy_specific_carriers = ["solid biomass"]
 
     # Calculate space used by existing non-biomass generators (using capacity)
     power_specific_gens = n.generators[~n.generators["carrier"].isin(energy_specific_carriers)]
@@ -943,7 +941,7 @@ def add_space_requirement_constraint(n, max_limit):
 
     # Check if max_land_use_additional is negative
     if max_land_use_additional < 0:
-        logger.warning(f"Max additional land use is negative: {max_land_use_additional} m². Skipping constraint.")
+        logger.warning(f"Max additional land use is negative: {max_land_use_additional} m². Skipping constraint.") # todo: runtime error instead?
         return
 
     # Initialize expression
@@ -1045,9 +1043,11 @@ def extra_functionality(n, snapshots):
     if config["sector"]["enhanced_geothermal"]["enable"]:
         add_flexible_egs_constraint(n)
 
-    if snakemake.config["land_use_module"]["enable"] and snakemake.config["land_use_module"]["constraint"]["enable"]:
-        max_limit = float(snakemake.config["land_use_module"]["constraint"]["max_limit"][int(snakemake.wildcards.planning_horizons)])
-        add_space_requirement_constraint(n, max_limit)
+    if snakemake.params.land_use_module["enable"] and snakemake.params.land_use_module["constraint"]["enable"]:
+        max_limit = float(
+            snakemake.params.land_use_module["constraint"]["max_limit"][int(snakemake.wildcards.planning_horizons)])
+        energy_specific_carriers = list(snakemake.params.land_use_module["energy_specific_generators"].keys())
+        add_space_requirement_constraint(n, max_limit, energy_specific_carriers)
 
     if n.params.custom_extra_functionality:
         source_path = pathlib.Path(n.params.custom_extra_functionality).resolve()
@@ -1177,7 +1177,7 @@ if __name__ == "__main__":
             ll="v1.0",
             sector_opts="none",
             planning_horizons="2030",
-            run="8Gt_Bal_v3",
+            run="ENS_share_constrained",
             configfiles="config/config.personal_jeckstadt.yaml",
         )
     configure_logging(snakemake)
