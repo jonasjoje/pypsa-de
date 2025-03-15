@@ -37,7 +37,8 @@ def download_file(url, path, retrieve_flag):
 
 
 def adjust_space_requirement_values(sr):
-    sr.loc[sr['val'].notna(), 'val'] = sr["val"].notna() *1e3
+    sr['val'] = pd.to_numeric(sr['val'], errors='coerce')
+    sr.loc[sr['val'].notna(), 'val'] *= 1e3
     sr.loc[:, 'unit'] = sr['unit'].str.replace(r'^1000', '', regex=True)
     return sr
 
