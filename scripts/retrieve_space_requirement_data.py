@@ -36,10 +36,15 @@ def download_file(url, path, retrieve_flag):
             raise RuntimeError(f"File {path} does not exist and retrieve is disabled")
 
 
-def adjust_space_requirement_values(sr):
+def adjust_space_requirement_values(sr, flh):
+    # adjust to m2/MW
     sr['val'] = pd.to_numeric(sr['val'], errors='coerce')
     sr.loc[sr['val'].notna(), 'val'] *= 1e3
     sr.loc[:, 'unit'] = sr['unit'].str.replace(r'^1000', '', regex=True)
+
+    # compute to nominal power (DEA assumes MW_e as continuously provided power)
+
+
     return sr
 
 
@@ -135,9 +140,10 @@ if __name__ == "__main__":
 
     # Filter rows where the "par" column contains "Space requirement" and "cat" equals "Energy/technical data"
     sr = data[(data['par'].str.contains("Space requirement", na=False)) & (data['cat'] == "Energy/technical data")]
+    flh = data[(data['par'].str.contains("Average annual full-load hours", na=False)) & (~data['par'].str.contains("DC"))]  # todo: solar, wind specific, has to be tested for other technologies
 
     # Adjust the space requirement values and unit strings
-    sr = adjust_space_requirement_values(sr)
+    sr = adjust_space_requirement_values(sr, flh)
     # Overwrite wind values based on generating capacity
     sr = adjust_onwind_values(sr, data)
 
