@@ -37,13 +37,11 @@ def download_file(url, path, retrieve_flag):
 
 
 def adjust_space_requirement_values(sr, flh):
-    # adjust to m2/MW
     sr['val'] = pd.to_numeric(sr['val'], errors='coerce')
+
+    # adjust to m2/MW
     sr.loc[sr['val'].notna(), 'val'] *= 1e3
     sr.loc[:, 'unit'] = sr['unit'].str.replace(r'^1000', '', regex=True)
-
-    # compute to nominal power (DEA assumes MW_e as continuously provided power)
-
 
     return sr
 
@@ -56,6 +54,25 @@ def adjust_onwind_values(sr, data):
     sr.loc[sr['Technology'] == 'Onshore wind turbine, utility - renewable power - wind - large', 'val'] = (
             (50 * 50) / sr['capacity_value'])
     sr = sr.drop(columns=['capacity_value'])
+    return sr
+
+def adjust_flh_calculation(sr, flh):
+    flh['val'] = pd.to_numeric(flh['val'], errors='coerce')
+
+    # compute to MW nominal power (DEA assumes MW_e as continuously provided power)
+    merged = sr.merge(
+        flh[['ws', 'est', 'year', 'val']],
+        on=['ws', 'est', 'year'],
+        how='left',
+        suffixes=('', '_flh')
+    )
+    # Berechne den angepassten Wert nur für Zeilen, bei denen ein flh-Wert vorhanden ist:
+    # val_neu = val_sr * 8760 / val_flh
+    mask = merged['val_flh'].notna()
+    merged.loc[mask, 'val'] = merged.loc[mask, 'val'] * 8760 / merged.loc[mask, 'val_flh']
+
+    sr = merged.drop(columns=['val_flh'])
+
     return sr
 
 
@@ -146,6 +163,8 @@ if __name__ == "__main__":
     sr = adjust_space_requirement_values(sr, flh)
     # Overwrite wind values based on generating capacity
     sr = adjust_onwind_values(sr, data)
+
+    sr = adjust_flh_calculation(sr, flh)
 
     # Define mapping dictionary (todo: map more)
     technology_mapping = {
