@@ -109,6 +109,7 @@ def define_spatial(nodes, options):
 
     spatial.gas = SimpleNamespace()
     spatial.biogas = SimpleNamespace()
+
     # check if biogas potential should be spatially resolved
     if (
         options["gas_network"]
@@ -140,16 +141,18 @@ def define_spatial(nodes, options):
             logger.warning(
                 "Gas network requires regional gas demand. Please check config['sector']['regional_gas_demand']"
             )
+            spatial.gas.nodes = nodes + " gas"
+            spatial.gas.locations = nodes
             spatial.gas.demand_locations = nodes
 
-        elif options["regional_gas_demand"]:
-            spatial.gas.nodes = ["EU gas"]
-            spatial.gas.locations = ["EU"]
-            spatial.gas.demand_locations = nodes
-        else:
-            spatial.gas.nodes = ["EU gas"]
-            spatial.gas.locations = ["EU"]
-            spatial.gas.demand_locations = ["EU"]
+    elif options["regional_gas_demand"]:
+        spatial.gas.nodes = ["EU gas"]
+        spatial.gas.locations = ["EU"]
+        spatial.gas.demand_locations = nodes
+    else:
+        spatial.gas.nodes = ["EU gas"]
+        spatial.gas.locations = ["EU"]
+        spatial.gas.demand_locations = ["EU"]
 
     spatial.gas.df = pd.DataFrame(vars(spatial.gas), index=nodes)
     spatial.biogas.df = pd.DataFrame(vars(spatial.biogas), index=nodes)
