@@ -108,30 +108,51 @@ def define_spatial(nodes, options):
     # gas
 
     spatial.gas = SimpleNamespace()
-    if options["gas_network"]:
-        spatial.gas.nodes = nodes + " gas"
-        spatial.gas.locations = nodes
-        spatial.gas.biogas = nodes + " biogas"
+    spatial.biogas = SimpleNamespace()
+    # check if biogas potential should be spatially resolved
+    if (
+        options["gas_network"]
+        or options.get("co2_spatial", options["co2_network"])
+        or options.get("biomass_spatial", options["biomass_transport"])
+    ):
+        spatial.biogas.nodes = nodes + " biogas"
+        spatial.biogas.locations = nodes
+        spatial.biogas.biogas_to_gas = nodes + " biogas to gas"
+        spatial.biogas.biogas_to_gas_cc = nodes + " biogas to gas CC"
+    else:
+        spatial.biogas.nodes = ["EU biogas"]
+        spatial.biogas.locations = ["EU"]
+        spatial.biogas.biogas_to_gas = ["EU biogas to gas"]
+        spatial.biogas.biogas_to_gas_cc = ["EU biogas to gas CC"]
+
+    if options.get("regional_gas_demand", options["gas_network"]) or options.get(
+        "co2_spatial", options["co2_network"]
+    ):
         spatial.gas.industry = nodes + " gas for industry"
         spatial.gas.industry_cc = nodes + " gas for industry CC"
-        spatial.gas.biogas_to_gas = nodes + " biogas to gas"
-        spatial.gas.biogas_to_gas_cc = nodes + " biogas to gas CC"
+    else:
+        spatial.gas.industry = ["gas for industry"]
+        spatial.gas.industry_cc = ["gas for industry CC"]
+
+
+    if options["gas_network"]:
+        if ~options["regional_gas_demand"]:
+            logger.warning(
+                "Gas network requires regional gas demand. Please check config['sector']['regional_gas_demand']"
+            )
+            spatial.gas.demand_locations = nodes
+
+        elif options["regional_gas_demand"]:
+            spatial.gas.nodes = ["EU gas"]
+            spatial.gas.locations = ["EU"]
+            spatial.gas.demand_locations = nodes
     else:
         spatial.gas.nodes = ["EU gas"]
         spatial.gas.locations = ["EU"]
-        spatial.gas.biogas = ["EU biogas"]
-        spatial.gas.industry = ["gas for industry"]
-        spatial.gas.biogas_to_gas = ["EU biogas to gas"]
-        if options.get("biomass_spatial", options["biomass_transport"]):
-            spatial.gas.biogas_to_gas_cc = nodes + " biogas to gas CC"
-        else:
-            spatial.gas.biogas_to_gas_cc = ["EU biogas to gas CC"]
-        if options.get("co2_spatial", options["co2_network"]):
-            spatial.gas.industry_cc = nodes + " gas for industry CC"
-        else:
-            spatial.gas.industry_cc = ["gas for industry CC"]
+        spatial.gas.demand_locations = ["EU"]
 
     spatial.gas.df = pd.DataFrame(vars(spatial.gas), index=nodes)
+    spatial.biogas.df = pd.DataFrame(vars(spatial.biogas), index=nodes)
 
     # ammonia
 
@@ -3045,8 +3066,8 @@ def add_biomass(
 
     n.add(
         "Bus",
-        spatial.gas.biogas,
-        location=spatial.gas.locations,
+        spatial.biogas.nodes,
+        location=spatial.biogas.locations,
         carrier="biogas",
         unit="MWh_LHV",
     )
@@ -3061,8 +3082,8 @@ def add_biomass(
 
     n.add(
         "Generator",
-        spatial.gas.biogas,
-        bus=spatial.gas.biogas,
+        spatial.biogas.nodes,
+        bus=spatial.biogas.nodes,
         carrier="biogas",
         p_nom=biogas_potentials_spatial,
         marginal_cost=costs.at["biogas", "fuel"],
@@ -3132,9 +3153,9 @@ def add_biomass(
     if biomass_potentials.filter(like="unsustainable").sum().sum() > 0:
         n.add(
             "Generator",
-            spatial.gas.biogas,
+            spatial.biogas.nodes,
             suffix=" unsustainable",
-            bus=spatial.gas.biogas,
+            bus=spatial.biogas.nodes,
             carrier="unsustainable biogas",
             p_nom=unsustainable_biogas_potentials_spatial,
             p_nom_extendable=False,
@@ -3192,13 +3213,13 @@ def add_biomass(
 
     n.add(
         "Link",
-        spatial.gas.biogas_to_gas,
-        bus0=spatial.gas.biogas,
+        spatial.biogas.biogas_to_gas,
+        bus0=spatial.biogas.nodes,
         bus1=spatial.gas.nodes,
         bus2="co2 atmosphere",
         carrier="biogas to gas",
-        capital_cost=costs.at["biogas", "fixed"]
-        + costs.at["biogas upgrading", "fixed"],
+        capital_cost=costs.at["biogas", "capital_cost"]
+        + costs.at["biogas upgrading", "capital_cost"],
         overnight_cost=costs.at["biogas", "investment"]
         + costs.at["biogas upgrading", "investment"],
         marginal_cost=costs.at["biogas upgrading", "VOM"],
@@ -3214,15 +3235,15 @@ def add_biomass(
         # from e.g. CO2 grid or buyers. This is a proxy for the added cost for e.g. a raw biogas pipeline to a central upgrading facility
         n.add(
             "Link",
-            spatial.gas.biogas_to_gas_cc,
-            bus0=spatial.gas.biogas,
+            spatial.biogas.biogas_to_gas_cc,
+            bus0=spatial.biogas.nodes,
             bus1=spatial.gas.nodes,
             bus2=spatial.co2.nodes,
             bus3="co2 atmosphere",
             carrier="biogas to gas CC",
-            capital_cost=costs.at["biogas CC", "fixed"]
-            + costs.at["biogas upgrading", "fixed"]
-            + costs.at["biomass CHP capture", "fixed"]
+            capital_cost=costs.at["biogas CC", "capital_cost"]
+            + costs.at["biogas upgrading", "capital_cost"]
+            + costs.at["biomass CHP capture", "capital_cost"]
             * costs.at["biogas CC", "CO2 stored"],
             overnight_cost=costs.at["biogas CC", "investment"]
             + costs.at["biogas upgrading", "investment"]
