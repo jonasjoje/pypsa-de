@@ -136,7 +136,7 @@ def define_spatial(nodes, options):
 
 
     if options["gas_network"]:
-        if ~options["regional_gas_demand"]:
+        if not options["regional_gas_demand"]:
             logger.warning(
                 "Gas network requires regional gas demand. Please check config['sector']['regional_gas_demand']"
             )
@@ -146,10 +146,10 @@ def define_spatial(nodes, options):
             spatial.gas.nodes = ["EU gas"]
             spatial.gas.locations = ["EU"]
             spatial.gas.demand_locations = nodes
-    else:
-        spatial.gas.nodes = ["EU gas"]
-        spatial.gas.locations = ["EU"]
-        spatial.gas.demand_locations = ["EU"]
+        else:
+            spatial.gas.nodes = ["EU gas"]
+            spatial.gas.locations = ["EU"]
+            spatial.gas.demand_locations = ["EU"]
 
     spatial.gas.df = pd.DataFrame(vars(spatial.gas), index=nodes)
     spatial.biogas.df = pd.DataFrame(vars(spatial.biogas), index=nodes)
