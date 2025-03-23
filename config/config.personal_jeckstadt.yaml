@@ -85,6 +85,7 @@ electricity:
 sector:
   industry: false
   agriculture: false
+  gas_network: true
 
 clustering:
   temporal:
