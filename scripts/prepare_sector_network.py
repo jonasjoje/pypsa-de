@@ -3218,8 +3218,8 @@ def add_biomass(
         bus1=spatial.gas.nodes,
         bus2="co2 atmosphere",
         carrier="biogas to gas",
-        capital_cost=costs.at["biogas", "capital_cost"]
-        + costs.at["biogas upgrading", "capital_cost"],
+        capital_cost=costs.at["biogas", "fixed"]
+        + costs.at["biogas upgrading", "fixed"],
         overnight_cost=costs.at["biogas", "investment"]
         + costs.at["biogas upgrading", "investment"],
         marginal_cost=costs.at["biogas upgrading", "VOM"],
@@ -3241,9 +3241,9 @@ def add_biomass(
             bus2=spatial.co2.nodes,
             bus3="co2 atmosphere",
             carrier="biogas to gas CC",
-            capital_cost=costs.at["biogas CC", "capital_cost"]
-            + costs.at["biogas upgrading", "capital_cost"]
-            + costs.at["biomass CHP capture", "capital_cost"]
+            capital_cost=costs.at["biogas CC", "fixed"]
+            + costs.at["biogas upgrading", "fixed"]
+            + costs.at["biomass CHP capture", "fixed"]
             * costs.at["biogas CC", "CO2 stored"],
             overnight_cost=costs.at["biogas CC", "investment"]
             + costs.at["biogas upgrading", "investment"]
