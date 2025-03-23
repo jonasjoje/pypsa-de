@@ -85,7 +85,7 @@ electricity:
 sector:
   industry: false
   agriculture: false
-  gas_network: true
+  gas_network: false
   regional_gas_demand: true
 
 clustering:
