@@ -211,7 +211,7 @@ def add_power_capacities_installed_before_baseyear(n, grouping_years, costs, bas
     # split biogas and solid biomass
     biogas_i = biomass_i.intersection(df_agg.loc[df_agg.Capacity < 2].index)
     df_agg.loc[biogas_i, "Fueltype"] = "biogas"
-    df_agg = df_agg[df_agg.Fueltype != "biogas"] # todo: workaround für biogas-problem
+    #df_agg = df_agg[df_agg.Fueltype != "biogas"] # todo: workaround für biogas-problem
 
     # include renewables in df_agg
     add_existing_renewables(df_agg, costs)
