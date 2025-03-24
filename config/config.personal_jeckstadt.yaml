@@ -108,9 +108,17 @@ land_use_module:
     unsustainable solid biomass: 434.8  # woody biocrops
     unsustainable biogas: 120.5  # digestible biocrops
     unsustainable bioliquids: 120.5  # oily biocrops
-  constraint:  # todo: different levels (global, national, nodal)
+  constraint:
     enable: false
-    max_limit:
-      2020: 250e10
-      2030: 250e6
-      2040: 250e6
+    level: global  # available: global, country
+    max_limit:  # unit in m²
+      global:  # if level is set to global
+        2020: 250e10
+        2030: 250e6
+        2040: 250e6
+      country:
+        DE:  # if level is set to country, limits will be set to all
+          2020: 10.5e9  # 3% of Germany area
+          2030: 10.5e9
+          2040: 10.5e9
+
