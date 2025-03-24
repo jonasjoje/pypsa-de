@@ -245,10 +245,19 @@ ENS_share_constrained:
   land_use_module:
     constraint:
       enable: true
-      max_limit:
-        2020: 5e10  # 50 000 km²
-        2030: 5e10
-        2040: 5e10
+      max_limit:  # unit in m²
+        EU:  # for all countries
+          2020: 50e9
+          2030: 50e9
+          2040: 50e9
+        DE:
+          2020: 10.7e9  # 3% of Germany area
+          2030: 10.7e9
+          2040: 10.7e9
+        FR:
+          2020: 27.3e9  # 3% of France area
+          2030: 27.3e9
+          2040: 27.3e9
 
   ### pypsa-de default configs
   costs:

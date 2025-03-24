@@ -909,69 +909,89 @@ def add_flexible_egs_constraint(n):
         name="upper_bound_charging_capacity_of_geothermal_reservoir",
     )
 
-def add_space_requirement_constraint(n, max_limit, energy_specific_carriers=[], level="global", planning_horizon=None):
-    """
-    Adds a global constraint for space requirement.
-    todo: more explanation and difference to land use constraints
-    Generators with energy-specific carriers (e.g. "solid biomass") have their space requirement
-    computed from generated energy (weighted over snapshots) instead of capacity.
-    """
 
-    logger.info(f"Adding space requirement constraint with max_limit = {max_limit:,.2f} m²")
+def add_space_requirement_constraint(n, max_limit, energy_specific_carriers=[], planning_horizon=None):
+    """
+    Adds space requirement constraints for multiple regions/countries.
 
+    The max_limit dictionary should contain keys for different regions (e.g., "EU", "DE", "FR")
+    with corresponding maximum land use limits for each planning horizon.
+    For the "EU" key, the mask includes all generators; for other regions, only generators whose bus name
+    starts with the region code are considered.
+
+    For each region, the constraint is defined as:
+      additional land use (computed from new generators) <= (region_limit - already used space)
+
+    Parameters:
+      n: The network object containing the generators DataFrame and the optimization model.
+      max_limit: A dictionary with maximum land use limits for each region, e.g.:
+          {
+              "EU": {2020: 50e9, 2030: 50e9, 2040: 50e9},
+              "DE": {2020: 10.7e9, 2030: 10.7e9, 2040: 10.7e9},
+              "FR": {2020: 27.3e9, 2030: 27.3e9, 2040: 27.3e9}
+          }
+      energy_specific_carriers: List of carriers with energy-specific space requirements.
+      planning_horizon: The current planning horizon (e.g., 2020) used to select the corresponding limit.
+    """
+    # Check if the required column exists
     if "space_req_pu" not in n.generators.columns:
         logger.error("No space_req_pu column found in generators. Aborting.")
         raise RuntimeError("No space_req_pu column found in generators. Aborting.")
 
-    # Calculate space used by existing power specific generators (using capacity)
-    power_specific_gens = n.generators[~n.generators["carrier"].isin(energy_specific_carriers)]
-    space_in_use = (power_specific_gens["p_nom"] * power_specific_gens["space_req_pu"]).sum()
-    logger.info(f"Space used by existing power-specific generators: {space_in_use:,.2f} m²")
-
-    # Retrieve optimized capacities of generators
+    # Retrieve optimized capacity variables
     gen_p_nom_opt = n.model.variables["Generator-p_nom"]
 
-    # Retrieve space requirements per unit capacity, filter out NaN and zero values
-    space_requirements = n.generators["space_req_pu"].dropna()
-    space_requirements = space_requirements[space_requirements > 0]
+    # Iterate over each region defined in max_limit
+    for region, limits in max_limit.items():
+        region_limit = float(limits[planning_horizon])
 
-    # Maximum allowed additional land use
-    max_land_use_total = max_limit
-    max_land_use_additional = max_land_use_total - space_in_use
-
-    # Check if max_land_use_additional is negative
-    if max_land_use_additional < 0:
-        logger.error(f"Max additional land use is negative: {max_land_use_additional} m². Aborting.")
-        raise RuntimeError(f"Max additional land use is negative: {max_land_use_additional} m². Aborting.")
-
-    # Initialize expression
-    additional_land_use = 0
-
-    # Construct the constraint expression using a loop
-    for gen in space_requirements.index:
-        if n.generators.at[gen, "carrier"] in energy_specific_carriers:
-            # For energy-specific generators, compute weighted energy output per generator by summing over snapshots.
-            energy_expr = (n.model.variables["Generator-p"].loc[{"Generator": gen}] *
-                           n.snapshot_weightings["generators"]).sum("snapshot")
-            term = energy_expr * n.generators.at[gen, "space_req_pu"]
-            # energy-specific term calculated.
+        # Set generator mask: if region is "EU", include all generators; otherwise, filter by bus prefix.
+        if region == "EU":
+            region_mask = [True] * len(n.generators)
         else:
-            # For power-specific generators, use the optimized capacity.
-            if gen in gen_p_nom_opt.coords["Generator-ext"]:
-                term = (gen_p_nom_opt.at[gen] * n.generators.at[gen, "space_req_pu"]).to_linexpr()
-        additional_land_use += term
-        # each term is appended to the expression.
+            region_mask = n.generators["bus"].astype(str).str.startswith(region)
 
-    # Define constraint using lhs and rhs
-    lhs = additional_land_use
-    rhs = max_land_use_additional
+        region_gens = n.generators[region_mask]
 
-    # Add constraint to the optimization model
-    n.model.add_constraints(lhs <= rhs, name="TotalSpaceRequirement")
-    logger.info(f"Added space requirement constraint with \n"
-                f"max total:      {max_land_use_total:20,.2f} m²\n"
-                f"max additional: {max_land_use_additional:20,.2f} m²")
+        # Calculate used space for power-specific generators (those not in energy_specific_carriers)
+        power_specific_gens = region_gens[~region_gens["carrier"].isin(energy_specific_carriers)]
+        space_in_use = (power_specific_gens["p_nom"] * power_specific_gens["space_req_pu"]).sum()
+        logger.info(f"{region}: Space used by existing power-specific generators: {space_in_use:,.2f} m²")
 
+        max_land_use_total = region_limit
+        max_land_use_additional = max_land_use_total - space_in_use
+
+        if max_land_use_additional < 0:
+            logger.error(f"{region}: Max additional land use is negative: {max_land_use_additional} m². Aborting.")
+            raise RuntimeError(
+                f"{region}: Max additional land use is negative: {max_land_use_additional} m². Aborting.")
+
+        additional_land_use = 0
+
+        # Only consider generators in the current region
+        space_requirements = region_gens["space_req_pu"].dropna()
+        space_requirements = space_requirements[space_requirements > 0]
+
+        # Build the constraint expression over generators in this region
+        for gen in space_requirements.index:
+            if n.generators.at[gen, "carrier"] in energy_specific_carriers:
+                # For energy-specific generators, compute weighted energy output over snapshots.
+                energy_expr = (n.model.variables["Generator-p"].loc[{"Generator": gen}] *
+                               n.snapshot_weightings["generators"]).sum("snapshot")
+                term = energy_expr * n.generators.at[gen, "space_req_pu"]
+            else:
+                # For power-specific generators, use the optimized capacity.
+                if gen in gen_p_nom_opt.coords["Generator-ext"]:
+                    term = (gen_p_nom_opt.at[gen] * n.generators.at[gen, "space_req_pu"]).to_linexpr()
+            additional_land_use += term
+
+        lhs = additional_land_use
+        rhs = max_land_use_additional
+        constraint_name = f"TotalSpaceRequirement_{region}"
+        n.model.add_constraints(lhs <= rhs, name=constraint_name)
+        logger.info(f"Added space requirement constraint for {region} with \n"
+                    f"max total:      {max_land_use_total:20,.2f} m²\n"
+                    f"max additional: {max_land_use_additional:20,.2f} m²")
     return n
 
 
@@ -1044,18 +1064,10 @@ def extra_functionality(n, snapshots):
         add_flexible_egs_constraint(n)
 
     if snakemake.params.land_use_module["enable"] and snakemake.params.land_use_module["constraint"]["enable"]:
-        constraint_level = snakemake.params.land_use_module["constraint"]["level"]
         planning_horizon = int(snakemake.wildcards.planning_horizons)
         energy_specific_carriers = list(snakemake.params.land_use_module["energy_specific_generators"].keys())
-
-        if constraint_level == "global":
-            max_limit = float(snakemake.params.land_use_module["constraint"]["max_limit"]["global"][planning_horizon])
-            add_space_requirement_constraint(n, max_limit, energy_specific_carriers, level="global")
-
-        elif constraint_level == "country":
-            max_limit = snakemake.params.land_use_module["constraint"]["max_limit"]["country"]
-            add_space_requirement_constraint(n, max_limit, energy_specific_carriers, level="country",
-                                             planning_horizon=planning_horizon)
+        max_limit = snakemake.params.land_use_module["constraint"]["max_limit"]
+        add_space_requirement_constraint(n, max_limit, energy_specific_carriers, planning_horizon=planning_horizon)
 
     if n.params.custom_extra_functionality:
         source_path = pathlib.Path(n.params.custom_extra_functionality).resolve()
