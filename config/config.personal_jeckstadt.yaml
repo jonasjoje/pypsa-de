@@ -116,9 +116,13 @@ land_use_module:
         2020: 250e10
         2030: 250e6
         2040: 250e6
-      country:
-        DE:  # if level is set to country, limits will be set to all
-          2020: 10.5e9  # 3% of Germany area
-          2030: 10.5e9
-          2040: 10.5e9
+      country:  # if level is set to country, limits will be set to all defined countries.
+        DE:
+          2020: 10.7e9  # 3% of Germany area
+          2030: 10.7e9
+          2040: 10.7e9
+        FR:
+          2020: 27.3e9  # 3% of France area
+          2030: 27.3e9
+          2040: 27.3e9
 

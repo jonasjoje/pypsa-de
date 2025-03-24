@@ -909,7 +909,7 @@ def add_flexible_egs_constraint(n):
         name="upper_bound_charging_capacity_of_geothermal_reservoir",
     )
 
-def add_space_requirement_constraint(n, max_limit, energy_specific_carriers=[]):
+def add_space_requirement_constraint(n, max_limit, energy_specific_carriers=[], level="global", planning_horizon=None):
     """
     Adds a global constraint for space requirement.
     todo: more explanation and difference to land use constraints
@@ -923,7 +923,7 @@ def add_space_requirement_constraint(n, max_limit, energy_specific_carriers=[]):
         logger.error("No space_req_pu column found in generators. Aborting.")
         raise RuntimeError("No space_req_pu column found in generators. Aborting.")
 
-    # Calculate space used by existing non-biomass generators (using capacity)
+    # Calculate space used by existing power specific generators (using capacity)
     power_specific_gens = n.generators[~n.generators["carrier"].isin(energy_specific_carriers)]
     space_in_use = (power_specific_gens["p_nom"] * power_specific_gens["space_req_pu"]).sum()
     logger.info(f"Space used by existing power-specific generators: {space_in_use:,.2f} m²")
@@ -1044,10 +1044,18 @@ def extra_functionality(n, snapshots):
         add_flexible_egs_constraint(n)
 
     if snakemake.params.land_use_module["enable"] and snakemake.params.land_use_module["constraint"]["enable"]:
-        max_limit = float(
-            snakemake.params.land_use_module["constraint"]["max_limit"][int(snakemake.wildcards.planning_horizons)])
+        constraint_level = snakemake.params.land_use_module["constraint"]["level"]
+        planning_horizon = int(snakemake.wildcards.planning_horizons)
         energy_specific_carriers = list(snakemake.params.land_use_module["energy_specific_generators"].keys())
-        add_space_requirement_constraint(n, max_limit, energy_specific_carriers)
+
+        if constraint_level == "global":
+            max_limit = float(snakemake.params.land_use_module["constraint"]["max_limit"]["global"][planning_horizon])
+            add_space_requirement_constraint(n, max_limit, energy_specific_carriers, level="global")
+
+        elif constraint_level == "country":
+            max_limit = snakemake.params.land_use_module["constraint"]["max_limit"]["country"]
+            add_space_requirement_constraint(n, max_limit, energy_specific_carriers, level="country",
+                                             planning_horizon=planning_horizon)
 
     if n.params.custom_extra_functionality:
         source_path = pathlib.Path(n.params.custom_extra_functionality).resolve()
