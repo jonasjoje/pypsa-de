@@ -59,7 +59,7 @@ if __name__ == "__main__":
         )
         .loc[
             leitmodell,
-            snakemake.config["iiasa_database"]["reference_scenario"],
+            snakemake.params.reference_scenario,
             "Deutschland",
             :,
             "Mt/yr",
@@ -67,8 +67,10 @@ if __name__ == "__main__":
         .multiply(1000)
     )
 
-    print(
+    logger.info(
         "German industry demand before modification",
+    )
+    logger.info(
         existing_industry.loc[
             "DE",
             [
@@ -83,7 +85,6 @@ if __name__ == "__main__":
                 "Ceramics & other NMM",
             ],
         ],
-        sep="\n",
     )
 
     # write Cement, Ammonia and Methanol directly to dataframe
@@ -127,8 +128,8 @@ if __name__ == "__main__":
         "DE", ["Electric arc", "Integrated steelworks", "DRI + Electric arc"]
     ] = (ratio * ariadne.loc["Production|Steel", year])
 
-    print(
-        "German demand after modification",
+    logger.info("German demand after modification")
+    logger.info(
         existing_industry.loc[
             "DE",
             [
@@ -143,7 +144,6 @@ if __name__ == "__main__":
                 "Ceramics & other NMM",
             ],
         ],
-        sep="\n",
     )
 
     existing_industry.to_csv(

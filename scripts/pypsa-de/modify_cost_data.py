@@ -150,4 +150,36 @@ if __name__ == "__main__":
         f"Setting lifetime of central gas CHP to {costs.at[("central gas CHP" , "lifetime") , "value"]} {costs.at[("central gas CHP" , "lifetime") , "unit"]}."
     )
 
+    # decrease Fischer-Tropsch efficiency
+    costs.at[("Fischer-Tropsch", "efficiency"), "value"] = (
+        1 / costs.at[("Fischer-Tropsch", "hydrogen-input"), "value"]
+    )
+    costs.at[("Fischer-Tropsch", "efficiency"), "source"] = "inverse of hydrogen-input"
+
+    logger.info(
+        f"Setting Fischer-Tropsch efficiency to 1 / hydrogen-input. New value: {costs.loc['Fischer-Tropsch', 'efficiency'].value} {costs.loc['Fischer-Tropsch', 'efficiency'].unit}."
+    )
+
+    # increase FOM of offshore wind connection (fix for costs.csv)
+    logger.info(f"Setting FOM of offshore wind connections to 0.35 %.")
+    costs.loc[("offwind-dc-connection-submarine", "FOM"), "value"] = 0.35
+    costs.loc[("offwind-dc-connection-submarine", "FOM"), "unit"] = costs.at[
+        ("offwind", "FOM"), "unit"
+    ]
+    costs.loc[("offwind-dc-connection-underground", "FOM"), "value"] = 0.35
+    costs.loc[("offwind-dc-connection-underground", "FOM"), "unit"] = costs.at[
+        ("offwind", "FOM"), "unit"
+    ]
+    costs.loc[("offwind-ac-connection-submarine", "FOM"), "value"] = 0.35
+    costs.loc[("offwind-ac-connection-submarine", "FOM"), "unit"] = costs.at[
+        ("offwind", "FOM"), "unit"
+    ]
+    costs.loc[("offwind-ac-connection-underground", "FOM"), "value"] = 0.35
+    costs.loc[("offwind-ac-connection-underground", "FOM"), "unit"] = costs.at[
+        ("offwind", "FOM"), "unit"
+    ]
+
+    logger.info(f"Setting investment cost of hydrogen storage to 0.55 EUR/kWh.")
+    costs.loc[("hydrogen storage underground", "investment"), "value"] = 0.55
+
     costs.to_csv(snakemake.output[0])

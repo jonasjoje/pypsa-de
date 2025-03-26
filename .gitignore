@@ -11,6 +11,7 @@ __pycache__
 gurobi.log
 .vscode
 *.orig
+.idea
 
 /bak
 /resources
@@ -31,6 +32,7 @@ doc/_build
 
 config/config.yaml
 config/scenarios.yaml
+config/scenarios.automated.yaml
 
 config.yaml
 config/config.yaml
@@ -82,6 +84,13 @@ zenodo.org
 globalenergymonitor.org/wp-content/uploads/2023/07/Europe-Gas-Tracker-2023-03-v3.xlsx
 fnb-gas.de
 raw.githubusercontent.com
+cutouts
+
+
+# custom local files
+local
+# private dev folder
+dev/*
 
 # local ignores
 .gitignore.local
