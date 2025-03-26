@@ -988,7 +988,14 @@ def add_space_requirement_constraint(n, max_limit, energy_specific_carriers=[], 
         lhs = additional_land_use
         rhs = max_land_use_additional
         constraint_name = f"TotalSpaceRequirement_{region}"
-        n.model.add_constraints(lhs <= rhs, name=constraint_name)
+        n.model.add_constraints(lhs <= rhs, name=f"GlobalConstraint-{constraint_name}")
+        n.add(
+            "GlobalConstraint",
+            constraint_name,
+            sense="<=",
+            type="space_requirement_limit",
+            constant=max_land_use_total,
+        )
         logger.info(f"Added space requirement constraint for {region} with \n"
                     f"max total:      {max_land_use_total:20,.2f} m²\n"
                     f"max additional: {max_land_use_additional:20,.2f} m²")
