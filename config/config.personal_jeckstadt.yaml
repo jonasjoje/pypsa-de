@@ -82,6 +82,8 @@ electricity:
   conventional_carriers: [ nuclear, oil, OCGT, CCGT, coal, lignite, geothermal, biomass ]
   renewable_carriers: [ solar, onwind, offwind-ac, offwind-dc, hydro ] #  solar-hsat,  offwind-float,
 
+  transmission_limit: v1.0  # no line expansion
+
 sector:
   industry: false
   agriculture: false
