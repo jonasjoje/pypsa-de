@@ -89,9 +89,8 @@ rule all:
     input:
         #expand(RESULTS + "graphs/costs.svg", run=config["run"]["name"]),
         expand(
-            RESULTS + "postnetworks/base_s_{clusters}_l{ll}_{opts}_{sector_opts}_{planning_horizons}.nc",
+            RESULTS + "networks/base_s_{clusters}_{opts}_{sector_opts}_{planning_horizons}.nc",
             clusters=config["scenario"]["clusters"],
-            ll=config["scenario"]["ll"],
             opts=config["scenario"]["opts"],
             sector_opts=config["scenario"]["sector_opts"],
             planning_horizons=config["scenario"]["planning_horizons"],
