@@ -953,10 +953,21 @@ def add_space_requirement_constraint(n, max_limit, energy_specific_carriers=[], 
 
         region_gens = n.generators[region_mask]
 
-        # Calculate used space for power-specific generators (those not in energy_specific_carriers)
+        # Calculate used space for power-specific generators
         power_specific_gens = region_gens[~region_gens["carrier"].isin(energy_specific_carriers)]
-        space_in_use = (power_specific_gens["p_nom"] * power_specific_gens["space_req_pu"]).sum()
-        logger.info(f"{region}: Space used by existing power-specific generators: {space_in_use:,.2f} m²")
+        space_in_use_power = (power_specific_gens["p_nom"] * power_specific_gens["space_req_pu"]).sum()
+
+        # Calculate used space for energy-specific generators with defined e_sum_min
+        energy_specific_mask = region_gens["carrier"].isin(energy_specific_carriers) & region_gens[
+            "e_sum_min"].notnull()
+        energy_specific_gens = region_gens[energy_specific_mask]
+        space_in_use_energy = (energy_specific_gens["e_sum_min"] * energy_specific_gens["space_req_pu"]).sum()
+
+        # Total space used
+        space_in_use = space_in_use_power + space_in_use_energy
+        logger.info(
+            f"{region}: Total space used by existing generators: {space_in_use:,.2f} m² (Power:"
+            f" {space_in_use_power:,.2f} m², Energy: {space_in_use_energy:,.2f} m²)")
 
         max_land_use_total = region_limit
         max_land_use_additional = max_land_use_total - space_in_use
