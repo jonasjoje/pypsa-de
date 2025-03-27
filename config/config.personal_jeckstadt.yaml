@@ -52,7 +52,8 @@ scenario:
   ll:
     - v1.0  # no line expansion
   clusters:
-    - 27 # current options: 27, 49
+    - 30 # DE und CH auf NUTS1,current options: 27, 49
+    #- 51  # mit ES, FR, GB, IT auf NUTS1
   planning_horizons:
     - 2020
     - 2030
@@ -67,11 +68,11 @@ snapshots:
   inclusive: 'left'
 
 enable:
-  retrieve: true
-  retrieve_databundle: true
-  retrieve_cost_data: true
+  retrieve: false
+  retrieve_databundle: false
+  retrieve_cost_data: false
   build_cutout: false
-  retrieve_cutout: true
+  retrieve_cutout: false
   custom_busmap: false
   drop_leap_day: true
 
@@ -91,6 +92,12 @@ sector:
   regional_gas_demand: true
 
 clustering:
+  mode: admin
+  admin:
+    level: 0
+    DE: 1
+    CH: 1
+
   temporal:
     resolution_elec: false
     resolution_sector: 169H  # Woche
