@@ -957,7 +957,10 @@ def add_flexible_egs_constraint(n):
     )
 
 
-def add_space_requirement_constraint(n, max_limit, energy_specific_carriers=[], planning_horizon=None):
+def add_space_requirement_constraint(n, max_limit,
+                                     energy_specific_carriers=[],
+                                     planning_horizon=None,
+                                     negative_additional='error'):
     """
     Adds space requirement constraints for multiple regions/countries.
 
@@ -1020,9 +1023,20 @@ def add_space_requirement_constraint(n, max_limit, energy_specific_carriers=[], 
         max_land_use_additional = max_land_use_total - space_in_use
 
         if max_land_use_additional < 0:
-            logger.error(f"{region}: Max additional land use is negative: {max_land_use_additional} m². Aborting.")
-            raise RuntimeError(
-                f"{region}: Max additional land use is negative: {max_land_use_additional} m². Aborting.")
+            if negative_additional == 'error':
+                logger.error(f"{region}: Max additional land use is negative: {max_land_use_additional} m². Aborting.")
+                raise RuntimeError(
+                    f"{region}: Max additional land use is negative: {max_land_use_additional} m². Aborting.")
+            elif negative_additional == 'warning':
+                logger.warning(
+                    f"{region}: Max additional land use is negative: {max_land_use_additional} m². Skipping constraint for {region}."
+                )
+                continue
+            else:
+                logger.error("Invalid config parameter for land_use_module, constraint, negative_additional. Aborting.")
+                raise RuntimeError(
+                    "Invalid config parameter for land_use_module, constraint, negative_additional. Aborting."
+                )
 
         additional_land_use = 0
 
@@ -1145,7 +1159,12 @@ def extra_functionality(
         planning_horizon = int(snakemake.wildcards.planning_horizons)
         energy_specific_carriers = list(snakemake.params.land_use_module["energy_specific_generators"].keys())
         max_limit = snakemake.params.land_use_module["constraint"]["max_limit"]
-        add_space_requirement_constraint(n, max_limit, energy_specific_carriers, planning_horizon=planning_horizon)
+        negative_additional = snakemake.params.land_use_module["constraint"]["negative_additional"]
+        add_space_requirement_constraint(n,
+                                         max_limit,
+                                         energy_specific_carriers,
+                                         planning_horizon=planning_horizon,
+                                         negative_additional=negative_additional)
 
     if n.params.custom_extra_functionality:
         source_path = pathlib.Path(n.params.custom_extra_functionality).resolve()

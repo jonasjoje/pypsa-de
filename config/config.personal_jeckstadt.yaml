@@ -119,6 +119,7 @@ land_use_module:
     unsustainable bioliquids: 120.5  # oily biocrops
   constraint:
     enable: false
+    negative_additional: warning  # possible options: warning, error
     max_limit:  # unit in m²
       EU:  # for all countries
         2020: 50e9
