@@ -92,15 +92,15 @@ sector:
   regional_gas_demand: true
 
 clustering:
-  mode: admin
-  admin:
+  mode: administrative
+  administrative:
     level: 0
     DE: 1
     CH: 1
 
   temporal:
     resolution_elec: false
-    resolution_sector: 169H  # Woche
+    resolution_sector: 169H  # Woche, 2190seg -> ca. 4stündlich lange segmente
 
 solving:
   mem_mb: 100000 #memory in MB; 20 GB enough for 50+B+I+H2; 100 GB for 181+B+I+H2
