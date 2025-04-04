@@ -1347,10 +1347,10 @@ if __name__ == "__main__":
         snakemake = mock_snakemake(
             "solve_sector_network_myopic",
             opts="",
-            clusters="27",
+            clusters="30",
             ll="v1.0",
             sector_opts="none",
-            planning_horizons="2030",
+            planning_horizons="2020",
             run="ENS_share_constrained",
             configfiles="config/config.personal_jeckstadt.yaml",
         )
