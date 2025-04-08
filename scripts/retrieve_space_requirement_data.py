@@ -126,6 +126,17 @@ def add_energy_specific_technologies(sr, energy_specific_generators):
     return pd.concat([sr, energy_df], ignore_index=True)
 
 
+def apply_overwrite_values(df, overwrite_config, planning_year):
+    for tech, year_overrides in overwrite_config.items():
+        if planning_year in year_overrides:
+            override_val = year_overrides[planning_year]
+            # Überschreiben der Werte für Zeilen, wo die Technologie übereinstimmt
+            df.loc[df['technology'] == tech, 'value'] = override_val
+            # Optional: Quelle anpassen, um den Override kenntlich zu machen
+            df.loc[df['technology'] == tech, 'source'] = f"Config override: {override_val} m2/MW for {tech}"
+    return df
+
+
 if __name__ == "__main__":
     if "snakemake" not in globals():
         from scripts._helpers import mock_snakemake, get_scenarios
@@ -175,6 +186,12 @@ if __name__ == "__main__":
     year = snakemake.wildcards.planning_horizons
     power_specific_generators = snakemake.params.power_specific_generators
     sr = cleanup_dataframe(sr, technology_mapping, year, power_specific_generators)
+
+    # Overwrite power specific generators based on config
+    overwrite_config = snakemake.config["land_use_module"].get("overwrite_value", {})
+    if overwrite_config:
+        planning_year = int(snakemake.wildcards.planning_horizons)
+        sr = apply_overwrite_values(sr, overwrite_config, planning_year)
 
     # Add energy specific technologies
     if snakemake.params.energy_specific_generators:
