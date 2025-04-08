@@ -111,11 +111,11 @@ solving:
 land_use_module:
   enable: true
   power_specific_generators: [onwind, solar]  # space_req_pu is taken from DEA-Dataset if not overwritten below.
-  overwrite_value:  # unit: m2/MW
-    onwind:
-      2020: 1020.0
-      2030: 1030.0
-      2040: 1040.0
+  overwrite_values:  # unit: m2/MW
+#    onwind:
+#      2020: 1020.0
+#      2030: 1030.0
+#      2040: 1040.0
   energy_specific_generators:  # unit: m2/MWh. space_req_pu is manually defined here
     unsustainable solid biomass: 434.8  # woody biocrops
     unsustainable biogas: 120.5  # digestible biocrops

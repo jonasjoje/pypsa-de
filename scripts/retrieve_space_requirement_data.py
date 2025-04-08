@@ -188,10 +188,10 @@ if __name__ == "__main__":
     sr = cleanup_dataframe(sr, technology_mapping, year, power_specific_generators)
 
     # Overwrite power specific generators based on config
-    overwrite_config = snakemake.config["land_use_module"].get("overwrite_value", {})
-    if overwrite_config:
+    overwrite_values = snakemake.params.overwrite_values
+    if overwrite_values:
         planning_year = int(snakemake.wildcards.planning_horizons)
-        sr = apply_overwrite_values(sr, overwrite_config, planning_year)
+        sr = apply_overwrite_values(sr, overwrite_values, planning_year)
 
     # Add energy specific technologies
     if snakemake.params.energy_specific_generators:

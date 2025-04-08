@@ -717,6 +717,7 @@ if config["land_use_module"]["enable"]:
             url = "https://ens.dk/media/6378/download",
             power_specific_generators=config_provider("land_use_module", "power_specific_generators"),
             energy_specific_generators=config_provider("land_use_module", "energy_specific_generators"),
+            overwrite_values = config_provider("land_use_module","overwrite_values"),
             retrieve = config_provider("enable","retrieve"),
         output:
             csv_file = resources("space_requirements_{planning_horizons}.csv"),
