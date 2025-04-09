@@ -91,11 +91,10 @@ rule add_brownfield:
         network_p=solved_previous_horizon,  #solved network at previous time step
         costs=resources("costs_{planning_horizons}.csv"),
         cop_profiles=resources("cop_profiles_base_s_{clusters}_{planning_horizons}.nc"),
-        space_requirements=lambda w: (
-            resources("space_requirements_{planning_horizons}.csv")
-            if config_provider("land_use_module","enable")(w)
-            else []
-        ),
+        space_requirements=lambda w: [
+                resources("space_requirements_{}_{{planning_horizons}}.csv".format(sp))
+                for sp in config_provider("land_use_module", "types")(w).keys()
+            ] if config_provider("land_use_module", "enable")(w) else [],
     output:
         resources(
             "networks/base_s_{clusters}_{opts}_{sector_opts}_{planning_horizons}_brownfield.nc"
