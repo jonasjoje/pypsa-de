@@ -3638,6 +3638,15 @@ def add_biomass(
                 type="operational_limit",
             )
 
+            n.add(
+                "GlobalConstraint",
+                "unsustainable biomass min",
+                carrier_attribute="unsustainable solid biomass",
+                sense=">=",
+                constant=biomass_potentials["unsustainable solid biomass"].sum() * share_unsustainable_min,
+                type="operational_limit",
+            )
+
         if options["municipal_solid_waste"]:
             # Add municipal solid waste
             n.add(
