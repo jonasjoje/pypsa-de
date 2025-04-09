@@ -1337,30 +1337,49 @@ def solve_network(
 
 def space_req_post_processing(n, land_use_module):
     """
-    Post-processes space requirements using land_use_module parameters.
+    Post-processes space requirements for each defined land use type using land_use_module parameters.
 
-    This function computes an optimized space requirement (space_req_opt)
-    based on p_nom_opt and space_req_pu. For generators with energy-specific
-    carriers (defined in land_use_module["energy_specific_generators"]), the
-    optimized value is computed using weighted energy output.
+    For each type defined in land_use_module["types"], the function computes an optimized space requirement
+    column (space_req_<type>_opt) based on p_nom_opt and the corresponding per unit space requirement (space_req_<type>_pu).
+    For generators with energy-specific carriers (defined by the respective type's "energy_specific_generators"),
+    the optimized value is computed using weighted energy output.
+
+    Parameters:
+      n: The network object containing the generators DataFrame and temporal data.
+      land_use_module: The configuration section for land use, containing a "types" dictionary.
+
+    Returns:
+      n: The network object with updated optimized space requirements per type.
     """
-    power_specific = land_use_module.get("power_specific_generators", [])
-    energy_specific = list(land_use_module.get("energy_specific_generators", {}).keys())
+    # Loop over each space requirement type in the land_use_module configuration.
+    for space_req_type, type_config in land_use_module.get("types", {}).items():
+        # Extract power-specific and energy-specific carriers for this type.
+        power_specific = type_config.get("power_specific_generators", [])
+        energy_specific = list(type_config.get("energy_specific_generators", {}).keys())
 
-    # Process power-specific generators.
-    mask_power = n.generators["carrier"].isin(power_specific)
-    n.generators.loc[mask_power, "space_req_opt"] = (
-        n.generators.loc[mask_power, "p_nom_opt"] * n.generators.loc[mask_power, "space_req_pu"]
-    )
+        # Define the names of the per unit and optimized space requirement columns.
+        space_req_col = f"space_req_{space_req_type}_pu"
+        space_req_opt_col = f"space_req_{space_req_type}_opt"
 
-    # Process energy-specific generators.
-    weighted_energy = (n.generators_t.p.multiply(n.snapshot_weightings["generators"], axis=0)).sum(axis=0)
-    mask_energy = n.generators["carrier"].isin(energy_specific)
-    n.generators.loc[mask_energy, "space_req_opt"] = (
-        weighted_energy.loc[n.generators.index[mask_energy]] * n.generators.loc[mask_energy, "space_req_pu"]
-    )
+        # Process power-specific generators:
+        # For these, the optimized space requirement is simply p_nom_opt multiplied by the per unit space requirement.
+        mask_power = n.generators["carrier"].isin(power_specific)
+        n.generators.loc[mask_power, space_req_opt_col] = (
+                n.generators.loc[mask_power, "p_nom_opt"] * n.generators.loc[mask_power, space_req_col]
+        )
+
+        # Process energy-specific generators:
+        # Here the optimized value is computed using a weighted energy expression over snapshots.
+        weighted_energy = (n.generators_t.p.multiply(n.snapshot_weightings["generators"], axis=0)).sum(axis=0)
+        mask_energy = n.generators["carrier"].isin(energy_specific)
+        n.generators.loc[mask_energy, space_req_opt_col] = (
+                weighted_energy.loc[n.generators.index[mask_energy]] * n.generators.loc[mask_energy, space_req_col]
+        )
+
+        logger.info(f"Post-processed optimized space requirements for type '{space_req_type}'.")
 
     return n
+
 
 # %%
 if __name__ == "__main__":
