@@ -20,6 +20,7 @@ from networkx.algorithms import complement
 from networkx.algorithms.connectivity.edge_augmentation import k_edge_augmentation
 from pypsa.geo import haversine_pts
 from scipy.stats import beta
+import re
 
 from scripts._helpers import (
     configure_logging,
@@ -5437,37 +5438,51 @@ def add_enhanced_geothermal(
             )
 
 
-def add_space_requirements(n, space_requirements_file):
-    # todo: docstring
-    # todo: allow overwriting existing values
+def add_space_requirements(n, space_requirements_files):
+    """
+    Reads each CSV file corresponding to a space requirement type and updates the generators DataFrame in 'n'
+    with two columns for each type:
+      - 'space_req_<type>_pu': space requirement per unit (from the CSV)
+      - 'space_req_<type>_opt': optimized space requirement (initialized as NaN)
 
-    ### Generators ###
-    # Load space requirements data
-    space_requirements = pd.read_csv(space_requirements_file, index_col=[0, 1]).sort_index()
+    Parameters:
+        n: An PyPSA network that includes the 'generators' DataFrame.
+        space_requirements_files: A list of paths to CSV files.
 
-    # Transform space requirements into a DataFrame with 'carrier' as index
-    space_req_df = space_requirements.xs('Space requirement', level='parameter')[['value']].rename(
-        columns={'value': 'space_req_pu'})
+    Returns:
+        n: The updated PyPSA network with new or updated columns in n.generators.
+    """
+    # Iterate over each CSV file in the list
+    for file in space_requirements_files:
+        # Extract the space requirement type (e.g. 'DLU', 'dist') from the filename using regex.
+        # Expected filename pattern: "space_requirements_<type>_<planning_horizons>.csv"
+        match = re.search(r'space_requirements_(.+?)_', file)
+        if not match:
+            raise ValueError(f"Filename {file} does not match the expected pattern.")
+        req_type = match.group(1)
 
-    # Check if space_req_pu already exists
-    if 'space_req_pu' in n.generators.columns:
-        # Only update new generators (NaN values)
-        mask = n.generators['space_req_pu'].isna()
-        n.generators.loc[mask, 'space_req_pu'] = n.generators.loc[mask, 'carrier'].map(
-            space_req_df['space_req_pu']).fillna(0)
-    else:
-        # First-time assignment
-        n.generators = n.generators.join(space_req_df, on='carrier')
-        n.generators['space_req_pu'] = n.generators['space_req_pu'].fillna(0)
+        # Read the CSV file, assuming a multi-index (first two columns) and sort the index.
+        space_requirements = pd.read_csv(file, index_col=[0, 1]).sort_index()
 
-    # Add an empty column for optimized space requirements
-    n.generators['space_req_opt'] = np.nan
+        # Select the row corresponding to 'Space requirement' from the 'parameter' level,
+        # extract the 'value' column, and rename it to "space_req_<type>_pu".
+        space_req_df = space_requirements.xs('Space requirement', level='parameter')[['value']].rename(
+            columns={'value': f'space_req_{req_type}_pu'}
+        )
 
-    ### Carriers ###
-    # todo
+        # If the corresponding column already exists in n.generators, update NaN values only.
+        if f'space_req_{req_type}_pu' in n.generators.columns:
+            mask = n.generators[f'space_req_{req_type}_pu'].isna()
+            n.generators.loc[mask, f'space_req_{req_type}_pu'] = n.generators.loc[mask, 'carrier'].map(
+                space_req_df[f'space_req_{req_type}_pu']
+            ).fillna(0)
+        else:
+            # Otherwise, join the new space requirement column based on 'carrier', then fill NaN with 0.
+            n.generators = n.generators.join(space_req_df, on='carrier')
+            n.generators[f'space_req_{req_type}_pu'] = n.generators[f'space_req_{req_type}_pu'].fillna(0)
 
-    ### Other Components ###
-    # todo: lines, transformers, links, etcetc
+        # Add a new column for the optimized space requirement for this type and initialize it with NaN.
+        n.generators[f'space_req_{req_type}_opt'] = np.nan
 
     return n
 
