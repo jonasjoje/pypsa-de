@@ -3203,6 +3203,7 @@ def add_biomass(
     pop_layout,
     biomass_potentials_file,
     biomass_transport_costs_file=None,
+    share_unsustainable_min=1,
 ):
     """
     Add biomass-related components to the PyPSA network.
@@ -5469,11 +5470,11 @@ if __name__ == "__main__":
         snakemake = mock_snakemake(
             "prepare_sector_network",
             opts="",
-            clusters="27",
+            clusters="30",
             ll="v1.0",
             sector_opts="none",
             planning_horizons="2020",
-            run="8Gt_Bal_v3",
+            run="reference",
             configfiles="config/config.personal_jeckstadt.yaml",
         )
 
@@ -5605,6 +5606,7 @@ if __name__ == "__main__":
             pop_layout=pop_layout,
             biomass_potentials_file=snakemake.input.biomass_potentials,
             biomass_transport_costs_file=snakemake.input.biomass_transport_costs,
+            share_unsustainable_min=snakemake.params.biomass["share_unsustainable_min"][investment_year],
         )
 
     if options["ammonia"]:
