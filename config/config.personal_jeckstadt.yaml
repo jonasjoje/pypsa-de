@@ -16,8 +16,8 @@ run:
   prefix: 20250404_features
   name:
   - 8Gt_Bal_v3
-  #- ENS_sus_unsus_share
-  #- ENS_share_constrained
+  - ENS_sus_unsus_share
+  - ENS_share_constrained
   - reference
   scenarios:
     enable: true
