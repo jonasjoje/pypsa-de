@@ -3434,7 +3434,7 @@ def add_biomass(
             p_nom=unsustainable_biogas_potentials_spatial,
             p_nom_extendable=False,
             marginal_cost=costs.at["biogas", "fuel"],
-            e_sum_min=0,  #=unsustainable_biogas_potentials_spatial,
+            e_sum_min=unsustainable_biogas_potentials_spatial * share_unsustainable_min,
             e_sum_max=unsustainable_biogas_potentials_spatial,
         )
 
@@ -3450,7 +3450,7 @@ def add_biomass(
             p_nom=unsustainable_solid_biomass_potentials_spatial,
             p_nom_extendable=False,
             marginal_cost=costs.at["fuelwood", "fuel"],
-            e_sum_min=unsustainable_solid_biomass_potentials_spatial,
+            e_sum_min=unsustainable_solid_biomass_potentials_spatial * share_unsustainable_min,
             e_sum_max=unsustainable_solid_biomass_potentials_spatial,
         )
 
@@ -3470,7 +3470,7 @@ def add_biomass(
             p_nom=unsustainable_liquid_biofuel_potentials_spatial,
             p_nom_extendable=False,
             marginal_cost=costs.at["biodiesel crops", "fuel"],
-            e_sum_min=0,  #=unsustainable_liquid_biofuel_potentials_spatial,
+            e_sum_min=unsustainable_liquid_biofuel_potentials_spatial * share_unsustainable_min,
             e_sum_max=unsustainable_liquid_biofuel_potentials_spatial,
         )
 
