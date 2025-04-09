@@ -715,14 +715,14 @@ if config["land_use_module"]["enable"]:
         params:
             dea_sheet_path = "data/DEA_electricity_district_heat_data_sheet.xlsx",
             url = "https://ens.dk/media/6378/download",
-            power_specific_generators=config_provider("land_use_module", "power_specific_generators"),
-            energy_specific_generators=config_provider("land_use_module", "energy_specific_generators"),
-            overwrite_values = config_provider("land_use_module","overwrite_values"),
+            power_specific_generators=lambda wildcards: config_provider("land_use_module","types",wildcards.space_req_type,"power_specific_generators"),
+            energy_specific_generators=lambda wildcards: config_provider("land_use_module","types",wildcards.space_req_type,"energy_specific_generators"),
+            overwrite_values = lambda wildcards: config_provider("land_use_module","types",wildcards.space_req_type,"overwrite_values"),
             retrieve = config_provider("enable","retrieve"),
         output:
-            csv_file = resources("space_requirements_{planning_horizons}.csv"),
+            csv_file = resources("space_requirements_{space_req_type}_{planning_horizons}.csv"),
         log:
-            logs("retrieve_space_requirement_data_{planning_horizons}.log"),
+            logs("retrieve_space_requirement_data_{space_req_type}_{planning_horizons}.log"),
         resources:
             mem_mb=1000,
         script:

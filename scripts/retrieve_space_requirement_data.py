@@ -144,6 +144,7 @@ if __name__ == "__main__":
         snakemake = mock_snakemake(
             "retrieve_space_requirement_data",
             planning_horizons="2020",
+            space_req_type="dist",
             run="8Gt_Bal_v3",
         )
         rootpath = ".."

@@ -111,49 +111,48 @@ solving:
 
 land_use_module:
   enable: true
-  power_specific_generators: [onwind, solar]  # space_req_pu is taken from DEA-Dataset if not overwritten below.
-  overwrite_values:  # unit: m2/MW
-#    onwind:
-#      2020: 1020.0
-#      2030: 1030.0
-#      2040: 1040.0
-  energy_specific_generators:  # unit: m2/MWh. space_req_pu is manually defined here
-    unsustainable solid biomass: 434.8  # woody biocrops
-    unsustainable biogas: 120.5  # digestible biocrops
-    unsustainable bioliquids: 120.5  # oily biocrops
-  constraint:
-    enable: false
-    negative_additional: warning  # possible options: warning, error
-    max_limit:  # unit in m²
-      EU:  # for all countries
-        2020: 50e9
-        2030: 50e9
-        2040: 50e9
-      DE:
-        2020: 10.7e9  # 3% of Germany area
-        2030: 10.7e9
-        2040: 10.7e9
-      FR:
-        2020: 27.3e9  # 3% of France area
-        2030: 27.3e9
-        2040: 27.3e9
+  types:
+    DLU:  # direct land use
+      power_specific_generators: [onwind, solar]  # space_req_pu is taken from DEA-Dataset if not overwritten below.
+      overwrite_values:  # unit: m2/MW
+    #    onwind:
+    #      2020: 1020.0
+    #      2030: 1030.0
+    #      2040: 1040.0
+      energy_specific_generators:  # unit: m2/MWh. space_req_pu is manually defined here
+        unsustainable solid biomass: 434.8  # woody biocrops
+        unsustainable biogas: 120.5  # digestible biocrops
+        unsustainable bioliquids: 120.5  # oily biocrops
+      constraint:
+        enable: false
+        negative_additional: warning  # possible options: warning, error
+        max_limit:  # unit in m²
+          EU:  # for all countries
+            2020: 50e9
+            2030: 50e9
+            2040: 50e9
+          DE:
+            2020: 10.7e9  # 3% of Germany area
+            2030: 10.7e9
+            2040: 10.7e9
+          FR:
+            2020: 27.3e9  # 3% of France area
+            2030: 27.3e9
+            2040: 27.3e9
+    dist:  # disturbed area
+      power_specific_generators: [onwind]  # space_req_pu is taken from DEA-Dataset if not overwritten below.
+      overwrite_values:  # unit: m2/MW
+          onwind:
+            2020: 10020.0
+            2030: 10030.0
+            2040: 10040.0
+      energy_specific_generators: # unit: m2/MWh. space_req_pu is manually defined here
+        unsustainable solid biomass: 434.8  # woody biocrops
+        unsustainable biogas: 120.5  # digestible biocrops
+        unsustainable bioliquids: 120.5  # oily biocrops
+      constraint:
+        enable: false
 
-#      DE3:  # Berlin, 60%
-#        2020: 0.535e9
-#        2030: 0.535e9
-#        2040: 0.535e9
-#      DE5:  # Bremen, 60%
-#        2020: 0.252e9
-#        2030: 0.252e9
-#        2040: 0.252e9
-#      DE6:  # Hamburg, 60%
-#        2020: 0.453e9
-#        2030: 0.453e9
-#        2040: 0.453e9
-#      GBI:  # London, 40%
-#        2020: 0.629e9
-#        2030: 0.629e9
-#        2040: 0.629e9
 
 biomass:
   share_unsustainable_min: # share of share_unsustainable_use_retained as minimum use
