@@ -155,4 +155,12 @@ land_use_module:
 #        2030: 0.629e9
 #        2040: 0.629e9
 
-
+biomass:
+  share_unsustainable_min: # share of share_unsustainable_use_retained as minimum use
+    2020: 1
+    2025: 1
+    2030: 1
+    2035: 1
+    2040: 1
+    2045: 1
+    2050: 1
