@@ -104,8 +104,10 @@ ENS_sus_unsus_share:
       2050: 0.6
 
   land_use_module:
-    constraint:
-      enable: false
+    types:
+      DLU:
+        constraint:
+          enable: false
 
   ### pypsa-de default configs
   costs:
@@ -197,21 +199,23 @@ ENS_share_constrained:
       2050: 0.6
 
   land_use_module:
-    constraint:
-      enable: true
-      max_limit:  # unit in m²
-        EU:  # for all countries
-          2020: 50e9
-          2030: 50e9
-          2040: 50e9
-        DE:
-          2020: 10.7e9  # 3% of Germany area
-          2030: 10.7e9
-          2040: 10.7e9
-        FR:
-          2020: 27.3e9  # 3% of France area
-          2030: 27.3e9
-          2040: 27.3e9
+    types:
+      DLU:
+        constraint:
+          enable: true
+          max_limit:  # unit in m²
+            EU:  # for all countries
+              2020: 50e9
+              2030: 50e9
+              2040: 50e9
+            DE:
+              2020: 10.7e9  # 3% of Germany area
+              2030: 10.7e9
+              2040: 10.7e9
+            FR:
+              2020: 27.3e9  # 3% of France area
+              2030: 27.3e9
+              2040: 27.3e9
 
 
   ### pypsa-de default configs
@@ -312,8 +316,10 @@ reference:
       2050: 0
 
   land_use_module:
-    constraint:
-      enable: false
+    types:
+      DLU:
+        constraint:
+          enable: false
 
   ### pypsa-de default configs
   costs:
