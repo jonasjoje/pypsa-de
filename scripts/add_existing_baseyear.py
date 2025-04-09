@@ -1092,7 +1092,7 @@ if __name__ == "__main__":
         snakemake = mock_snakemake(
             "add_existing_baseyear",
             configfiles="config/config.personal_jeckstadt.yaml",
-            clusters="27",
+            clusters="30",
             ll="v1.0",
             opts="",
             sector_opts="none",

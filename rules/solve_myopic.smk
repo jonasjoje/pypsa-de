@@ -31,11 +31,10 @@ rule add_existing_baseyear:
         ),
         heating_efficiencies=resources("heating_efficiencies.csv"),
         custom_powerplants=resources("german_chp_{clusters}.csv"),
-        space_requirements=lambda w: (
-            resources("space_requirements_{planning_horizons}.csv")
-            if config_provider("land_use_module","enable")(w)
-            else []
-        ),
+        space_requirements=lambda w: [
+                resources("space_requirements_{}_{{planning_horizons}}.csv".format(sp))
+                for sp in config_provider("land_use_module", "types")(w).keys()
+            ] if config_provider("land_use_module", "enable")(w) else [],
     output:
         resources(
             "networks/base_s_{clusters}_{opts}_{sector_opts}_{planning_horizons}_brownfield.nc"

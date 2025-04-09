@@ -1213,7 +1213,6 @@ rule prepare_sector_network:
             "direct_heat_source_utilisation_profiles_base_s_{clusters}_{planning_horizons}.nc"
         ),
         space_requirements=lambda w: [
-            # Mit .format(sp) wird der Typ eingesetzt. Durch {{planning_horizons}} bleibt der Platzhalter erhalten.
             resources("space_requirements_{}_{{planning_horizons}}.csv".format(sp))
             for sp in config_provider("land_use_module","types")(w).keys()
         ] if config_provider("land_use_module","enable")(w) else []
