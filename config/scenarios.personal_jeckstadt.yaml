@@ -104,6 +104,14 @@ ENS_sus_unsus_share:
       2040: 0.6
       2045: 0.6
       2050: 0.6
+    share_unsustainable_min: # share of share_unsustainable_use_retained as minimum use
+      2020: 0
+      2025: 0
+      2030: 0
+      2035: 0
+      2040: 0
+      2045: 0
+      2050: 0
 
   land_use_module:
     types:
@@ -199,6 +207,14 @@ ENS_share_constrained:
       2040: 0.6
       2045: 0.6
       2050: 0.6
+    share_unsustainable_min: # share of share_unsustainable_use_retained as minimum use
+      2020: 0
+      2025: 0
+      2030: 0
+      2035: 0
+      2040: 0
+      2045: 0
+      2050: 0
 
   land_use_module:
     types:
