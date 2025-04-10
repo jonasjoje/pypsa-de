@@ -11,8 +11,10 @@
   co2_budget_DE_source: KSG
 
   land_use_module:
-    constraint:
-      enable: false
+    types:
+      DLU:
+        constraint:
+          enable: false
 
   ### pypsa-de default configs
   costs:
@@ -190,6 +192,21 @@ ENS_sus_unsus_share:
             DE:
               2030: 5
 
+      co2_budget_national:
+        2020:
+          DE: 0.668
+        2025:
+          DE: 0.521
+        2030:
+          DE: 0.351
+        2035:
+          DE: 0.217
+        2040:
+          DE: 0.09
+        2045:
+          DE: -0.05
+        2050:
+          DE: -0.046
   industry:
     steam_biomass_fraction: 0.4
     steam_hydrogen_fraction: 0.3
@@ -197,6 +214,14 @@ ENS_sus_unsus_share:
 
 
 
+  sector:
+    aviation_demand_factor:
+      2020: 1.0
+      2025: 0.9321
+      2030: 0.8687
+      2035: 0.7719
+      2040: 0.6926
+      2045: 0.6417
 ENS_share_constrained:
   iiasa_database:
     reference_scenario: 8Gt_Bal_v3
@@ -299,6 +324,21 @@ ENS_share_constrained:
             DE:
               2030: 5
 
+      co2_budget_national:
+        2020:
+          DE: 0.668
+        2025:
+          DE: 0.521
+        2030:
+          DE: 0.351
+        2035:
+          DE: 0.217
+        2040:
+          DE: 0.09
+        2045:
+          DE: -0.05
+        2050:
+          DE: -0.046
   industry:
     steam_biomass_fraction: 0.4
     steam_hydrogen_fraction: 0.3
@@ -306,6 +346,14 @@ ENS_share_constrained:
 
 
 
+  sector:
+    aviation_demand_factor:
+      2020: 1.0
+      2025: 0.9321
+      2030: 0.8687
+      2035: 0.7719
+      2040: 0.6926
+      2045: 0.6417
 reference:
   iiasa_database:
     reference_scenario: 8Gt_Bal_v3

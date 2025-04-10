@@ -1399,7 +1399,7 @@ if __name__ == "__main__":
             ll="v1.0",
             sector_opts="none",
             planning_horizons="2020",
-            run="8Gt_Bal_v3",
+            run="ENS_sus_unsus_share",
             configfiles="config/config.personal_jeckstadt.yaml",
         )
     configure_logging(snakemake)

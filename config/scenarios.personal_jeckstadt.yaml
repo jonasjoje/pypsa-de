@@ -11,8 +11,10 @@
   co2_budget_DE_source: KSG
 
   land_use_module:
-    constraint:
-      enable: false
+    types:
+      DLU:
+        constraint:
+          enable: false
 
   ### pypsa-de default configs
   costs:
