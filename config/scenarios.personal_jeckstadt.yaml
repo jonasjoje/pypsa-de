@@ -211,11 +211,11 @@ ENS_share_constrained:
               2030: 50e9
               2040: 50e9
             DE:
-              2020: 10.7e9  # 3% of Germany area
-              2030: 10.7e9
-              2040: 10.7e9
+              2020: 17.9e9  # 5% of Germany area
+              2030: 17.9e9
+              2040: 17.9e9
             FR:
-              2020: 27.3e9  # 3% of France area
+              2020: 27.3e9  # 5% of France area
               2030: 27.3e9
               2040: 27.3e9
 
