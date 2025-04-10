@@ -223,13 +223,13 @@ ENS_share_constrained:
           enable: true
           max_limit:  # unit in m²
             EU:  # for all countries and 5% of that area
-              2020: 171e9
-              2030: 171e9
-              2040: 171e9
+              2020: 85e9 #171e9
+              2030: 85e9 #171e9
+              2040: 85e9 #171e9
             DE:
-              2020: 35.8e9  # 10% of Germany area
-              2030: 35.8e9
-              2040: 35.8e9
+              2020: 31e9 #35.8e9  # 10% of Germany area
+              2030: 31e9 #35.8e9
+              2040: 31e9 #35.8e9
             FR:
               2020: 27.3e9  # 5% of France area
               2030: 27.3e9
