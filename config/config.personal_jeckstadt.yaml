@@ -127,10 +127,10 @@ land_use_module:
         enable: false
         negative_additional: warning  # possible options: warning, error
         max_limit:  # unit in m²
-          EU:  # for all countries
-            2020: 50e9
-            2030: 50e9
-            2040: 50e9
+          EU:  # for all countries and 5% of that area
+            2020: 171e9
+            2030: 171e9
+            2040: 171e9
           DE:
             2020: 17.9e9  # 5% of Germany area
             2030: 17.9e9
