@@ -1045,7 +1045,7 @@ def add_space_requirement_constraint(n, max_limit,
         additional_land_use = 0
 
         # Only consider generators in the current region with a defined and positive space requirement.
-        valid_space = region_gens[region_gens[space_req_col].dropna() > 0]
+        valid_space = region_gens[region_gens[space_req_col] > 0]
         space_requirements = valid_space[space_req_col]
 
         # Build the constraint expression over generators in this region.
@@ -1399,7 +1399,7 @@ if __name__ == "__main__":
             ll="v1.0",
             sector_opts="none",
             planning_horizons="2020",
-            run="ENS_sus_unsus_share",
+            run="ENS_share_constrained",
             configfiles="config/config.personal_jeckstadt.yaml",
         )
     configure_logging(snakemake)
