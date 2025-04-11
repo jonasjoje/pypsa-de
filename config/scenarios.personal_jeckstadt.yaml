@@ -81,223 +81,223 @@
 
 
 
-ENS_sus_unsus_share:
-  iiasa_database:
-    reference_scenario: 8Gt_Bal_v3
-    fallback_reference_scenario: 8Gt_Bal_v3
-  co2_budget_DE_source: KSG
-
-  biomass:
-    share_unsustainable_use_retained:
-      2020: 0.5
-      2025: 0.5
-      2030: 0.45
-      2035: 0.45
-      2040: 0.4
-      2045: 0.4
-      2050: 0.4
-    share_sustainable_potential_available:  # default values
-      2020: 0.5
-      2025: 0.5
-      2030: 0.55
-      2035: 0.55
-      2040: 0.6
-      2045: 0.6
-      2050: 0.6
-    share_unsustainable_min: # share of share_unsustainable_use_retained as minimum use
-      2020: 0
-      2025: 0
-      2030: 0
-      2035: 0
-      2040: 0
-      2045: 0
-      2050: 0
-
-  land_use_module:
-    types:
-      DLU:
-        constraint:
-          enable: false
-
-  ### pypsa-de default configs
-  costs:
-    horizon: "mean"
-    NEP: 2023
-    transmission: "overhead" # either overhead line ("overhead") or underground cable ("underground")
-
-  solving:
-    constraints:
-      # boundary condition of maximum volumes
-      limits_volume_max:
-        # constrain electricity import in TWh
-        electricity_import:
-          DE:
-            2020: -20
-            2025: 0
-            2030: 0
-            2035: 40
-            2040: 80
-            2045: 125
-        electrolysis:
-          DE:
-            2020: 0
-            2025: 5
-            2030: 45
-            2035: 130
-            2040: 215
-            2045: 300
-        h2_derivate_import:
-          DE:
-            2020: 0
-            2025: 0
-            2030: 10
-            2035: 105
-            2040: 200
-            2045: 300
-        h2_import:
-          DE:
-            2020: 0
-            2025: 5
-            2030: 15
-            2035: 115
-            2040: 220
-            2045: 325
-      limits_volume_min:
-        electrolysis:
-          DE:
-            2020: 0
-            2025: 0
-            2030: 0
-            2035: 0
-            2040: 0
-            2045: 0
-      limits_capacity_min:
-        Link:
-          H2 Electrolysis:
-            DE:
-              2030: 5
-
-  industry:
-    steam_biomass_fraction: 0.4
-    steam_hydrogen_fraction: 0.3
-    steam_electricity_fraction: 0.3
-
-
-
-ENS_share_constrained:
-  iiasa_database:
-    reference_scenario: 8Gt_Bal_v3
-    fallback_reference_scenario: 8Gt_Bal_v3
-  co2_budget_DE_source: KSG
-
-  biomass:
-    share_unsustainable_use_retained:
-      2020: 0.5
-      2025: 0.5
-      2030: 0.45
-      2035: 0.45
-      2040: 0.4
-      2045: 0.4
-      2050: 0.4
-    share_sustainable_potential_available:  # default values
-      2020: 0.5
-      2025: 0.5
-      2030: 0.55
-      2035: 0.55
-      2040: 0.6
-      2045: 0.6
-      2050: 0.6
-    share_unsustainable_min: # share of share_unsustainable_use_retained as minimum use
-      2020: 0
-      2025: 0
-      2030: 0
-      2035: 0
-      2040: 0
-      2045: 0
-      2050: 0
-
-  land_use_module:
-    types:
-      DLU:
-        constraint:
-          enable: true
-          max_limit:  # unit in m²
-            EU:  # for all countries and 5% of that area
-              2020: 85e9 #171e9
-              2030: 85e9 #171e9
-              2040: 85e9 #171e9
-            DE:
-              2020: 31e9 #35.8e9  # 10% of Germany area
-              2030: 31e9 #35.8e9
-              2040: 31e9 #35.8e9
-            FR:
-              2020: 27.3e9  # 5% of France area
-              2030: 27.3e9
-              2040: 27.3e9
-
-
-  ### pypsa-de default configs
-  costs:
-    horizon: "mean"
-    NEP: 2023
-    transmission: "overhead" # either overhead line ("overhead") or underground cable ("underground")
-
-  solving:
-    constraints:
-      # boundary condition of maximum volumes
-      limits_volume_max:
-        # constrain electricity import in TWh
-        electricity_import:
-          DE:
-            2020: -20
-            2025: 0
-            2030: 0
-            2035: 40
-            2040: 80
-            2045: 125
-        electrolysis:
-          DE:
-            2020: 0
-            2025: 5
-            2030: 45
-            2035: 130
-            2040: 215
-            2045: 300
-        h2_derivate_import:
-          DE:
-            2020: 0
-            2025: 0
-            2030: 10
-            2035: 105
-            2040: 200
-            2045: 300
-        h2_import:
-          DE:
-            2020: 0
-            2025: 5
-            2030: 15
-            2035: 115
-            2040: 220
-            2045: 325
-      limits_volume_min:
-        electrolysis:
-          DE:
-            2020: 0
-            2025: 0
-            2030: 0
-            2035: 0
-            2040: 0
-            2045: 0
-      limits_capacity_min:
-        Link:
-          H2 Electrolysis:
-            DE:
-              2030: 5
-
-  industry:
-    steam_biomass_fraction: 0.4
-    steam_hydrogen_fraction: 0.3
-    steam_electricity_fraction: 0.3
+#ENS_sus_unsus_share:
+#  iiasa_database:
+#    reference_scenario: 8Gt_Bal_v3
+#    fallback_reference_scenario: 8Gt_Bal_v3
+#  co2_budget_DE_source: KSG
+#
+#  biomass:
+#    share_unsustainable_use_retained:
+#      2020: 0.5
+#      2025: 0.5
+#      2030: 0.45
+#      2035: 0.45
+#      2040: 0.4
+#      2045: 0.4
+#      2050: 0.4
+#    share_sustainable_potential_available:  # default values
+#      2020: 0.5
+#      2025: 0.5
+#      2030: 0.55
+#      2035: 0.55
+#      2040: 0.6
+#      2045: 0.6
+#      2050: 0.6
+#    share_unsustainable_min: # share of share_unsustainable_use_retained as minimum use
+#      2020: 0
+#      2025: 0
+#      2030: 0
+#      2035: 0
+#      2040: 0
+#      2045: 0
+#      2050: 0
+#
+#  land_use_module:
+#    types:
+#      DLU:
+#        constraint:
+#          enable: false
+#
+#  ### pypsa-de default configs
+#  costs:
+#    horizon: "mean"
+#    NEP: 2023
+#    transmission: "overhead" # either overhead line ("overhead") or underground cable ("underground")
+#
+#  solving:
+#    constraints:
+#      # boundary condition of maximum volumes
+#      limits_volume_max:
+#        # constrain electricity import in TWh
+#        electricity_import:
+#          DE:
+#            2020: -20
+#            2025: 0
+#            2030: 0
+#            2035: 40
+#            2040: 80
+#            2045: 125
+#        electrolysis:
+#          DE:
+#            2020: 0
+#            2025: 5
+#            2030: 45
+#            2035: 130
+#            2040: 215
+#            2045: 300
+#        h2_derivate_import:
+#          DE:
+#            2020: 0
+#            2025: 0
+#            2030: 10
+#            2035: 105
+#            2040: 200
+#            2045: 300
+#        h2_import:
+#          DE:
+#            2020: 0
+#            2025: 5
+#            2030: 15
+#            2035: 115
+#            2040: 220
+#            2045: 325
+#      limits_volume_min:
+#        electrolysis:
+#          DE:
+#            2020: 0
+#            2025: 0
+#            2030: 0
+#            2035: 0
+#            2040: 0
+#            2045: 0
+#      limits_capacity_min:
+#        Link:
+#          H2 Electrolysis:
+#            DE:
+#              2030: 5
+#
+#  industry:
+#    steam_biomass_fraction: 0.4
+#    steam_hydrogen_fraction: 0.3
+#    steam_electricity_fraction: 0.3
+#
+#
+#
+#ENS_share_constrained:
+#  iiasa_database:
+#    reference_scenario: 8Gt_Bal_v3
+#    fallback_reference_scenario: 8Gt_Bal_v3
+#  co2_budget_DE_source: KSG
+#
+#  biomass:
+#    share_unsustainable_use_retained:
+#      2020: 0.5
+#      2025: 0.5
+#      2030: 0.45
+#      2035: 0.45
+#      2040: 0.4
+#      2045: 0.4
+#      2050: 0.4
+#    share_sustainable_potential_available:  # default values
+#      2020: 0.5
+#      2025: 0.5
+#      2030: 0.55
+#      2035: 0.55
+#      2040: 0.6
+#      2045: 0.6
+#      2050: 0.6
+#    share_unsustainable_min: # share of share_unsustainable_use_retained as minimum use
+#      2020: 0
+#      2025: 0
+#      2030: 0
+#      2035: 0
+#      2040: 0
+#      2045: 0
+#      2050: 0
+#
+#  land_use_module:
+#    types:
+#      DLU:
+#        constraint:
+#          enable: true
+#          max_limit:  # unit in m²
+#            EU:  # for all countries and 5% of that area
+#              2020: 85e9 #171e9
+#              2030: 85e9 #171e9
+#              2040: 85e9 #171e9
+#            DE:
+#              2020: 31e9 #35.8e9  # 10% of Germany area
+#              2030: 31e9 #35.8e9
+#              2040: 31e9 #35.8e9
+#            FR:
+#              2020: 27.3e9  # 5% of France area
+#              2030: 27.3e9
+#              2040: 27.3e9
+#
+#
+#  ### pypsa-de default configs
+#  costs:
+#    horizon: "mean"
+#    NEP: 2023
+#    transmission: "overhead" # either overhead line ("overhead") or underground cable ("underground")
+#
+#  solving:
+#    constraints:
+#      # boundary condition of maximum volumes
+#      limits_volume_max:
+#        # constrain electricity import in TWh
+#        electricity_import:
+#          DE:
+#            2020: -20
+#            2025: 0
+#            2030: 0
+#            2035: 40
+#            2040: 80
+#            2045: 125
+#        electrolysis:
+#          DE:
+#            2020: 0
+#            2025: 5
+#            2030: 45
+#            2035: 130
+#            2040: 215
+#            2045: 300
+#        h2_derivate_import:
+#          DE:
+#            2020: 0
+#            2025: 0
+#            2030: 10
+#            2035: 105
+#            2040: 200
+#            2045: 300
+#        h2_import:
+#          DE:
+#            2020: 0
+#            2025: 5
+#            2030: 15
+#            2035: 115
+#            2040: 220
+#            2045: 325
+#      limits_volume_min:
+#        electrolysis:
+#          DE:
+#            2020: 0
+#            2025: 0
+#            2030: 0
+#            2035: 0
+#            2040: 0
+#            2045: 0
+#      limits_capacity_min:
+#        Link:
+#          H2 Electrolysis:
+#            DE:
+#              2030: 5
+#
+#  industry:
+#    steam_biomass_fraction: 0.4
+#    steam_hydrogen_fraction: 0.3
+#    steam_electricity_fraction: 0.3
 
 
 
