@@ -53,7 +53,8 @@ scenario:
   ll:
     - v1.0  # no line expansion
   clusters:
-    - 30 # DE und CH auf NUTS1,current options: 27, 49
+    - adm  # administrative setting
+    #- 30  # DE und CH auf NUTS1,current options: 27, 49
     #- 51  # mit ES, FR, GB, IT auf NUTS1
   planning_horizons:
     - 2020
