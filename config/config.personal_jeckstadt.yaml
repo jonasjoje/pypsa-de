@@ -51,7 +51,7 @@ iiasa_database:
 
 scenario:
   ll:
-    - v1.0  # no line expansion
+    - v1.1  # 10% line expansion
   clusters:
     - adm  # administrative setting
     #- 30  # DE und CH auf NUTS1,current options: 27, 49
