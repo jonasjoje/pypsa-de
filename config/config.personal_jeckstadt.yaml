@@ -50,8 +50,6 @@ iiasa_database:
 
 
 scenario:
-  ll:
-    - v1.1  # 10% line expansion
   clusters:
     - adm  # administrative setting
     #- 30  # DE und CH auf NUTS1,current options: 27, 49
@@ -86,7 +84,7 @@ electricity:
   conventional_carriers: [ nuclear, oil, OCGT, CCGT, coal, lignite, geothermal, biomass ]
   renewable_carriers: [ solar, onwind, offwind-ac, offwind-dc, hydro ] #  solar-hsat,  offwind-float,
 
-  transmission_limit: v1.0  # no line expansion
+  transmission_limit: v1.1  # 10%
 
 sector:
   industry: true
