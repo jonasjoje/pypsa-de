@@ -109,6 +109,9 @@ solving:
   runtime: 24h #runtime in humanfriendly style https://humanfriendly.readthedocs.io/en/latest/
 
 
+clever: true
+
+
 land_use_module:
   enable: true
   types:
