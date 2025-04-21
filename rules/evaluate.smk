@@ -16,16 +16,18 @@ rule test:
     output:
         temp("tmp/test.done")
 
-# rule evaluate_space_requirement:
-#     params:
-#         planning_horizons=config_provider("scenario", "planning_horizons")
-#     input:
-#         expand(
-#             RESULTS + "postnetworks/base_s_{clusters}_l{ll}_{opts}_{sector_opts}_{planning_horizons}.nc",
-#             allow_missing=True,
-#             **config["scenario"],
-#         )
-#     output:
-#         report=directory(RESULTS + "space_requirement_summary")
-#     script:
-#         "../scripts/evaluate_space_requirement.py"
+rule general_scenario_comparison:
+    input:
+        networks = expand(
+            RESULTS + "networks/base_s_{clusters}_{opts}_{sector_opts}_{planning_horizons}.nc",
+            clusters=config["scenario"]["clusters"],
+            opts=config["scenario"]["opts"],
+            sector_opts=config["scenario"]["sector_opts"],
+            planning_horizons=config["scenario"]["planning_horizons"],
+            run=config["run"]["name"]
+        )
+    output:
+        test = "results/" + run["prefix"] + "/_evaluation/general_comparison/test.txt",
+        done = temp("tmp/general_scenario_comparison.done")
+    script:
+        "../scripts/evaluate_general_scenario_comparison.py"
