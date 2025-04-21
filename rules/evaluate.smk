@@ -7,7 +7,7 @@ rule evaluation_all:
     input:
         expand("tmp/{rule}.done", rule=config["evaluation"]["enable"])
     output:
-        "results/all_evaluations.done"
+        temp("tmp/all_evaluations.done")
 
 
 rule test:
