@@ -68,6 +68,7 @@ include: "rules/solve_electricity.smk"
 include: "rules/postprocess.smk"
 include: "rules/validate.smk"
 include: "rules/development.smk"
+include: "rules/evaluate.smk"
 
 
 if config["foresight"] == "overnight":
@@ -737,16 +738,4 @@ rule ariadne_report_only:
         ),
 
 
-rule evaluate_space_requirement:
-    params:
-        planning_horizons=config_provider("scenario", "planning_horizons")
-    input:
-        expand(
-            RESULTS + "postnetworks/base_s_{clusters}_l{ll}_{opts}_{sector_opts}_{planning_horizons}.nc",
-            allow_missing=True,
-            **config["scenario"],
-        )
-    output:
-        report=directory(RESULTS + "space_requirement_summary")
-    script:
-        "scripts/evaluate_space_requirement.py"
+
