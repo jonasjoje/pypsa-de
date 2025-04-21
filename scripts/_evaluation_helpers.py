@@ -1,5 +1,6 @@
 import os
 import pypsa
+import pandas as pd
 
 def load_networks_from_path_list(path_list):
     nn = {}
@@ -10,3 +11,25 @@ def load_networks_from_path_list(path_list):
         net = pypsa.Network(filepath)
         nn.setdefault(run, {})[year] = net
     return nn
+
+def compare_value(get_value, nn):
+    """
+    Vergleicht einen bestimmten Wert aus den Netzwerken.
+
+    Parameter:
+      get_value: Funktion, die ein pypsa.Network-Objekt entgegennimmt und den gewünschten Wert zurückgibt.
+      nn: Dictionary mit der Struktur { run_name: { planning_horizon: pypsa.Network } }
+
+    Rückgabe:
+      Ein DataFrame mit planning_horizons als Zeilen und run_names als Spalten.
+    """
+    results = {}
+    for run_name, net_dict in nn.items():
+        for planning_horizon, net in net_dict.items():
+            value = get_value(net)
+            if run_name not in results:
+                results[run_name] = {}
+            results[run_name][planning_horizon] = value
+    df = pd.DataFrame(results)
+    df = df.sort_index()  # Sortiere nach planning_horizons (Zeilen)
+    return df

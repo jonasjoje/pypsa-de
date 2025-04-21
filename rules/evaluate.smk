@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
+EVALUATION = "results/" + run["prefix"] + "/EVALUATION/"
 
 rule evaluation_all:
     input:
@@ -16,6 +17,8 @@ rule test:
     output:
         temp("tmp/test.done")
 
+
+GENERAL_COMPARISON = EVALUATION + "general_comparison/"
 rule general_scenario_comparison:
     input:
         networks = expand(
@@ -27,7 +30,7 @@ rule general_scenario_comparison:
             run=config["run"]["name"]
         )
     output:
-        test = "results/" + run["prefix"] + "/EVALUATION/general_comparison/test.txt",
+        objective_graph = GENERAL_COMPARISON + "objective_graph.png",
         done = temp("tmp/general_scenario_comparison.done")
     script:
         "../scripts/evaluate_general_scenario_comparison.py"

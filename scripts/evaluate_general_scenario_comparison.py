@@ -1,8 +1,8 @@
 import os
 import re
 import pypsa
-
-from scripts._evaluation_helpers import load_networks_from_path_list
+import matplotlib.pyplot as plt
+from scripts._evaluation_helpers import load_networks_from_path_list, compare_value
 
 if __name__ == "__main__":
     if "snakemake" not in globals():
@@ -14,11 +14,18 @@ if __name__ == "__main__":
 
     nn = load_networks_from_path_list(snakemake.input.networks)
 
-    # Zusammenfassung in test.txt schreiben
-    with open(snakemake.output.test, "w") as f:
-        for run, years in nn.items():
-            for year in sorted(years):
-                f.write(f"{run}_{year}\n")
+    # Datenvergleich der Zielfunktion
+    expr = lambda n: n.objective  # todo: richtige objective
+    # DataFrame mit Werten in Mrd. Euro
+    df_objective = compare_value(expr, nn) * 1e-9
+
+    # Plot erstellen
+    ax = df_objective.plot.line()
+    plt.ylabel("Zielfunktion (Mrd. Euro)")
+    fig = ax.get_figure()
+
+    # Ausgabedatei speichern
+    fig.savefig(snakemake.output.objective_graph)
 
 
     print("fertig")
