@@ -26,6 +26,7 @@ copy_default_files(workflow)
 configfile: "config/config.default.yaml"
 configfile: "config/config.yaml"
 configfile: "config/config.personal_jeckstadt.yaml"
+configfile: "config/config.evaluation.yaml"
 
 
 run = config["run"]

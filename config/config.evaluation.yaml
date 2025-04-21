@@ -1,0 +1,5 @@
+# to control evaluation in evaluate.smk
+
+evaluation:
+  enable:
+    - test
