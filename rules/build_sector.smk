@@ -1235,3 +1235,37 @@ rule prepare_sector_network:
         "../envs/environment.yaml"
     script:
         "../scripts/prepare_sector_network.py"
+
+
+rule apply_clever_overrides:
+    """
+    Take the standard outputs and override them with any
+    Clever‑scenario values, writing new files with a .Clever suffix.
+    """
+    input:
+        energy               = resources("energy_totals.csv"),
+        district_heat        = resources("district_heat_share.csv"),
+        co2                  = resources("co2_totals.csv"),
+        transport            = resources("transport_data.csv"),
+        # clever_residential   = resources("data/CLEVER/clever_residential_{year}.csv"),
+        # clever_tertiary      = resources("data/CLEVER/clever_Tertairy_{year}.csv"),
+        # clever_transport     = resources("data/CLEVER/clever_Transport_{year}.csv"),
+        # clever_agriculture   = resources("data/CLEVER/clever_Agriculture_{year}.csv"),
+        # clever_macro         = resources("data/CLEVER/clever_Macro_{year}.csv"),
+        # clever_afolub        = resources("data/CLEVER/clever_AFOLUB_{year}.csv"),
+    output:
+        energy_clever        = resources("energy_totals_clever_{year}.csv"),
+        district_heat_clever = resources("district_heat_share_clever_{year}.csv"),
+        co2_clever           = resources("co2_totals_clever_{year}.csv"),
+        transport_clever     = resources("transport_data_clever_{year}.csv"),
+    log:
+        logs("apply_clever_overrides_{year}.log"),
+    resources:
+        mem_mb=4000,
+    benchmark:
+        benchmarks("apply_clever_overrides_{year}"),
+    threads: 1
+    conda:
+        "../envs/environment.yaml"
+    script:
+        "../scripts/apply_clever_overrides.py"
