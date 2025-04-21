@@ -2,5 +2,5 @@
 
 evaluation:
   enable:
-    - test
+    #- test
     - evaluate_general_scenario_comparison
