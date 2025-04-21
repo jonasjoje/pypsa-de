@@ -8,14 +8,14 @@ rule evaluation_all:
     input:
         expand("tmp/{rule}.done", rule=config["evaluation"]["enable"])
     output:
-        temp("tmp/all_evaluations.done")
+        ".tmp/all_evaluations.done"
 
 
 rule test:
     input:
         data = "results/20250411_reference/reference/networks/base_s_adm__none_2050.nc"
     output:
-        temp("tmp/test.done")
+        ".tmp/test.done"
 
 
 GENERAL_COMPARISON = EVALUATION + "general_comparison/"
@@ -31,6 +31,6 @@ rule general_scenario_comparison:
         )
     output:
         objective_graph = GENERAL_COMPARISON + "objective_graph.png",
-        done = temp("tmp/general_scenario_comparison.done")
+        done = ".tmp/general_scenario_comparison.done"
     script:
         "../scripts/evaluate_general_scenario_comparison.py"

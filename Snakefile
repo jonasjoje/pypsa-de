@@ -98,7 +98,7 @@ rule all:
             planning_horizons=config["scenario"]["planning_horizons"],
             run=config["run"]["name"]
         ),
-        "tmp/all_evaluations.done"
+        ".tmp/all_evaluations.done"
     default_target: True
 
 
