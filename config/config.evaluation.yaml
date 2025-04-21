@@ -3,3 +3,4 @@
 evaluation:
   enable:
     - test
+    - general_scenario_comparison

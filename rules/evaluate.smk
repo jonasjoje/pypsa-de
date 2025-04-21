@@ -6,7 +6,7 @@ EVALUATION = "results/" + run["prefix"] + "/EVALUATION/"
 
 rule evaluation_all:
     input:
-        expand("tmp/{rule}.done", rule=config["evaluation"]["enable"])
+        expand(".tmp/{rule}.done", rule=config["evaluation"]["enable"])
     output:
         ".tmp/all_evaluations.done"
 
