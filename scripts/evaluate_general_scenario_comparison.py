@@ -1,5 +1,8 @@
 import os
+import re
 import pypsa
+
+from scripts._evaluation_helpers import load_networks_from_path_list
 
 if __name__ == "__main__":
     if "snakemake" not in globals():
@@ -9,10 +12,13 @@ if __name__ == "__main__":
             "general_scenario_comparison",
         )
 
+    nn = load_networks_from_path_list(snakemake.input.networks)
 
+    # Zusammenfassung in test.txt schreiben
     with open(snakemake.output.test, "w") as f:
-        for p in snakemake.input.networks:
-            f.write(p + "\n")
+        for run, years in nn.items():
+            for year in sorted(years):
+                f.write(f"{run}_{year}\n")
 
 
     print("fertig")

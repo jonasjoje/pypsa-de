@@ -27,7 +27,7 @@ rule general_scenario_comparison:
             run=config["run"]["name"]
         )
     output:
-        test = "results/" + run["prefix"] + "/_evaluation/general_comparison/test.txt",
+        test = "results/" + run["prefix"] + "/EVALUATION/general_comparison/test.txt",
         done = temp("tmp/general_scenario_comparison.done")
     script:
         "../scripts/evaluate_general_scenario_comparison.py"
