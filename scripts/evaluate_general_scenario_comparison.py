@@ -1,8 +1,12 @@
 import os
 import re
 import pypsa
+import logging
 import matplotlib.pyplot as plt
 from scripts._evaluation_helpers import load_networks_from_path_list, compare_value
+from scripts._helpers import configure_logging
+
+logger = logging.getLogger(__name__)
 
 if __name__ == "__main__":
     if "snakemake" not in globals():
@@ -12,20 +16,25 @@ if __name__ == "__main__":
             "general_scenario_comparison",
         )
 
+    configure_logging(snakemake)
+
+    logger.info("loading networks")
     nn = load_networks_from_path_list(snakemake.input.networks)
 
-    # Datenvergleich der Zielfunktion
-    expr = lambda n: n.objective  # todo: richtige objective
-    # DataFrame mit Werten in Mrd. Euro
+    # ─────────────────────────────────────────────────────────────────────────────
+    #  CAPEX + OPEEX
+    # ─────────────────────────────────────────────────────────────────────────────
+
+    title = "CAPEX + OPEX (Bn. Euro)"
+    logger.info(f"Create plot {title}")
+    expr = lambda n: n.statistics.capex().sum() + n.statistics.opex().sum()
     df_objective = compare_value(expr, nn) * 1e-9
 
-    # Plot erstellen
     ax = df_objective.plot.line()
-    plt.ylabel("Zielfunktion (Mrd. Euro)")
+    plt.ylabel(title)
     fig = ax.get_figure()
-
-    # Ausgabedatei speichern
     fig.savefig(snakemake.output.objective_graph)
+    logger.info(f"Created plot {title} and saved to {snakemake.output.objective_graph}")
 
 
-    print("fertig")
+    logger.info("All general scenario comparisons done.")

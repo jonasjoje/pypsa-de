@@ -7,7 +7,7 @@ os.makedirs(".tmp", exist_ok=True)
 
 EVALUATION = "results/" + run["prefix"] + "/EVALUATION/"
 
-rule evaluation_all:
+rule evaluate_all:
     input:
         expand(".tmp/{rule}.done", rule=config["evaluation"]["enable"])
     output:
@@ -35,5 +35,9 @@ rule evaluate_general_scenario_comparison:
     output:
         objective_graph = GENERAL_COMPARISON + "objective_graph.png",
         done = touch(".tmp/evaluate_general_scenario_comparison.done")
+    resources:
+        mem = 30000
+    log:
+        EVALUATION + "logs/general_comparison.log"
     script:
         "../scripts/evaluate_general_scenario_comparison.py"
