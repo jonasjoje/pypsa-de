@@ -4,3 +4,4 @@ evaluation:
   enable:
     - test
     - evaluate_general_scenario_comparison
+    - evaluate_FEC_comparison
