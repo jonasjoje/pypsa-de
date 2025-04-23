@@ -8,6 +8,16 @@ from scripts._helpers import configure_logging
 
 logger = logging.getLogger(__name__)
 
+def plot_comparison(title, expr, output):
+    logger.info(f"Create  plot {title}")
+    df = compare_value(expr, nn)
+    ax = df.plot.line()
+    plt.ylabel(title)
+    fig = ax.get_figure()
+    fig.savefig(output)
+    logger.info(f"Created plot {title} and saved to {output}")
+
+
 if __name__ == "__main__":
     if "snakemake" not in globals():
         from scripts._helpers import mock_snakemake
@@ -22,19 +32,47 @@ if __name__ == "__main__":
     nn = load_networks_from_path_list(snakemake.input.networks)
 
     # ─────────────────────────────────────────────────────────────────────────────
-    #  CAPEX + OPEEX
+    #  CAPEX + OPEX
     # ─────────────────────────────────────────────────────────────────────────────
 
-    title = "CAPEX + OPEX (Bn. Euro)"
-    logger.info(f"Create plot {title}")
-    expr = lambda n: n.statistics.capex().sum() + n.statistics.opex().sum()
-    df_objective = compare_value(expr, nn) * 1e-9
+    expr = lambda n: (n.statistics.capex().sum() + n.statistics.opex().sum()) * 1e-9
+    plot_comparison(title="CAPEX + OPEX (Bn. Euro)",
+                    expr=expr,
+                    output=snakemake.output.total_capexopex_graph)
 
-    ax = df_objective.plot.line()
-    plt.ylabel(title)
-    fig = ax.get_figure()
-    fig.savefig(snakemake.output.objective_graph)
-    logger.info(f"Created plot {title} and saved to {snakemake.output.objective_graph}")
+    # ─────────────────────────────────────────────────────────────────────────────
+    #  Generation
+    # ─────────────────────────────────────────────────────────────────────────────
+
+    # Solar
+    expr = lambda n: n.statistics.optimal_capacity().loc[("Generator", "Solar")] * 1e-3
+    plot_comparison(title="Solar capacity (GW)",
+                    expr=expr,
+                    output=snakemake.output.gen_solar_graph)
+
+    # Onwind
+    expr = lambda n: n.statistics.optimal_capacity().loc[("Generator", "Onshore Wind")] * 1e-3
+    plot_comparison(title="Onshore Wind capacity (GW)",
+                    expr=expr,
+                    output=snakemake.output.gen_onwind_graph)
+
+    # Offshore Wind AC
+    expr = lambda n: n.statistics.optimal_capacity().loc[("Generator", "Offshore Wind (AC)")] * 1e-3
+    plot_comparison(
+        title="Offshore Wind AC capacity (GW)",
+        expr=expr,
+        output=snakemake.output.gen_offwind_ac_graph
+    )
+
+    # Offshore Wind DC
+    expr = lambda n: n.statistics.optimal_capacity().loc[("Generator", "Offshore Wind (DC)")] * 1e-3
+    plot_comparison(
+        title="Offshore Wind DC capacity (GW)",
+        expr=expr,
+        output=snakemake.output.gen_offwind_dc_graph
+    )
+
+
 
 
     logger.info("All general scenario comparisons done.")

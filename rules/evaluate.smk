@@ -33,7 +33,11 @@ rule evaluate_general_scenario_comparison:
             run=config["run"]["name"]
         )
     output:
-        objective_graph = GENERAL_COMPARISON + "objective_graph.png",
+        total_capexopex_graph = GENERAL_COMPARISON + "total_capexopex_graph.png",
+        gen_solar_graph = GENERAL_COMPARISON +"gen_solar_graph.png",
+        gen_onwind_graph = GENERAL_COMPARISON +"gen_onwind_graph.png",
+        gen_offwind_ac_graph= GENERAL_COMPARISON +"gen_offwind_ac_graph.png",
+        gen_offwind_dc_graph= GENERAL_COMPARISON +"gen_offwind_dc_graph.png",
         done = touch(".tmp/evaluate_general_scenario_comparison.done")
     resources:
         mem = 30000
