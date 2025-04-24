@@ -13,7 +13,7 @@ remote:
   path: "scratch/pypsa-de"
 
 run:
-  prefix: 20250411_reference
+  prefix: 20250421_evaluation
   name:
   - 8Gt_Bal_v3
   #- ENS_sus_unsus_share
@@ -173,3 +173,4 @@ biomass:
     2040: 1
     2045: 1
     2050: 1
+

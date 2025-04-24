@@ -26,6 +26,7 @@ copy_default_files(workflow)
 configfile: "config/config.default.yaml"
 configfile: "config/config.yaml"
 configfile: "config/config.personal_jeckstadt.yaml"
+configfile: "config/config.evaluation.yaml"
 
 
 run = config["run"]
@@ -68,6 +69,7 @@ include: "rules/solve_electricity.smk"
 include: "rules/postprocess.smk"
 include: "rules/validate.smk"
 include: "rules/development.smk"
+include: "rules/evaluate.smk"
 
 
 if config["foresight"] == "overnight":
@@ -96,6 +98,7 @@ rule all:
             planning_horizons=config["scenario"]["planning_horizons"],
             run=config["run"]["name"]
         ),
+        ".tmp/all_evaluations.done"
     default_target: True
 
 
@@ -737,16 +740,4 @@ rule ariadne_report_only:
         ),
 
 
-rule evaluate_space_requirement:
-    params:
-        planning_horizons=config_provider("scenario", "planning_horizons")
-    input:
-        expand(
-            RESULTS + "postnetworks/base_s_{clusters}_l{ll}_{opts}_{sector_opts}_{planning_horizons}.nc",
-            allow_missing=True,
-            **config["scenario"],
-        )
-    output:
-        report=directory(RESULTS + "space_requirement_summary")
-    script:
-        "scripts/evaluate_space_requirement.py"
+
