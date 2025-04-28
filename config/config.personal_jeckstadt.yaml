@@ -18,7 +18,8 @@ run:
   - 8Gt_Bal_v3
   #- ENS_sus_unsus_share
   #- ENS_share_constrained
-  #- reference
+  - reference
+  - clever
   scenarios:
     enable: true
     manual_file: config/scenarios.personal_jeckstadt.yaml
@@ -109,7 +110,7 @@ solving:
   runtime: 24h #runtime in humanfriendly style https://humanfriendly.readthedocs.io/en/latest/
 
 
-clever: true  # for sufficiency scenario
+clever: false  # for sufficiency scenario
 
 
 land_use_module:
