@@ -1757,9 +1757,16 @@ if __name__ == "__main__":
 
     co2 = build_co2_totals(countries, eea_co2, eurostat_co2)
     co2.to_csv(snakemake.output.co2_name)
+    # todo: mit clever überschreiben? wurde so gemacht in Tareen
 
     transport = build_transport_data(countries, population, idees)
+    if clever:
+        for country in countries:
+            person_per_vehicle = clever_Transport.loc[country, 'Average number of people per vehicle']
+            stocks_car = transport.loc[(country, year), 'number cars']
+            transport.loc[(country, year), 'number cars'] = stocks_car / person_per_vehicle  # todo: macht diese Berechnung Sinn?
     transport.to_csv(snakemake.output.transport_name)
 
     heating_efficiencies = build_heating_efficiencies(countries, idees)
     heating_efficiencies.to_csv(snakemake.output.heating_efficiencies)
+    # todo: mit clever überschreiben?
