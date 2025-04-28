@@ -1599,20 +1599,20 @@ def update_energy_with_clever(energy, data_sources):
         'electricity residential cooking': 'Final electricity consumption for domestic cooking',
         'total residential': 'Total final energy consumption in the residential sector',
         'electricity residential': 'Final electricity consumption in the residential sector',
-        'derived heat residential': 'Final energy consumption from heating networks in the residential sector',
+        'distributed heat residential': 'Final energy consumption from heating networks in the residential sector',
         'thermal uses residential': 'Thermal_uses_residential'
     }
 
     tertiary_map = {
-        'total services space': 'Total final energy consumption for space heating in the tertiary sector (with climatic corrections)',
+        'total services space': 'Total final energy consumption for space heating in the tertiary sector (with climatic corrections) ', # todo
         'electricity services space': 'Final electricity consumption for space heating in the tertiary sector',
         'total services water': 'Total final energy consumption for hot water in the tertiary sector',
         'electricity services water': 'Final electricity consumption for hot water in the tertiary sector',
-        'total services cooking': 'Total final energy consumption for cooking in the tertiary sector',
-        'electricity services cooking': 'Final electricity consumption for cooking in the tertiary sector',
+        'total services cooking': 'Total Final energy consumption for cooking in the tertiary sector',
+        'electricity services cooking': 'Final electricity consumption for cooking in the tertiary sector',  # todo
         'total services': 'Total final energy consumption in the tertiary sector',
         'electricity services': 'Final electricity consumption in the tertiary sector',
-        'derived heat services': 'Final energy consumption from heating networks in the tertiary sector',
+        'distributed heat services': 'Final energy consumption from heating networks in the tertiary sector',
         'thermal uses services': 'Thermal_uses_tertiary'
     }
 
@@ -1658,13 +1658,13 @@ def update_energy_with_clever(energy, data_sources):
         print(f"  - {c}")
 
     # --- 3. Clever-Spalten ohne Mapping (nach Sektor) ---
-    print("\n== Clever-Spalten ohne Mapping ==")
-    for sector, df in data_sources.items():
-        mapped_clever = {v for v in mappings[sector].values() if v is not None}
-        unmapped_clever = sorted(c for c in df.columns if c not in mapped_clever)
-        print(f"\n[{sector}]")
-        for c in unmapped_clever:
-            print(f"  - {c}")
+    # print("\n== Clever-Spalten ohne Mapping ==")
+    # for sector, df in data_sources.items():
+    #     mapped_clever = {v for v in mappings[sector].values() if v is not None}
+    #     unmapped_clever = sorted(c for c in df.columns if c not in mapped_clever)
+    #     print(f"\n[{sector}]")
+    #     for c in unmapped_clever:
+    #         print(f"  - {c}")
     ### test mapping ENDE ###
 
     for country in countries:
