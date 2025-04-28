@@ -1159,7 +1159,7 @@ rule prepare_sector_network:
         network=resources("networks/base_s_{clusters}_elec_{opts}.nc"),
         eurostat="data/eurostat/Balances-April2023",
         pop_weighted_energy_totals=resources(
-            "pop_weighted_energy_totals_s_{clusters}.csv"
+            "pop_weighted_energy_totals_s_{clusters}_{planning_horizons}.csv"
         ),
         pop_weighted_heat_totals=resources("pop_weighted_heat_totals_s_{clusters}_{planning_horizons}.csv"),
         shipping_demand=resources("shipping_demand_s_{clusters}_{planning_horizons}.csv"),
@@ -1167,7 +1167,7 @@ rule prepare_sector_network:
         transport_data=resources("transport_data_s_{clusters}_{planning_horizons}.csv"),
         avail_profile=resources("avail_profile_s_{clusters}_{planning_horizons}.csv"),
         dsm_profile=resources("dsm_profile_s_{clusters}_{planning_horizons}.csv"),
-        co2_totals_name=resources("co2_totals.csv_{planning_horizons}"),
+        co2_totals_name=resources("co2_totals_{planning_horizons}.csv"),
         co2="data/bundle/eea/UNFCCC_v23.csv",
         biomass_potentials=resources(
             "biomass_potentials_s_{clusters}_{planning_horizons}.csv"
