@@ -18,7 +18,7 @@ run:
   - 8Gt_Bal_v3
   #- ENS_sus_unsus_share
   #- ENS_share_constrained
-  - reference
+  #- reference
   scenarios:
     enable: true
     manual_file: config/scenarios.personal_jeckstadt.yaml
