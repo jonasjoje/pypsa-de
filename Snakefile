@@ -352,7 +352,7 @@ rule modify_prenetwork:
         aladin_demand=resources(
             "mobility_demand_aladin_{clusters}_{planning_horizons}.csv"
         ),
-        transport_data=resources("transport_data_s_{clusters}.csv"),
+        transport_data=resources("transport_data_s_{clusters}_{planning_horizons}.csv"),
         biomass_potentials=resources(
             "biomass_potentials_s_{clusters}_{planning_horizons}.csv"
         ),
@@ -360,9 +360,9 @@ rule modify_prenetwork:
             "industrial_energy_demand_base_s_{clusters}_{planning_horizons}.csv"
         ),
         pop_weighted_energy_totals=resources(
-            "pop_weighted_energy_totals_s_{clusters}.csv"
+            "pop_weighted_energy_totals_s_{clusters}_{planning_horizons}.csv"
         ),
-        shipping_demand=resources("shipping_demand_s_{clusters}.csv"),
+        shipping_demand=resources("shipping_demand_s_{clusters}_{planning_horizons}.csv"),
         regions_onshore=resources("regions_onshore_base_s_{clusters}.geojson"),
         regions_offshore=resources("regions_offshore_base_s_{clusters}.geojson"),
         offshore_connection_points="ariadne-data/offshore_connection_points.csv",
