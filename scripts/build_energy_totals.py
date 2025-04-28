@@ -1576,7 +1576,9 @@ if __name__ == "__main__":
     if "snakemake" not in globals():
         from scripts._helpers import mock_snakemake
 
-        snakemake = mock_snakemake("build_energy_totals")
+        snakemake = mock_snakemake("build_energy_totals",
+                                   planning_horizons="2020",
+                                   run="8Gt_Bal_v3")
 
     configure_logging(snakemake)
     set_scenario_config(snakemake)

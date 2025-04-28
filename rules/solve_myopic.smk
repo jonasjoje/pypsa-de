@@ -29,7 +29,7 @@ rule add_existing_baseyear:
         existing_heating_distribution=resources(
             "existing_heating_distribution_base_s_{clusters}_{planning_horizons}.csv"
         ),
-        heating_efficiencies=resources("heating_efficiencies.csv"),
+        heating_efficiencies=resources("heating_efficiencies_{planning_horizons}.csv"),
         custom_powerplants=resources("german_chp_{clusters}.csv"),
         space_requirements=lambda w: [
                 resources("space_requirements_{}_{{planning_horizons}}.csv".format(sp))
@@ -132,8 +132,8 @@ rule solve_sector_network_myopic:
     input:
         network=RESULTS
         + "networks/base_s_{clusters}_{opts}_{sector_opts}_{planning_horizons}_final.nc",
-        co2_totals_name=resources("co2_totals.csv"),
-        energy_totals=resources("energy_totals.csv"),
+        co2_totals_name=resources("co2_totals_{planning_horizons}.csv"),
+        energy_totals=resources("energy_totals_{planning_horizons}.csv"),
     output:
         network=RESULTS
         + "networks/base_s_{clusters}_{opts}_{sector_opts}_{planning_horizons}.nc",
