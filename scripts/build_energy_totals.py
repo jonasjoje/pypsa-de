@@ -1571,6 +1571,114 @@ def build_heating_efficiencies(
     return heating_efficiencies
 
 
+def update_energy_with_clever(energy, data_sources):
+    transport_map = {
+        'total road': 'Total_Road',
+        'electricity road': 'Electricity_Road',
+        'total passenger cars': 'Total final energy consumption in passenger road mobility',
+        'electricity passenger cars': 'Final electricity consumption for passenger road mobility',
+        'total rail': 'Total_rail',
+        'electricity rail': 'Electricity_rail',
+        'total rail passenger': 'Total final energy consumption in rail passenger transport',
+        'electricity rail passenger': 'Final electricity consumption in rail passenger transport',
+        'total rail freight': 'Total final energy consumption in rail freight transport',
+        'electricity rail freight': 'Final electricity consumption in rail freight transport',
+        'total aviation passenger': 'Total final energy consumption for air travel',
+        'total international aviation': 'Total final energy consumption for air travel',
+        'total domestic aviation': None,  # = 0  todo: überprüfen wie es in CLEVER ist
+        'total domestic navigation': 'Final energy consumption from liquid fuels in national water freight transport',
+        'total international navigation': 'Final energy consumption from liquid fuels in international water freight transport'
+    }
+
+    residential_map = {
+        'total residential space': 'Total final energy consumption for space heating in the residential sector',
+        'electricity residential space': 'Final electricity consumption for space heating in the residential sector',
+        'total residential water': 'Total final energy consumption for domestic hot water',
+        'electricity residential water': 'Final electricity consumption for domestic hot water',
+        'total residential cooking': 'Total final energy consumption for domestic cooking',
+        'electricity residential cooking': 'Final electricity consumption for domestic cooking',
+        'total residential': 'Total final energy consumption in the residential sector',
+        'electricity residential': 'Final electricity consumption in the residential sector',
+        'derived heat residential': 'Final energy consumption from heating networks in the residential sector',
+        'thermal uses residential': 'Thermal_uses_residential'
+    }
+
+    tertiary_map = {
+        'total services space': 'Total final energy consumption for space heating in the tertiary sector (with climatic corrections)',
+        'electricity services space': 'Final electricity consumption for space heating in the tertiary sector',
+        'total services water': 'Total final energy consumption for hot water in the tertiary sector',
+        'electricity services water': 'Final electricity consumption for hot water in the tertiary sector',
+        'total services cooking': 'Total final energy consumption for cooking in the tertiary sector',
+        'electricity services cooking': 'Final electricity consumption for cooking in the tertiary sector',
+        'total services': 'Total final energy consumption in the tertiary sector',
+        'electricity services': 'Final electricity consumption in the tertiary sector',
+        'derived heat services': 'Final energy consumption from heating networks in the tertiary sector',
+        'thermal uses services': 'Thermal_uses_tertiary'
+    }
+
+    agriculture_map = {
+        'total agriculture': 'Total Final energy consumption in agriculture',
+        'total agriculture electricity': 'Final electricity consumption in agriculture',
+        'total agriculture machinery': 'Final oil consumption in agriculture',
+        'total agriculture heat': 'Total_agriculture_heat'
+    }
+
+    mappings = {
+        'transport': transport_map,
+        'residential': residential_map,
+        'tertiary': tertiary_map,
+        'agriculture': agriculture_map
+    }
+
+    ### test mapping ###
+    # --- 1. Fehlgeschlagene Mappings ---
+    print("== Fehlgeschlagene Mappings ==")
+    for sector, df in data_sources.items():
+        for energy_col, clever_col in mappings[sector].items():
+            # überspringe None-Mappings
+            if clever_col is None:
+                continue
+
+            missing = []
+            if energy_col not in energy.columns:
+                missing.append(f"energy fehlt: '{energy_col}'")
+            if clever_col not in df.columns:
+                missing.append(f"clever_{sector} fehlt: '{clever_col}'")
+
+            if missing:
+                status = " & ".join(missing)
+                print(f"[{sector:>11}] {status}")
+
+    # --- 2. Energy-Spalten ohne Mapping ---
+    mapped_energy = {col for mp in mappings.values() for col in mp.keys()}
+    unmapped_energy = sorted(c for c in energy.columns if c not in mapped_energy)
+
+    print("\n== Energy-Spalten ohne Mapping ==")
+    for c in unmapped_energy:
+        print(f"  - {c}")
+
+    # --- 3. Clever-Spalten ohne Mapping (nach Sektor) ---
+    print("\n== Clever-Spalten ohne Mapping ==")
+    for sector, df in data_sources.items():
+        mapped_clever = {v for v in mappings[sector].values() if v is not None}
+        unmapped_clever = sorted(c for c in df.columns if c not in mapped_clever)
+        print(f"\n[{sector}]")
+        for c in unmapped_clever:
+            print(f"  - {c}")
+    ### test mapping ENDE ###
+
+    for country in countries:
+        for sector, df in data_sources.items():
+            for energy_col, clever_col in mappings[sector].items():
+                if clever_col is None:
+                    value = 0  # domestic aviation
+                else:
+                    value = df.loc[country, clever_col]
+                energy.loc[(country, year), energy_col] = value
+
+    return energy
+
+
 # %%
 if __name__ == "__main__":
     if "snakemake" not in globals():
@@ -1585,8 +1693,20 @@ if __name__ == "__main__":
 
     params = snakemake.params.energy
 
+    clever = snakemake.params.clever
+    if clever:
+        read_clever = lambda path: pd.read_csv(path, index_col=0)
+
+        clever_residential = read_clever(snakemake.input.clever_residential)
+        clever_Tertiary = read_clever(snakemake.input.clever_Tertiary)
+        clever_Transport = read_clever(snakemake.input.clever_Transport)
+        clever_Agriculture = read_clever(snakemake.input.clever_Agriculture)
+        clever_Macro = read_clever(snakemake.input.clever_Macro)
+        clever_AFOLUB = read_clever(snakemake.input.clever_AFOLUB)
+
     nuts3 = gpd.read_file(snakemake.input.nuts3_shapes).set_index("index")
     population = nuts3["pop"].groupby(nuts3.country).sum()
+    # todo: clever population?
 
     countries = snakemake.params.countries
     idees_countries = pd.Index(countries).intersection(eu27)
@@ -1602,6 +1722,7 @@ if __name__ == "__main__":
     build_transformation_output_coke(
         eurostat, snakemake.output.transformation_output_coke
     )
+    # todo: clever überschreiben?
 
     swiss = build_swiss()
     idees = build_idees(idees_countries)
@@ -1609,6 +1730,17 @@ if __name__ == "__main__":
     energy = build_energy_totals(countries, eurostat, swiss, idees)
 
     update_residential_from_eurostat(energy)
+
+    year = snakemake.params.energy_totals_year
+    if clever:
+        logger.info(f"Override energy_totals dataframe with CLEVER data on year {year}.")
+        data_sources = {
+            'transport': clever_Transport,
+            'residential': clever_residential,
+            'tertiary': clever_Tertiary,
+            'agriculture': clever_Agriculture
+        }
+        energy = update_energy_with_clever(energy, data_sources)
 
     energy.to_csv(snakemake.output.energy_name)
 

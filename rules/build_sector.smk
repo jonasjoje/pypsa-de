@@ -416,6 +416,8 @@ rule build_energy_totals:
     params:
         countries=config_provider("countries"),
         energy=config_provider("energy"),
+        clever=config_provider("clever"),
+        energy_totals_year=config_provider("energy","energy_totals_year"),
     input:
         nuts3_shapes=resources("nuts3_shapes.geojson"),
         co2="data/bundle/eea/UNFCCC_v23.csv",
@@ -428,7 +430,7 @@ rule build_energy_totals:
         clever_residential= "data/CLEVER/clever_residential_{planning_horizons}.csv",
         clever_Transport= "data/CLEVER/clever_Transport_{planning_horizons}.csv",
         clever_Agriculture= "data/CLEVER/clever_Agriculture_{planning_horizons}.csv",
-        clever_Tertairy= "data/CLEVER/clever_Tertairy_{planning_horizons}.csv",
+        clever_Tertiary= "data/CLEVER/clever_Tertairy_{planning_horizons}.csv",
         clever_AFOLUB= "data/CLEVER/clever_AFOLUB_{planning_horizons}.csv",
         clever_Macro= "data/CLEVER/clever_Macro_{planning_horizons}.csv",
     output:
