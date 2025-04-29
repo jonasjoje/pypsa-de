@@ -89,7 +89,7 @@ if config["foresight"] == "perfect":
 
 rule all:
     input:
-        #expand(RESULTS + "graphs/costs.svg", run=config["run"]["name"]),
+        expand(RESULTS + "graphs/costs.svg", run=config["run"]["name"]),
         expand(
             RESULTS + "networks/base_s_{clusters}_{opts}_{sector_opts}_{planning_horizons}.nc",
             clusters=config["scenario"]["clusters"],
