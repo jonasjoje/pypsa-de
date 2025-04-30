@@ -16,10 +16,9 @@ run:
   prefix: 20250430_low_res
   name:
   - 8Gt_Bal_v3
-  #- ENS_sus_unsus_share
-  #- ENS_share_constrained
   - reference
   - clever
+  - sr_DE10_EU5
   scenarios:
     enable: true
     manual_file: config/scenarios.personal_jeckstadt.yaml
@@ -110,7 +109,7 @@ solving:
   runtime: 24h #runtime in humanfriendly style https://humanfriendly.readthedocs.io/en/latest/
 
 
-clever: false  # for sufficiency scenario
+clever: false  # for sufficiency scenario, set in scenarios
 
 
 land_use_module:
