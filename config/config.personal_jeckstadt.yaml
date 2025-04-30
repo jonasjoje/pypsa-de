@@ -48,6 +48,10 @@ iiasa_database:
   reference_scenario: 8Gt_Bal_v3
   region: Deutschland
 
+costs:
+  horizon: "mean"
+  NEP: 2023
+  transmission: "overhead" # either overhead line ("overhead") or underground cable ("underground")
 
 scenario:
   clusters:
@@ -107,6 +111,61 @@ solving:
   mem_mb: 100000 #memory in MB; 20 GB enough for 50+B+I+H2; 100 GB for 181+B+I+H2
   memory_logging_frequency: 30 # in seconds
   runtime: 24h #runtime in humanfriendly style https://humanfriendly.readthedocs.io/en/latest/
+  constraints:
+    # boundary condition of maximum volumes
+    limits_volume_max:
+      # constrain electricity import in TWh
+      electricity_import:
+        DE:
+          2020: -20
+          2025: 0
+          2030: 0
+          2035: 40
+          2040: 80
+          2045: 125
+      electrolysis:
+        DE:
+          2020: 0
+          2025: 5
+          2030: 45
+          2035: 130
+          2040: 215
+          2045: 300
+      h2_derivate_import:
+        DE:
+          2020: 0
+          2025: 0
+          2030: 10
+          2035: 105
+          2040: 200
+          2045: 300
+      h2_import:
+        DE:
+          2020: 0
+          2025: 5
+          2030: 15
+          2035: 115
+          2040: 220
+          2045: 325
+    limits_volume_min:
+      electrolysis:
+        DE:
+          2020: 0
+          2025: 0
+          2030: 0
+          2035: 0
+          2040: 0
+          2045: 0
+    limits_capacity_min:
+      Link:
+        H2 Electrolysis:
+          DE:
+            2030: 5
+
+industry:
+  steam_biomass_fraction: 0.4
+  steam_hydrogen_fraction: 0.3
+  steam_electricity_fraction: 0.3
 
 
 clever: false  # for sufficiency scenario, set in scenarios

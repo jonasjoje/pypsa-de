@@ -10,6 +10,9 @@
     fallback_reference_scenario: 8Gt_Bal_v3
   co2_budget_DE_source: KSG
 
+  solving:
+    constraints: { }
+
   clever: false
 
   land_use_module:
@@ -17,76 +20,6 @@
       DLU:
         constraint:
           enable: false
-
-  ### pypsa-de default configs
-  costs:
-    horizon: "mean"
-    NEP: 2023
-    transmission: "overhead" # either overhead line ("overhead") or underground cable ("underground")
-
-  solving:
-    constraints:
-      # boundary condition of maximum volumes
-      limits_volume_max:
-        # constrain electricity import in TWh
-        electricity_import:
-          DE:
-            2020: -20
-            2025: 0
-            2030: 0
-            2035: 40
-            2040: 80
-            2045: 125
-            2050: 125
-        electrolysis:
-          DE:
-            2020: 0
-            2025: 5
-            2030: 45
-            2035: 130
-            2040: 215
-            2045: 300
-            2050: 300
-        h2_derivate_import:
-          DE:
-            2020: 0
-            2025: 0
-            2030: 10
-            2035: 105
-            2040: 200
-            2045: 300
-            2050: 300
-        h2_import:
-          DE:
-            2020: 0
-            2025: 5
-            2030: 15
-            2035: 115
-            2040: 220
-            2045: 325
-            2050: 325
-      limits_volume_min:
-        electrolysis:
-          DE:
-            2020: 0
-            2025: 0
-            2030: 0
-            2035: 0
-            2040: 0
-            2045: 0
-            2050: 0
-      limits_capacity_min:
-        Link:
-          H2 Electrolysis:
-            DE:
-              2030: 5
-
-  industry:
-    steam_biomass_fraction: 0.4
-    steam_hydrogen_fraction: 0.3
-    steam_electricity_fraction: 0.3
-
-
 
 
 
@@ -96,6 +29,9 @@ reference:
     reference_scenario: 8Gt_Bal_v3
     fallback_reference_scenario: 8Gt_Bal_v3
   co2_budget_DE_source: KSG
+
+  solving:
+    constraints: { }
 
   biomass:
     share_unsustainable_use_retained:
@@ -131,73 +67,6 @@ reference:
         constraint:
           enable: false
 
-  ### pypsa-de default configs
-  costs:
-    horizon: "mean"
-    NEP: 2023
-    transmission: "overhead" # either overhead line ("overhead") or underground cable ("underground")
-
-  solving:
-    constraints:
-      # boundary condition of maximum volumes
-      limits_volume_max:
-        # constrain electricity import in TWh
-        electricity_import:
-          DE:
-            2020: -20
-            2025: 0
-            2030: 0
-            2035: 40
-            2040: 80
-            2045: 125
-            2050: 125
-        electrolysis:
-          DE:
-            2020: 0
-            2025: 5
-            2030: 45
-            2035: 130
-            2040: 215
-            2045: 300
-            2050: 300
-        h2_derivate_import:
-          DE:
-            2020: 0
-            2025: 0
-            2030: 10
-            2035: 105
-            2040: 200
-            2045: 300
-            2050: 300
-        h2_import:
-          DE:
-            2020: 0
-            2025: 5
-            2030: 15
-            2035: 115
-            2040: 220
-            2045: 325
-            2050: 325
-      limits_volume_min:
-        electrolysis:
-          DE:
-            2020: 0
-            2025: 0
-            2030: 0
-            2035: 0
-            2040: 0
-            2045: 0
-            2050: 0
-      limits_capacity_min:
-        Link:
-          H2 Electrolysis:
-            DE:
-              2030: 5
-
-  industry:
-    steam_biomass_fraction: 0.4
-    steam_hydrogen_fraction: 0.3
-    steam_electricity_fraction: 0.3
 
 
 clever:
@@ -205,6 +74,9 @@ clever:
     reference_scenario: 8Gt_Bal_v3
     fallback_reference_scenario: 8Gt_Bal_v3
   co2_budget_DE_source: KSG
+
+  solving:
+    constraints: { }
 
   biomass:
     share_unsustainable_use_retained:
@@ -240,73 +112,7 @@ clever:
         constraint:
           enable: false
 
-  ### pypsa-de default configs
-  costs:
-    horizon: "mean"
-    NEP: 2023
-    transmission: "overhead" # either overhead line ("overhead") or underground cable ("underground")
 
-  solving:
-    constraints:
-      # boundary condition of maximum volumes
-      limits_volume_max:
-        # constrain electricity import in TWh
-        electricity_import:
-          DE:
-            2020: -20
-            2025: 0
-            2030: 0
-            2035: 40
-            2040: 80
-            2045: 125
-            2050: 125
-        electrolysis:
-          DE:
-            2020: 0
-            2025: 5
-            2030: 45
-            2035: 130
-            2040: 215
-            2045: 300
-            2050: 300
-        h2_derivate_import:
-          DE:
-            2020: 0
-            2025: 0
-            2030: 10
-            2035: 105
-            2040: 200
-            2045: 300
-            2050: 300
-        h2_import:
-          DE:
-            2020: 0
-            2025: 5
-            2030: 15
-            2035: 115
-            2040: 220
-            2045: 325
-            2050: 325
-      limits_volume_min:
-        electrolysis:
-          DE:
-            2020: 0
-            2025: 0
-            2030: 0
-            2035: 0
-            2040: 0
-            2045: 0
-            2050: 0
-      limits_capacity_min:
-        Link:
-          H2 Electrolysis:
-            DE:
-              2030: 5
-
-  industry:
-    steam_biomass_fraction: 0.4
-    steam_hydrogen_fraction: 0.3
-    steam_electricity_fraction: 0.3
 
 
 sr_DE10_EU5:
@@ -314,6 +120,9 @@ sr_DE10_EU5:
     reference_scenario: 8Gt_Bal_v3
     fallback_reference_scenario: 8Gt_Bal_v3
   co2_budget_DE_source: KSG
+
+  solving:
+    constraints: { }
 
   biomass:
     share_unsustainable_use_retained:
@@ -362,66 +171,3 @@ sr_DE10_EU5:
 #              2030: 27.3e9
 #              2040: 27.3e9
 
-
-  ### pypsa-de default configs
-  costs:
-    horizon: "mean"
-    NEP: 2023
-    transmission: "overhead" # either overhead line ("overhead") or underground cable ("underground")
-
-  solving:
-    constraints:
-      # boundary condition of maximum volumes
-      limits_volume_max:
-        # constrain electricity import in TWh
-        electricity_import:
-          DE:
-            2020: -20
-            2025: 0
-            2030: 0
-            2035: 40
-            2040: 80
-            2045: 125
-        electrolysis:
-          DE:
-            2020: 0
-            2025: 5
-            2030: 45
-            2035: 130
-            2040: 215
-            2045: 300
-        h2_derivate_import:
-          DE:
-            2020: 0
-            2025: 0
-            2030: 10
-            2035: 105
-            2040: 200
-            2045: 300
-        h2_import:
-          DE:
-            2020: 0
-            2025: 5
-            2030: 15
-            2035: 115
-            2040: 220
-            2045: 325
-      limits_volume_min:
-        electrolysis:
-          DE:
-            2020: 0
-            2025: 0
-            2030: 0
-            2035: 0
-            2040: 0
-            2045: 0
-      limits_capacity_min:
-        Link:
-          H2 Electrolysis:
-            DE:
-              2030: 5
-
-  industry:
-    steam_biomass_fraction: 0.4
-    steam_hydrogen_fraction: 0.3
-    steam_electricity_fraction: 0.3
