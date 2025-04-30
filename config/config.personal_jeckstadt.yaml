@@ -18,7 +18,7 @@ run:
   - 8Gt_Bal_v3
   - reference
   - clever
-  - sr_DE10_EU5
+  - constrained
   scenarios:
     enable: true
     manual_file: config/scenarios.personal_jeckstadt.yaml
