@@ -9,7 +9,6 @@
     reference_scenario: 8Gt_Bal_v3
     fallback_reference_scenario: 8Gt_Bal_v3
   co2_budget_DE_source: KSG
-
   solving:
     constraints: { }
 
@@ -21,27 +20,15 @@
         constraint:
           enable: false
 
-
-
-
-reference:
-  iiasa_database:
-    reference_scenario: 8Gt_Bal_v3
-    fallback_reference_scenario: 8Gt_Bal_v3
-  co2_budget_DE_source: KSG
-
-  solving:
-    constraints: { }
-
-  biomass:
+  biomass: # from config.default
     share_unsustainable_use_retained:
       2020: 1
-      2025: 1
-      2030: 1
-      2035: 1
-      2040: 1
-      2045: 1
-      2050: 1
+      2025: 0.66
+      2030: 0.33
+      2035: 0
+      2040: 0
+      2045: 0
+      2050: 0
     share_sustainable_potential_available:
       2020: 0
       2025: 0.33
@@ -50,14 +37,26 @@ reference:
       2040: 1
       2045: 1
       2050: 1
-    share_unsustainable_min:
+    share_unsustainable_min: # share of share_unsustainable_use_retained as minimum use
       2020: 1
-      2025: 0.66
-      2030: 0.33
-      2035: 0
-      2040: 0
-      2045: 0
-      2050: 0
+      2025: 1
+      2030: 1
+      2035: 1
+      2040: 1
+      2045: 1
+      2050: 1
+
+
+
+
+reference:
+  iiasa_database:
+    reference_scenario: 8Gt_Bal_v3
+    fallback_reference_scenario: 8Gt_Bal_v3
+  co2_budget_DE_source: KSG
+  solving:
+    constraints: { }
+
 
   clever: false
 
@@ -74,35 +73,9 @@ clever:
     reference_scenario: 8Gt_Bal_v3
     fallback_reference_scenario: 8Gt_Bal_v3
   co2_budget_DE_source: KSG
-
   solving:
     constraints: { }
 
-  biomass:
-    share_unsustainable_use_retained:
-      2020: 1
-      2025: 1
-      2030: 1
-      2035: 1
-      2040: 1
-      2045: 1
-      2050: 1
-    share_sustainable_potential_available:
-      2020: 0
-      2025: 0.33
-      2030: 0.66
-      2035: 1
-      2040: 1
-      2045: 1
-      2050: 1
-    share_unsustainable_min:
-      2020: 1
-      2025: 0.66
-      2030: 0.33
-      2035: 0
-      2040: 0
-      2045: 0
-      2050: 0
 
   clever: true
 
@@ -120,35 +93,8 @@ sr_DE10_EU5:
     reference_scenario: 8Gt_Bal_v3
     fallback_reference_scenario: 8Gt_Bal_v3
   co2_budget_DE_source: KSG
-
   solving:
     constraints: { }
-
-  biomass:
-    share_unsustainable_use_retained:
-      2020: 0.5
-      2025: 0.5
-      2030: 0.45
-      2035: 0.45
-      2040: 0.4
-      2045: 0.4
-      2050: 0.4
-    share_sustainable_potential_available:  # default values
-      2020: 0.5
-      2025: 0.5
-      2030: 0.55
-      2035: 0.55
-      2040: 0.6
-      2045: 0.6
-      2050: 0.6
-    share_unsustainable_min: # share of share_unsustainable_use_retained as minimum use
-      2020: 0
-      2025: 0
-      2030: 0
-      2035: 0
-      2040: 0
-      2045: 0
-      2050: 0
 
   clever: false
 
