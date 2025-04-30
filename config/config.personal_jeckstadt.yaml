@@ -56,10 +56,9 @@ costs:
 scenario:
   clusters:
     - adm  # administrative setting
-    #- 30  # DE und CH auf NUTS1,current options: 27, 49
-    #- 51  # mit ES, FR, GB, IT auf NUTS1
+    #- 30  # current options: 27, 49
   planning_horizons:
-    - 2020
+    #- 2020
     - 2030
     - 2040
     - 2050
