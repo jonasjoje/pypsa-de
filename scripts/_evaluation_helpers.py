@@ -46,3 +46,10 @@ def plot_line_comparison(nn, title, expr, output):
     fig = ax.get_figure()
     fig.savefig(output)
     logger.info(f"Created plot {title} and saved to {output}")
+
+def filter_statistics_by_country(n, country):
+    df = n.statistics(groupby=["bus","carrier"])
+    df.index.set_names(["component", "bus", "carrier"], inplace=True)
+    df=df.reset_index().query(f"bus.str.contains(@country)")
+    df=df.groupby(["component","carrier"]).sum().drop(columns="bus")
+    return df

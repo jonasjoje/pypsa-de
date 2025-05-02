@@ -58,6 +58,7 @@ rule evaluate_FEC_comparison:
         )
     output:
         total_FEC_graph = GENERAL_COMPARISON + "total_FEC_graph.png",
+        DE_FEC_graph = GENERAL_COMPARISON + "DE_FEC_graph.png",
         done = touch(".tmp/evaluate_FEC_comparison.done")
     resources:
         mem = 30000
