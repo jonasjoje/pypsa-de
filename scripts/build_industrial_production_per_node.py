@@ -47,6 +47,29 @@ sector_mapping = {
 }
 
 
+def override_country_production_with_clever(
+    prod_df: pd.DataFrame,
+    clever_df: pd.DataFrame,
+    countries: list[str]
+) -> pd.DataFrame:
+    clever_map = {
+        "Electric arc":           "Production of primary steel",
+        "DRI + Electric arc":     "Production of recycled steel",
+        "Integrated steelworks":  None,  # immer 0
+        "Cement":                 "Production of cement",
+        "Glass production":       "Production of glass",
+        "Other chemicals":        "Production of high value chemicals ",
+        "Paper production":       "Production of paper"
+    }
+
+    for country in countries:
+        for sector, clever_col in clever_map.items():
+            if clever_col is None:
+                prod_df.at[country, sector] = 0
+            else:
+                prod_df.at[country, sector] = clever_df.at[country, clever_col]
+    return prod_df
+
 def build_nodal_industrial_production():
     fn = snakemake.input.industrial_production_per_country_tomorrow
     industrial_production = pd.read_csv(fn, index_col=0)
@@ -61,6 +84,15 @@ def build_nodal_industrial_production():
 
     countries = keys.country.unique()
     sectors = industrial_production.columns
+
+    if snakemake.params.clever:
+        logger.info("Override country production with CLEVER data.")
+        clever_industry_df = pd.read_csv(snakemake.input.clever_industry, index_col=0)
+        industrial_production = override_country_production_with_clever(
+            prod_df    = industrial_production,
+            clever_df  = clever_industry_df,
+            countries  = countries
+        )
 
     for country, sector in product(countries, sectors):
         buses = keys.index[keys.country == country]
@@ -78,7 +110,10 @@ if __name__ == "__main__":
     if "snakemake" not in globals():
         from scripts._helpers import mock_snakemake
 
-        snakemake = mock_snakemake("build_industrial_production_per_node", clusters=48)
+        snakemake = mock_snakemake("build_industrial_production_per_node",
+                                   clusters="adm",
+                                   planning_horizons=2030,
+                                   run="clever")
     configure_logging(snakemake)
     set_scenario_config(snakemake)
 

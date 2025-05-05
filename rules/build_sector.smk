@@ -725,6 +725,8 @@ rule build_industrial_distribution_key:
 
 
 rule build_industrial_production_per_node:
+    params:
+        clever = config_provider("clever")
     input:
         industrial_distribution_key=resources(
             "industrial_distribution_key_base_s_{clusters}.csv"
@@ -732,6 +734,7 @@ rule build_industrial_production_per_node:
         industrial_production_per_country_tomorrow=resources(
             "industrial_production_per_country_tomorrow_{planning_horizons}-modified.csv"
         ),
+        clever_industry= "data/CLEVER/clever_Industry_{planning_horizons}.csv",
     output:
         industrial_production_per_node=resources(
             "industrial_production_base_s_{clusters}_{planning_horizons}.csv"
