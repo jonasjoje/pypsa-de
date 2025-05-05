@@ -1289,12 +1289,12 @@ if __name__ == "__main__":
         snakemake = mock_snakemake(
             "modify_prenetwork",
             simpl="",
-            clusters=27,
+            clusters="adm",
             opts="",
-            ll="vopt",
+            ll="v1.1",
             sector_opts="none",
-            planning_horizons="2025",
-            run="KN2045_Bal_v4",
+            planning_horizons="2030",
+            run="clever",
         )
 
     configure_logging(snakemake)
@@ -1310,7 +1310,10 @@ if __name__ == "__main__":
         nyears,
     )
 
-    aladin_mobility_demand(n)
+    if snakemake.params.clever:
+        logger.info("CLEVER scenario activated. Skip aladin_mobility_demand.")
+    else:
+        aladin_mobility_demand(n)
 
     new_boiler_ban(n)
 
