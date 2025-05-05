@@ -15,10 +15,10 @@ remote:
 run:
   prefix: 20250430_low_res
   name:
-  - 8Gt_Bal_v3
+  #- 8Gt_Bal_v3
   - reference
   - clever
-  - constrained
+  #- constrained
   scenarios:
     enable: true
     manual_file: config/scenarios.personal_jeckstadt.yaml
@@ -167,7 +167,7 @@ industry:
   steam_electricity_fraction: 0.3
 
 
-clever: true  # for sufficiency scenario, set in scenarios
+clever: false  # for sufficiency scenario, set in scenarios
 
 
 land_use_module:
