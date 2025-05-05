@@ -311,6 +311,24 @@ def separate_basic_chemicals(demand, year):
 
     demand.drop(columns=["Basic chemicals"], inplace=True)
 
+def update_demand_with_clever(
+    demand_df: pd.DataFrame,
+    clever_df: pd.DataFrame,
+    countries: list[str],
+):
+    industry_mapping = {
+        "Integrated steelworks": "Production of crude steel",
+        "Cement": "Production of cement",
+        "Glass production": "Production of glass",
+        "Other chemicals": "Production of high value chemicals ",
+        "Paper production": "Production of paper"
+    }
+
+    for country in countries:
+        for demand_col, clever_col in industry_mapping.items():
+            demand_df.loc[country, demand_col] = clever_df.at[country, clever_col]
+    return demand_df
+
 
 if __name__ == "__main__":
     if "snakemake" not in globals():
@@ -330,6 +348,16 @@ if __name__ == "__main__":
     eurostat_dir = snakemake.input.eurostat
 
     demand = industry_production(countries, year, eurostat_dir, jrc_dir)
+
+    clever = snakemake.params.clever
+    if clever:
+        logger.info(f"Override 'demand' with CLEVER data.")
+        clever_industry_df = pd.read_csv(snakemake.input.clever_industry, index_col=0)
+        demand = update_demand_with_clever(
+            demand_df=demand,
+            clever_df=clever_industry_df,
+            countries=countries,
+        )
 
     separate_basic_chemicals(demand, year)
 

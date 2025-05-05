@@ -167,7 +167,7 @@ industry:
   steam_electricity_fraction: 0.3
 
 
-clever: false  # for sufficiency scenario, set in scenarios
+clever: true  # for sufficiency scenario, set in scenarios
 
 
 land_use_module:

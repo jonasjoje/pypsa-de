@@ -641,11 +641,13 @@ rule build_industrial_production_per_country:
     params:
         industry=config_provider("industry"),
         countries=config_provider("countries"),
+        clever=config_provider("clever")
     input:
         ch_industrial_production="data/ch_industrial_production_per_subsector.csv",
         ammonia_production=resources("ammonia_production.csv"),
         jrc="data/jrc-idees-2021",
         eurostat="data/eurostat/Balances-April2023",
+        clever_industry= "data/CLEVER/clever_Industry_2030.csv",
     output:
         industrial_production_per_country=resources(
             "industrial_production_per_country.csv"
