@@ -169,14 +169,14 @@ if __name__ == "__main__":
 
     # Filter rows where the "par" column contains "Space requirement" and "cat" equals "Energy/technical data"
     sr = data[(data['par'].str.contains("Space requirement", na=False)) & (data['cat'] == "Energy/technical data")]
-    flh = data[(data['par'].str.contains("Average annual full-load hours", na=False)) & (~data['par'].str.contains("DC"))]  # todo: solar, wind specific, has to be tested for other technologies
+    #flh = data[(data['par'].str.contains("Average annual full-load hours", na=False)) & (~data['par'].str.contains("DC"))]  # todo: solar, wind specific, has to be tested for other technologies
 
     # Adjust the space requirement values and unit strings
     sr = adjust_space_requirement_values(sr, flh)
     # Overwrite wind values based on generating capacity
     sr = adjust_onwind_values(sr, data)
 
-    sr = adjust_flh_calculation(sr, flh)
+    #sr = adjust_flh_calculation(sr, flh)
 
     # Define mapping dictionary (todo: map more)
     technology_mapping = {
