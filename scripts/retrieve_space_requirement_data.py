@@ -36,7 +36,7 @@ def download_file(url, path, retrieve_flag):
             raise RuntimeError(f"File {path} does not exist and retrieve is disabled")
 
 
-def adjust_space_requirement_values(sr, flh):
+def adjust_space_requirement_values(sr):
     sr['val'] = pd.to_numeric(sr['val'], errors='coerce')
 
     # adjust to m2/MW
@@ -143,9 +143,9 @@ if __name__ == "__main__":
 
         snakemake = mock_snakemake(
             "retrieve_space_requirement_data",
-            planning_horizons="2020",
-            space_req_type="dist",
-            run="8Gt_Bal_v3",
+            planning_horizons="2030",
+            space_req_type="DLU",
+            run="reference",
         )
         rootpath = ".."
     else:
@@ -172,7 +172,7 @@ if __name__ == "__main__":
     #flh = data[(data['par'].str.contains("Average annual full-load hours", na=False)) & (~data['par'].str.contains("DC"))]  # todo: solar, wind specific, has to be tested for other technologies
 
     # Adjust the space requirement values and unit strings
-    sr = adjust_space_requirement_values(sr, flh)
+    sr = adjust_space_requirement_values(sr)
     # Overwrite wind values based on generating capacity
     sr = adjust_onwind_values(sr, data)
 
