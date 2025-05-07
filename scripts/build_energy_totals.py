@@ -1603,18 +1603,18 @@ def update_energy_with_clever(energy, data_sources):
         'thermal uses residential': 'Thermal_uses_residential'
     }
 
-    tertiary_map = {
-        'total services space': 'Total final energy consumption for space heating in the tertiary sector (with climatic corrections) ', # todo
-        'electricity services space': 'Final electricity consumption for space heating in the tertiary sector',
-        'total services water': 'Total final energy consumption for hot water in the tertiary sector',
-        'electricity services water': 'Final electricity consumption for hot water in the tertiary sector',
-        'total services cooking': 'Total Final energy consumption for cooking in the tertiary sector',
-        'electricity services cooking': 'Final electricity consumption for cooking in the tertiary sector',  # todo
-        'total services': 'Total final energy consumption in the tertiary sector',
-        'electricity services': 'Final electricity consumption in the tertiary sector',
-        'distributed heat services': 'Final energy consumption from heating networks in the tertiary sector',
-        'thermal uses services': 'Thermal_uses_tertiary'
-    }
+    # tertiary_map = {
+    #     'total services space': 'Total final energy consumption for space heating in the tertiary sector (with climatic corrections) ',
+    #     'electricity services space': 'Final electricity consumption for space heating in the tertiary sector',
+    #     'total services water': 'Total final energy consumption for hot water in the tertiary sector',
+    #     'electricity services water': 'Final electricity consumption for hot water in the tertiary sector',
+    #     'total services cooking': 'Total Final energy consumption for cooking in the tertiary sector',
+    #     'electricity services cooking': 'Final electricity consumption for cooking in the tertiary sector',
+    #     'total services': 'Total final energy consumption in the tertiary sector',
+    #     'electricity services': 'Final electricity consumption in the tertiary sector',
+    #     'distributed heat services': 'Final energy consumption from heating networks in the tertiary sector',
+    #     'thermal uses services': 'Thermal_uses_tertiary'
+    # }
 
     agriculture_map = {
         'total agriculture': 'Total Final energy consumption in agriculture',
