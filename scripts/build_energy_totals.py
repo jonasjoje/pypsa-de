@@ -1626,36 +1626,36 @@ def update_energy_with_clever(energy, data_sources):
     mappings = {
         'transport': transport_map,
         'residential': residential_map,
-        'tertiary': tertiary_map,
+        #'tertiary': tertiary_map,
         'agriculture': agriculture_map
     }
 
     ### test mapping ###
     # --- 1. Fehlgeschlagene Mappings ---
-    print("== Fehlgeschlagene Mappings ==")
-    for sector, df in data_sources.items():
-        for energy_col, clever_col in mappings[sector].items():
-            # überspringe None-Mappings
-            if clever_col is None:
-                continue
-
-            missing = []
-            if energy_col not in energy.columns:
-                missing.append(f"energy fehlt: '{energy_col}'")
-            if clever_col not in df.columns:
-                missing.append(f"clever_{sector} fehlt: '{clever_col}'")
-
-            if missing:
-                status = " & ".join(missing)
-                print(f"[{sector:>11}] {status}")
-
-    # --- 2. Energy-Spalten ohne Mapping ---
-    mapped_energy = {col for mp in mappings.values() for col in mp.keys()}
-    unmapped_energy = sorted(c for c in energy.columns if c not in mapped_energy)
-
-    print("\n== Energy-Spalten ohne Mapping ==")
-    for c in unmapped_energy:
-        print(f"  - {c}")
+    # print("== Fehlgeschlagene Mappings ==")
+    # for sector, df in data_sources.items():
+    #     for energy_col, clever_col in mappings[sector].items():
+    #         # überspringe None-Mappings
+    #         if clever_col is None:
+    #             continue
+    #
+    #         missing = []
+    #         if energy_col not in energy.columns:
+    #             missing.append(f"energy fehlt: '{energy_col}'")
+    #         if clever_col not in df.columns:
+    #             missing.append(f"clever_{sector} fehlt: '{clever_col}'")
+    #
+    #         if missing:
+    #             status = " & ".join(missing)
+    #             print(f"[{sector:>11}] {status}")
+    #
+    # # --- 2. Energy-Spalten ohne Mapping ---
+    # mapped_energy = {col for mp in mappings.values() for col in mp.keys()}
+    # unmapped_energy = sorted(c for c in energy.columns if c not in mapped_energy)
+    #
+    # print("\n== Energy-Spalten ohne Mapping ==")
+    # for c in unmapped_energy:
+    #     print(f"  - {c}")
 
     # --- 3. Clever-Spalten ohne Mapping (nach Sektor) ---
     # print("\n== Clever-Spalten ohne Mapping ==")
