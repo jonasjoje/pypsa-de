@@ -1294,7 +1294,7 @@ if __name__ == "__main__":
             ll="v1.1",
             sector_opts="none",
             planning_horizons="2030",
-            run="clever",
+            run="reference",
         )
 
     configure_logging(snakemake)

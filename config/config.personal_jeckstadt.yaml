@@ -94,6 +94,7 @@ sector:
   agriculture: true
   gas_network: false
   regional_gas_demand: true
+  cluster_heat_buses: false
 
 clustering:
   mode: administrative
