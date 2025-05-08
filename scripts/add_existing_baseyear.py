@@ -1096,7 +1096,7 @@ if __name__ == "__main__":
             ll="v1.1",
             opts="",
             sector_opts="none",
-            planning_horizons="2030",
+            planning_horizons="2020",
             run="reference",
         )
 

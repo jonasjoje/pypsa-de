@@ -1395,11 +1395,11 @@ if __name__ == "__main__":
         snakemake = mock_snakemake(
             "solve_sector_network_myopic",
             opts="",
-            clusters="30",
-            ll="v1.0",
+            clusters="adm",
+            ll="v1.1",
             sector_opts="none",
-            planning_horizons="2050",
-            run="8Gt_Bal_v3",
+            planning_horizons="2020",
+            run="reference",
             configfiles="config/config.personal_jeckstadt.yaml",
         )
     configure_logging(snakemake)
