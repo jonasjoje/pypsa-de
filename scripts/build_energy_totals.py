@@ -1685,8 +1685,8 @@ if __name__ == "__main__":
         from scripts._helpers import mock_snakemake
 
         snakemake = mock_snakemake("build_energy_totals",
-                                   planning_horizons="2020",
-                                   run="8Gt_Bal_v3")
+                                   planning_horizons="2030",
+                                   run="reference")
 
     configure_logging(snakemake)
     set_scenario_config(snakemake)
@@ -1737,7 +1737,7 @@ if __name__ == "__main__":
         data_sources = {
             'transport': clever_Transport,
             'residential': clever_residential,
-            'tertiary': clever_Tertiary,
+            #'tertiary': clever_Tertiary,
             'agriculture': clever_Agriculture
         }
         energy = update_energy_with_clever(energy, data_sources)
