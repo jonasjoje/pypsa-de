@@ -1584,8 +1584,8 @@ def update_energy_with_clever(energy, data_sources):
         'total rail freight': 'Total final energy consumption in rail freight transport',
         'electricity rail freight': 'Final electricity consumption in rail freight transport',
         'total aviation passenger': 'Total final energy consumption for air travel',
-        'total international aviation': 'Total final energy consumption for air travel',
-        'total domestic aviation': None,  # = 0  todo: überprüfen wie es in CLEVER ist
+        'total international aviation': 'Final liquid fuels consumption on international flights',
+        'total domestic aviation': 'Total final liquid fuels consumption for air travels',
         'total domestic navigation': 'Final energy consumption from liquid fuels in national water freight transport',
         'total international navigation': 'Final energy consumption from liquid fuels in international water freight transport'
     }
@@ -1670,10 +1670,7 @@ def update_energy_with_clever(energy, data_sources):
     for country in countries:
         for sector, df in data_sources.items():
             for energy_col, clever_col in mappings[sector].items():
-                if clever_col is None:
-                    value = 0  # domestic aviation
-                else:
-                    value = df.loc[country, clever_col]
+                value = df.loc[country, clever_col]
                 energy.loc[(country, year), energy_col] = value
 
     return energy
@@ -1686,7 +1683,7 @@ if __name__ == "__main__":
 
         snakemake = mock_snakemake("build_energy_totals",
                                    planning_horizons="2030",
-                                   run="reference")
+                                   run="clever")
 
     configure_logging(snakemake)
     set_scenario_config(snakemake)
@@ -1760,11 +1757,11 @@ if __name__ == "__main__":
     # todo: mit clever überschreiben? wurde so gemacht in Tareen
 
     transport = build_transport_data(countries, population, idees)
-    if clever:
-        for country in countries:
-            person_per_vehicle = clever_Transport.loc[country, 'Average number of people per vehicle']
-            stocks_car = transport.loc[(country, year), 'number cars']
-            #transport.loc[(country, year), 'number cars'] = stocks_car / person_per_vehicle  # todo: macht diese Berechnung Sinn?
+    # if clever: # has no influence on FEC
+    #     for country in countries:
+    #         person_per_vehicle = clever_Transport.loc[country, 'Average number of people per vehicle']
+    #         stocks_car = transport.loc[(country, year), 'number cars']
+    #         #transport.loc[(country, year), 'number cars'] = stocks_car / person_per_vehicle  # macht diese Berechnung Sinn?
     transport.to_csv(snakemake.output.transport_name)
 
     heating_efficiencies = build_heating_efficiencies(countries, idees)
