@@ -1764,7 +1764,7 @@ if __name__ == "__main__":
         for country in countries:
             person_per_vehicle = clever_Transport.loc[country, 'Average number of people per vehicle']
             stocks_car = transport.loc[(country, year), 'number cars']
-            transport.loc[(country, year), 'number cars'] = stocks_car / person_per_vehicle  # todo: macht diese Berechnung Sinn?
+            #transport.loc[(country, year), 'number cars'] = stocks_car / person_per_vehicle  # todo: macht diese Berechnung Sinn?
     transport.to_csv(snakemake.output.transport_name)
 
     heating_efficiencies = build_heating_efficiencies(countries, idees)
