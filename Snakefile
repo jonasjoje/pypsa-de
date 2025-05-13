@@ -741,4 +741,10 @@ rule ariadne_report_only:
         ),
 
 
-
+rule get_FEC_reference:
+    input:
+        network = "results/" + config["run"]["prefix"] + "/reference/networks/base_s_adm__none_2020.nc"
+    output:
+        FEC_value = "resources/" + config["run"]["prefix"] + "/reference/FEC_reference.txt"
+    script:
+        "scripts/get_FEC_reference.py"
