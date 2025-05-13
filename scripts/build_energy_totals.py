@@ -1673,6 +1673,13 @@ def update_energy_with_clever(energy, data_sources):
                 value = df.loc[country, clever_col]
                 energy.loc[(country, year), energy_col] = value
 
+    #add freight to total road
+    for country in countries:
+        df = data_sources['transport']
+        base = energy.loc[(country, year), 'total road']
+        freight = df.loc[country, 'Total final energy consumption in freight transport']
+        energy.loc[(country, year), 'total road'] = base + freight
+
     return energy
 
 
