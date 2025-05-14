@@ -8,6 +8,7 @@ import numpy as np
 import pandas as pd
 import pypsa
 from shapely.geometry import Point
+from pathlib import Path
 
 from scripts._helpers import (
     configure_logging, 
@@ -1283,6 +1284,19 @@ def scale_capacity(n, scaling):
                     links_i_current, "p_nom"
                 ]
 
+def scale_demand_to_clever(n, FEC_reference_path, clever_FEC_share):
+    file_path = Path(FEC_reference_path)
+    FEC_reference = float(file_path.read_text().strip())
+    logger.info(f"Scale all demand to {clever_FEC_share} of {round(FEC_reference*1e-6,0)} TWh in 2020.")
+
+    current_FEC = 1234.0
+    logger.info(f"Current FEC is {round(current_FEC*1e-6)} TWh. Calculate correction factor.")
+
+    correction_factor = 5678.0
+    logger.info(f"Correction factor is {correction_factor}.")
+
+
+    logger.info("Demand scaled.")
 
 if __name__ == "__main__":
     if "snakemake" not in globals():
@@ -1294,7 +1308,7 @@ if __name__ == "__main__":
             ll="v1.1",
             sector_opts="none",
             planning_horizons="2020",
-            run="reference",
+            run="clever",
         )
 
     configure_logging(snakemake)
@@ -1372,6 +1386,11 @@ if __name__ == "__main__":
     force_connection_nep_offshore(n, current_year)
 
     scale_capacity(n, snakemake.params.scale_capacity)
+
+    if snakemake.params.clever:
+        scale_demand_to_clever(n,
+                               snakemake.input.FEC_reference,
+                               snakemake.params.clever_FEC_share[current_year])
 
     sanitize_custom_columns(n)
 
