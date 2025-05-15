@@ -17,6 +17,7 @@ from scripts._helpers import (
 )
 from scripts.add_electricity import load_costs
 from scripts.prepare_sector_network import lossy_bidirectional_links, prepare_costs
+from scripts.get_FEC_reference import get_reference_FEC
 
 logger = logging.getLogger(__name__)
 
@@ -1284,16 +1285,82 @@ def scale_capacity(n, scaling):
                     links_i_current, "p_nom"
                 ]
 
-def scale_demand_to_clever(n, FEC_reference_path, clever_FEC_share):
+def scale_demand_to_clever(n, FEC_reference_path):
     file_path = Path(FEC_reference_path)
-    FEC_reference = float(file_path.read_text().strip())
-    logger.info(f"Scale all demand to {clever_FEC_share} of {round(FEC_reference*1e-6,0)} TWh in 2020.")
+    FEC_ref = pd.read_csv(file_path, index_col=0)
 
-    current_FEC = 1234.0
-    logger.info(f"Current FEC is {round(current_FEC*1e-6)} TWh. Calculate correction factor.")
+    FEC_current = get_reference_FEC(n)
 
-    correction_factor = 5678.0
-    logger.info(f"Correction factor is {correction_factor}.")
+    factors = FEC_ref.div(FEC_current)
+
+    sector_map = {
+        # Residential
+        'electricity': 'Residential',
+        'residential rural heat': 'Residential',
+        'urban central heat': 'Residential',
+        'residential urban decentral heat': 'Residential',
+        # Domestic transport
+        'land transport EV': 'Domestic transport',
+        'land transport fuel cell': 'Domestic transport',
+        'land transport oil': 'Domestic transport',
+        # International transport
+        'kerosene for aviation': 'International transport',
+        'shipping methanol': 'International transport',
+        'shipping oil': 'International transport',
+        # Industry
+        'industry electricity': 'Industry',
+        'low-temperature heat for industry': 'Industry',
+        'H2 for industry': 'Industry',
+        'coal for industry': 'Industry',
+        'gas for industry': 'Industry',
+        'industry methanol': 'Industry',
+        'naphtha for industry': 'Industry',
+        'solid biomass for industry': 'Industry',
+        # Tertiary
+        'services rural heat': 'Tertiary',
+        'services urban decentral heat': 'Tertiary',
+        # Agriculture
+        'agriculture electricity': 'Agriculture',
+        'agriculture heat': 'Agriculture',
+        'agriculture machinery oil': 'Agriculture',
+    }
+
+    df = n.loads[['bus', 'carrier']].copy()
+    df['sector'] = df['carrier'].map(sector_map)
+    df['country'] = df['bus'].str[:2]
+
+    factors_long = (
+        factors
+        .reset_index()
+        .melt(
+            id_vars='index',
+            var_name='sector',
+            value_name='factor'
+        )
+        .rename(columns={'index': 'country'})
+    )
+
+    df = df.merge(
+        factors_long,
+        on=['country', 'sector'],
+        how='left'
+    )
+
+    factor_lookup = (
+        df
+        .set_index(['bus', 'carrier'])['factor']
+        .fillna(1.0)
+    )
+    keys = list(zip(n.loads['bus'], n.loads['carrier']))
+
+    factor_series = pd.Series(
+        [factor_lookup.get(key, 1.0) for key in keys],
+        index=n.loads.index,
+        name='factor'
+    )
+
+    n.loads['p_set'] = n.loads['p_set'] * factor_series
+    n.loads_t['p_set'] = n.loads_t['p_set'] * factor_series[n.loads_t['p_set'].columns]
 
 
     logger.info("Demand scaled.")
@@ -1388,9 +1455,7 @@ if __name__ == "__main__":
     scale_capacity(n, snakemake.params.scale_capacity)
 
     if snakemake.params.clever:
-        scale_demand_to_clever(n,
-                               snakemake.input.FEC_reference,
-                               snakemake.params.clever_FEC_share[current_year])
+        scale_demand_to_clever(n, snakemake.input.FEC_reference)
 
     sanitize_custom_columns(n)
 

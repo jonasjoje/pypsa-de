@@ -12,8 +12,7 @@ from scripts._helpers import (
 
 logger = logging.getLogger(__name__)
 
-def get_reference_FEC():
-    n = pypsa.Network(snakemake.input.network)
+def get_reference_FEC(n):
     df = n.loads[['bus', 'p_set', 'carrier']].copy()
     df['FEC_const'] = df.p_set.clip(lower=0) * n.snapshot_weightings.generators.sum()
     df['FEC_t'] = n.loads_t.p_set.clip(lower=0).mul(n.snapshot_weightings.generators, axis=0).sum()
@@ -57,7 +56,7 @@ def get_reference_FEC():
         df
         .groupby(['country', 'sector'])['FEC']
         .sum()
-        .unstack(fill_value=0)  # Sektoren werden zu Spalten, fehlende Kombinationen = 0
+        .unstack(fill_value=0)
     )
 
     df_FEC.drop(index='EU', inplace=True)
@@ -107,7 +106,7 @@ if __name__ == "__main__":
     countries = snakemake.config["countries"]
     #countries = ['DE']
 
-    ref_FEC = get_reference_FEC()
+    ref_FEC = get_reference_FEC(pypsa.Network(snakemake.input.network))
 
     multi_df = get_FEC_ratios(countries, years)
 

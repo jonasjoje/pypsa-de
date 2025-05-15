@@ -16,7 +16,7 @@ run:
   prefix: 20250430_low_res
   name:
   #- 8Gt_Bal_v3
-  - reference
+  - reference  # reference scenario is necessary for get_FEC_reference
   - clever
   #- constrained
   scenarios:
@@ -169,11 +169,6 @@ industry:
 
 
 clever: false  # for sufficiency scenario, set in scenarios
-clever_FEC_share:
-  2020: 1.00
-  2030: 0.75
-  2040: 0.54
-  2050: 0.45
 
 
 land_use_module:

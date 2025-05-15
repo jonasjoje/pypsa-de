@@ -341,7 +341,6 @@ rule modify_prenetwork:
         mwh_meoh_per_tco2=config_provider("sector", "MWh_MeOH_per_tCO2"),
         scale_capacity=config_provider("scale_capacity"),
         clever=config_provider("clever"),
-        clever_FEC_share=config_provider("clever_FEC_share")
     input:
         costs_modifications="ariadne-data/costs_{planning_horizons}-modifications.csv",
         network=resources("networks/base_s_{clusters}_{opts}_{sector_opts}_{planning_horizons}_brownfield.nc"),
@@ -368,7 +367,7 @@ rule modify_prenetwork:
         regions_onshore=resources("regions_onshore_base_s_{clusters}.geojson"),
         regions_offshore=resources("regions_offshore_base_s_{clusters}.geojson"),
         offshore_connection_points="ariadne-data/offshore_connection_points.csv",
-        FEC_reference = lambda w: [] if not config_provider("clever") else "resources/" + config["run"]["prefix"] + "/reference/FEC_reference.txt"
+        FEC_reference = lambda w: [] if not config_provider("clever") else "resources/" + config["run"]["prefix"] + "/reference/FEC_references_{planning_horizons}.csv"
     output:
         network=RESULTS
         + "networks/base_s_{clusters}_{opts}_{sector_opts}_{planning_horizons}_final.nc",
@@ -749,6 +748,6 @@ rule get_FEC_reference:
         network = "results/" + config["run"]["prefix"] + "/reference/networks/base_s_adm__none_2020.nc",
         clever_chart_data_paths = expand("data/CLEVER/ChartData_{country}.xlsx", country=countries_clever)
     output:
-        FEC_files = expand("resources/" + config["run"]["prefix"] + "/FEC_references_{year}.csv", year=config["scenario"]["planning_horizons"])
+        FEC_files = expand("resources/" + config["run"]["prefix"] + "/reference/FEC_references_{year}.csv", year=config["scenario"]["planning_horizons"])
     script:
         "scripts/get_FEC_reference.py"
