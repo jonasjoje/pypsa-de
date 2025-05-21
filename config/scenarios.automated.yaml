@@ -336,7 +336,6 @@ ref-constr25:
               2040: 1.626815e+10
               2050: 1.220111e+10
 
-
   sector:
     aviation_demand_factor:
       2020: 1.0
@@ -345,7 +344,7 @@ ref-constr25:
       2035: 0.7719
       2040: 0.6926
       2045: 0.6417
-ref-constr05:
+ref-constr10:
   iiasa_database:
     reference_scenario: 8Gt_Bal_v3
     fallback_reference_scenario: 8Gt_Bal_v3
@@ -367,6 +366,108 @@ ref-constr05:
           DE: -0.05
         2050:
           DE: -0.046
+
+  clever: false
+
+  land_use_module:
+    types:
+      DLU:
+        constraint:
+          enable: true
+          max_limit:  # unit in m²
+            AT:
+              2020: 1e12
+              2030: 4.080964e+09
+              2040: 3.264772e+09
+              2050: 2.448580e+09
+            BE:
+              2020: 1e12
+              2030: 1.180477e+09
+              2040: 9.443818e+08
+              2050: 7.082864e+08
+            CH:
+              2020: 1e12
+              2030: 6.823986e+06
+              2040: 5.459190e+06
+              2050: 4.094392e+06
+            CZ:
+              2020: 1e12
+              2030: 3.046204e+09
+              2040: 2.436964e+09
+              2050: 1.827723e+09
+            DE:
+              2020: 1e12
+              2030: 1.652266e+10
+              2040: 1.321812e+10
+              2050: 9.913592e+09
+            DK:
+              2020: 1e12
+              2030: 1.353498e+09
+              2040: 1.082799e+09
+              2050: 8.120990e+08
+            ES:
+              2020: 1e12
+              2030: 4.819292e+09
+              2040: 3.855432e+09
+              2050: 2.891576e+09
+            FR:
+              2020: 1e12
+              2030: 9.566290e+09
+              2040: 7.653032e+09
+              2050: 5.739774e+09
+            GB:
+              2020: 1e12
+              2030: 4.809576e+09
+              2040: 3.847660e+09
+              2050: 2.885746e+09
+            IT:
+              2020: 1e12
+              2030: 4.313936e+09
+              2040: 3.451148e+09
+              2050: 2.588362e+09
+            LU:
+              2020: 1e12
+              2030: 1.006609e+08
+              2040: 8.050468e+07
+              2050: 6.040852e+07
+            NL:
+              2020: 1e12
+              2030: 1.265929e+09
+              2040: 1.012743e+09
+              2050: 7.595576e+08
+#            NO:
+#              2020: 1e12
+#              2030: 8.251008e+08
+#              2040: 6.600806e+08
+#              2050: 4.950604e+08
+            PL:
+              2020: 1e12
+              2030: 7.896124e+09
+              2040: 6.316900e+09
+              2050: 4.737676e+09
+            SE:
+              2020: 1e12
+              2030: 8.134076e+09
+              2040: 6.507260e+09
+              2050: 4.880444e+09
+
+
+
+  sector:
+    aviation_demand_factor:
+      2020: 1.0
+      2025: 0.9321
+      2030: 0.8687
+      2035: 0.7719
+      2040: 0.6926
+      2045: 0.6417
+ref-constr05:
+  iiasa_database:
+    reference_scenario: 8Gt_Bal_v3
+    fallback_reference_scenario: 8Gt_Bal_v3
+  co2_budget_DE_source: KSG
+  solving:
+    constraints: {}
 
   clever: false
 
@@ -453,36 +554,13 @@ ref-constr05:
               2050: 2.440222e+09
 
 
-  sector:
-    aviation_demand_factor:
-      2020: 1.0
-      2025: 0.9321
-      2030: 0.8687
-      2035: 0.7719
-      2040: 0.6926
-      2045: 0.6417
 ref-constr01:
   iiasa_database:
     reference_scenario: 8Gt_Bal_v3
     fallback_reference_scenario: 8Gt_Bal_v3
   co2_budget_DE_source: KSG
   solving:
-    constraints:
-      co2_budget_national:
-        2020:
-          DE: 0.668
-        2025:
-          DE: 0.521
-        2030:
-          DE: 0.351
-        2035:
-          DE: 0.217
-        2040:
-          DE: 0.09
-        2045:
-          DE: -0.05
-        2050:
-          DE: -0.046
+    constraints: {}
 
   clever: false
 
@@ -570,14 +648,6 @@ ref-constr01:
 
 
 
-  sector:
-    aviation_demand_factor:
-      2020: 1.0
-      2025: 0.9321
-      2030: 0.8687
-      2035: 0.7719
-      2040: 0.6926
-      2045: 0.6417
 cle-constr50:
   iiasa_database:
     reference_scenario: 8Gt_Bal_v3
