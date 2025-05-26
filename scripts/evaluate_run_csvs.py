@@ -44,7 +44,7 @@ if __name__ == "__main__":
 
         snakemake = mock_snakemake(
             "evaluate_run_csvs",
-            run = "reference",
+            run = "ref-constr50",
         )
 
         configure_logging(snakemake)

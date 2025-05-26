@@ -9,7 +9,8 @@ EVALUATION = "results/" + run["prefix"] + "/EVALUATION/"
 
 rule evaluate_all:
     input:
-        expand(".tmp/{rule}.done", rule=config["evaluation"]["enable"])
+        expand(".tmp/{rule}.done", rule=config["evaluation"]["enable"]),
+        expand(".tmp/evaluate_space_requirement_run_{run}.done", run=config["run"]["name"])
     output:
         touch(".tmp/all_evaluations.done")
 
@@ -88,12 +89,16 @@ rule evaluate_run_csvs:
         "../scripts/evaluate_run_csvs.py"
 
 rule evaluate_space_requirement_run:
+    params:
+        DLU_config=config_provider("land_use_module","types","DLU")
     input:
         space_requirements_DLU_csv = RESULTS + "csvs/space_requirements_DLU.csv"
     output:
-        map = expand(RESULTS + "maps/space_requirement_map_{planning_horizons}.png",
-            planning_horizons = config["scenario"]["planning_horizons"],
-            allow_missing=True)
+        DLU_DE = RESULTS + "graphs/DLU_DE.png",
+        # map = expand(RESULTS + "maps/space_requirement_map_{planning_horizons}.png",
+        #     planning_horizons = config["scenario"]["planning_horizons"],
+        #     allow_missing=True)
+        done = touch(".tmp/evaluate_space_requirement_run_{run}.done")
     resources:
         mem_mb=10000,
     log:
