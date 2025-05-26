@@ -78,7 +78,7 @@ rule evaluate_run_csvs:
             allow_missing=True,
         )
     output:
-        space_requirement_csv = RESULTS + "csvs/space_requirements.csv",
+        space_requirements_DLU_csv = RESULTS + "csvs/space_requirements_DLU.csv",
     threads: 2
     resources:
         mem_mb=10000,
@@ -86,3 +86,17 @@ rule evaluate_run_csvs:
         RESULTS + "logs/evaluate_run_csvs.log",
     script:
         "../scripts/evaluate_run_csvs.py"
+
+rule evaluate_space_requirement_run:
+    input:
+        space_requirements_DLU_csv = RESULTS + "csvs/space_requirements_DLU.csv"
+    output:
+        map = expand(RESULTS + "maps/space_requirement_map_{planning_horizons}.png",
+            planning_horizons = config["scenario"]["planning_horizons"],
+            allow_missing=True)
+    resources:
+        mem_mb=10000,
+    log:
+        RESULTS + "logs/evaluate_space_requirement_run.log"
+    script:
+        "../scripts/evaluate_space_requirement_run.py"
