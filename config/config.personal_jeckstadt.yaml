@@ -20,7 +20,8 @@ run:
   #- clever
   - ref-constr50  # based on reference scenario, each country has 50% of their 2020 space requirement in 2050
   - ref-constr25
-  - ref-constr15
+  - ref-constr20
+#  - ref-constr15
 #  - ref-constr10
 #  - ref-constr05
 #  - ref-constr01
