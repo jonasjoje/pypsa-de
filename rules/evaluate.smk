@@ -66,3 +66,23 @@ rule evaluate_FEC_comparison:
         EVALUATION + "logs/evaluate_FEC_comparison.log"
     script:
         "../scripts/evaluate_FEC_comparison.py"
+
+rule evaluate_run_csvs:
+    params:
+        planning_horizons = config_provider("scenario","planning_horizons")
+    input:
+        network_list = expand(
+            RESULTS
+            + "networks/base_s_{clusters}_{opts}_{sector_opts}_{planning_horizons}.nc",
+            **config["scenario"],
+            allow_missing=True,
+        )
+    output:
+        space_requirement_csv = RESULTS + "csvs/space_requirements.csv",
+    threads: 2
+    resources:
+        mem_mb=10000,
+    log:
+        RESULTS + "logs/evaluate_run_csvs.log",
+    script:
+        "../scripts/evaluate_run_csvs.py"
