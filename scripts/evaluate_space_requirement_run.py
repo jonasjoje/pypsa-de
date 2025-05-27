@@ -59,19 +59,19 @@ if __name__ == "__main__":
             run = "ref-constr50",
         )
 
-        configure_logging(snakemake)
-        DLU_config=snakemake.params.DLU_config
-        is_constrained = DLU_config["constraint"]["enable"]
+    configure_logging(snakemake)
+    DLU_config=snakemake.params.DLU_config
+    is_constrained = DLU_config["constraint"]["enable"]
 
-        df_DLU = pd.read_csv(snakemake.input.space_requirements_DLU_csv, index_col=0)
-        df_DLU_country = df_DLU.drop(columns=['bus', 'carrier']).groupby('country', as_index=True).sum().drop(index="EU")
+    df_DLU = pd.read_csv(snakemake.input.space_requirements_DLU_csv, index_col=0)
+    df_DLU_country = df_DLU.drop(columns=['bus', 'carrier']).groupby('country', as_index=True).sum().drop(index="EU")
 
 
-        if is_constrained:
-            max_limits = DLU_config["constraint"].get("max_limit")
-            max_limits_df = pd.DataFrame.from_dict(max_limits, orient='index').apply(pd.to_numeric)
-            logger.info("constraints loaded.")
-        else:
-            logger.info("No space requirement constraints defined.")
+    if is_constrained:
+        max_limits = DLU_config["constraint"].get("max_limit")
+        max_limits_df = pd.DataFrame.from_dict(max_limits, orient='index').apply(pd.to_numeric)
+        logger.info("constraints loaded.")
+    else:
+        logger.info("No space requirement constraints defined.")
 
-        space_req_DLU_DE(df_DLU_country)
+    space_req_DLU_DE(df_DLU_country)

@@ -47,10 +47,10 @@ if __name__ == "__main__":
             run = "ref-constr20",
         )
 
-        configure_logging(snakemake)
+    configure_logging(snakemake)
 
-        planning_horizons = snakemake.params.planning_horizons
+    planning_horizons = snakemake.params.planning_horizons
 
-        DLU_df = space_requirements_DLU_csvs(snakemake.input.network_list)
-        DLU_df.to_csv(snakemake.output.space_requirements_DLU_csv)
-        logger.info("Exported DLU csv to: snakemake.output.space_requirements_DLU_csv")
+    DLU_df = space_requirements_DLU_csvs(snakemake.input.network_list)
+    DLU_df.to_csv(snakemake.output.space_requirements_DLU_csv)
+    logger.info("Exported DLU csv to: snakemake.output.space_requirements_DLU_csv")
