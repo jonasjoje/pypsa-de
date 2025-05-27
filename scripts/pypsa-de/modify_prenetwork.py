@@ -1455,7 +1455,7 @@ if __name__ == "__main__":
     scale_capacity(n, snakemake.params.scale_capacity)
 
     if snakemake.params.clever:
-        scale_demand_to_clever(n, snakemake.input.FEC_reference)
+        scale_demand_to_clever(n, snakemake.params.FEC_reference)
 
     sanitize_custom_columns(n)
 

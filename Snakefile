@@ -341,6 +341,7 @@ rule modify_prenetwork:
         mwh_meoh_per_tco2=config_provider("sector", "MWh_MeOH_per_tCO2"),
         scale_capacity=config_provider("scale_capacity"),
         clever=config_provider("clever"),
+        FEC_reference = lambda w: [] if not config_provider("clever") else "resources/" + config["run"]["prefix"] + "/reference/FEC_references_{planning_horizons}.csv"
     input:
         costs_modifications="ariadne-data/costs_{planning_horizons}-modifications.csv",
         network=resources("networks/base_s_{clusters}_{opts}_{sector_opts}_{planning_horizons}_brownfield.nc"),
@@ -367,7 +368,6 @@ rule modify_prenetwork:
         regions_onshore=resources("regions_onshore_base_s_{clusters}.geojson"),
         regions_offshore=resources("regions_offshore_base_s_{clusters}.geojson"),
         offshore_connection_points="ariadne-data/offshore_connection_points.csv",
-        FEC_reference = lambda w: [] if not config_provider("clever") else "resources/" + config["run"]["prefix"] + "/reference/FEC_references_{planning_horizons}.csv"
     output:
         network=RESULTS
         + "networks/base_s_{clusters}_{opts}_{sector_opts}_{planning_horizons}_final.nc",
@@ -741,11 +741,12 @@ rule ariadne_report_only:
             run=config_provider("run", "name"),
         ),
 
-
+first_ph = config["scenario"]["planning_horizons"][0]  # for get_FEC_reference
+PREFIX   = config["run"]["prefix"]
 countries_clever = ['UK' if code == 'GB' else code for code in config["countries"]]
 rule get_FEC_reference:
     input:
-        network = "results/" + config["run"]["prefix"] + "/reference/networks/base_s_adm__none_2020.nc",
+        network = f"results/{PREFIX}/reference/networks/base_s_adm__none_{first_ph}.nc",
         clever_chart_data_paths = expand("data/CLEVER/ChartData_{country}.xlsx", country=countries_clever)
     output:
         FEC_files = expand("resources/" + config["run"]["prefix"] + "/reference/FEC_references_{year}.csv", year=config["scenario"]["planning_horizons"])
