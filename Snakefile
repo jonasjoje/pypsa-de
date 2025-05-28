@@ -341,7 +341,7 @@ rule modify_prenetwork:
         mwh_meoh_per_tco2=config_provider("sector", "MWh_MeOH_per_tCO2"),
         scale_capacity=config_provider("scale_capacity"),
         clever=config_provider("clever"),
-        FEC_reference = lambda w: [] if not config_provider("clever") else "resources/" + config["run"]["prefix"] + "/reference/FEC_references_{planning_horizons}.csv"
+        FEC_reference = lambda w: [] if not config_provider("clever") else "resources/" + config["run"]["prefix"] + f"/reference/FEC_references_{w.planning_horizons}.csv"
     input:
         costs_modifications="ariadne-data/costs_{planning_horizons}-modifications.csv",
         network=resources("networks/base_s_{clusters}_{opts}_{sector_opts}_{planning_horizons}_brownfield.nc"),
