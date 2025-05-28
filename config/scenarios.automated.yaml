@@ -10,7 +10,22 @@
     fallback_reference_scenario: 8Gt_Bal_v3
   co2_budget_DE_source: KSG
   solving:
-    constraints: {}
+    constraints:
+      co2_budget_national:
+        2020:
+          DE: 0.668
+        2025:
+          DE: 0.521
+        2030:
+          DE: 0.351
+        2035:
+          DE: 0.217
+        2040:
+          DE: 0.09
+        2045:
+          DE: -0.05
+        2050:
+          DE: -0.046
 
   clever: false
 
@@ -49,6 +64,14 @@
 
 
 
+  sector:
+    aviation_demand_factor:
+      2020: 1.0
+      2025: 0.9321
+      2030: 0.8687
+      2035: 0.7719
+      2040: 0.6926
+      2045: 0.6417
 reference:
   iiasa_database:
     reference_scenario: 8Gt_Bal_v3
@@ -97,7 +120,22 @@ clever:
     fallback_reference_scenario: 8Gt_Bal_v3
   co2_budget_DE_source: KSG
   solving:
-    constraints: {}
+    constraints:
+      co2_budget_national:
+        2020:
+          DE: 0.668
+        2025:
+          DE: 0.521
+        2030:
+          DE: 0.351
+        2035:
+          DE: 0.217
+        2040:
+          DE: 0.09
+        2045:
+          DE: -0.05
+        2050:
+          DE: -0.046
 
   clever: true
 
@@ -109,6 +147,14 @@ clever:
 
 
 
+  sector:
+    aviation_demand_factor:
+      2020: 1.0
+      2025: 0.9321
+      2030: 0.8687
+      2035: 0.7719
+      2040: 0.6926
+      2045: 0.6417
 ref-constr50:
   iiasa_database:
     reference_scenario: 8Gt_Bal_v3
@@ -341,22 +387,7 @@ ref-constr20:
     fallback_reference_scenario: 8Gt_Bal_v3
   co2_budget_DE_source: KSG
   solving:
-    constraints:
-      co2_budget_national:
-        2020:
-          DE: 0.668
-        2025:
-          DE: 0.521
-        2030:
-          DE: 0.351
-        2035:
-          DE: 0.217
-        2040:
-          DE: 0.09
-        2045:
-          DE: -0.05
-        2050:
-          DE: -0.046
+    constraints: {}
   clever: false
   land_use_module:
     types:
@@ -440,36 +471,13 @@ ref-constr20:
               2040: 22775410000.0
               2050: 9760890000.0
 
-  sector:
-    aviation_demand_factor:
-      2020: 1.0
-      2025: 0.9321
-      2030: 0.8687
-      2035: 0.7719
-      2040: 0.6926
-      2045: 0.6417
 ref-constr15:
   iiasa_database:
     reference_scenario: 8Gt_Bal_v3
     fallback_reference_scenario: 8Gt_Bal_v3
   co2_budget_DE_source: KSG
   solving:
-    constraints:
-      co2_budget_national:
-        2020:
-          DE: 0.668
-        2025:
-          DE: 0.521
-        2030:
-          DE: 0.351
-        2035:
-          DE: 0.217
-        2040:
-          DE: 0.09
-        2045:
-          DE: -0.05
-        2050:
-          DE: -0.046
+    constraints: {}
   clever: false
   land_use_module:
     types:
@@ -553,36 +561,13 @@ ref-constr15:
               2040: 21148595000.0
               2050: 7320667500.0
 
-  sector:
-    aviation_demand_factor:
-      2020: 1.0
-      2025: 0.9321
-      2030: 0.8687
-      2035: 0.7719
-      2040: 0.6926
-      2045: 0.6417
 ref-constr10:
   iiasa_database:
     reference_scenario: 8Gt_Bal_v3
     fallback_reference_scenario: 8Gt_Bal_v3
   co2_budget_DE_source: KSG
   solving:
-    constraints:
-      co2_budget_national:
-        2020:
-          DE: 0.668
-        2025:
-          DE: 0.521
-        2030:
-          DE: 0.351
-        2035:
-          DE: 0.217
-        2040:
-          DE: 0.09
-        2045:
-          DE: -0.05
-        2050:
-          DE: -0.046
+    constraints: {}
   clever: false
   land_use_module:
     types:
@@ -666,14 +651,6 @@ ref-constr10:
               2040: 19521780000.0
               2050: 4880445000.0
 
-  sector:
-    aviation_demand_factor:
-      2020: 1.0
-      2025: 0.9321
-      2030: 0.8687
-      2035: 0.7719
-      2040: 0.6926
-      2045: 0.6417
 ref-constr05:
   iiasa_database:
     reference_scenario: 8Gt_Bal_v3
