@@ -998,6 +998,12 @@ def add_space_requirement_constraint(n, max_limit,
 
     # Iterate over each region defined in max_limit.
     for region, limits in max_limit.items():
+        if planning_horizon not in limits:
+            logger.warning(
+                f"({space_req_type} - {region}): no limit defined for planning horizon "
+                f"{planning_horizon}. skip constraint."
+            )
+            continue
         region_limit = float(limits[planning_horizon])
 
         # Set generator mask: if region is "EU", include all generators; otherwise filter by bus prefix.
@@ -1399,7 +1405,7 @@ if __name__ == "__main__":
             ll="v1.1",
             sector_opts="none",
             planning_horizons="2020",
-            run="reference",
+            run="ref-constr50",
             configfiles="config/config.personal_jeckstadt.yaml",
         )
     configure_logging(snakemake)
