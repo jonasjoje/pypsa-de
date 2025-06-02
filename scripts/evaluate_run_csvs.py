@@ -14,7 +14,7 @@ if __name__ == "__main__":
 
         snakemake = mock_snakemake(
             "evaluate_run_csvs",
-            run = "ref-constr20",
+            run = "ref-constr50",
         )
 
     configure_logging(snakemake)
@@ -25,6 +25,15 @@ if __name__ == "__main__":
     # --------------------------------------------------------------
     # B) Konfigurierbare DataFrame-Definitionen
     # --------------------------------------------------------------
+    expr_withdrawal = lambda net: (
+        net.statistics
+        .withdrawal(groupby=["bus", "carrier"], comps=["Load"])
+        .to_frame("value")
+        .reset_index(level=0, drop=True)
+        .reset_index()
+        .assign(idx=lambda x: x["bus"] + "_" + x["carrier"])
+        .set_index("idx")
+    )
     dataframes_config = [
         {
             "name": "space_requirements_DLU",
@@ -40,6 +49,21 @@ if __name__ == "__main__":
             },
             "fillna": 0,
             "output_path": snakemake.output.space_requirements_DLU_csv,
+        },
+        {
+            "name": "statistics_withdrawal_load_buscarrier",
+            # hier „expr_withdrawal(net)“ aufrufen, um das DataFrame zu kriegen:
+            "index_func": lambda net: expr_withdrawal(net).index,
+            "static": {
+                "bus": lambda net: expr_withdrawal(net)["bus"],
+                "carrier": lambda net: expr_withdrawal(net)["carrier"],
+                "country": lambda net: expr_withdrawal(net)["bus"].str[:2],
+            },
+            "variable": {
+                "s_nom": lambda net: expr_withdrawal(net)["value"],
+            },
+            "fillna": 0,
+            "output_path": snakemake.output.statistics_withdrawal_load_buscarrier_csv,
         },
         # Hier kannst Du beliebig weitere DataFrame-Definitionen anhängen:
         # {
