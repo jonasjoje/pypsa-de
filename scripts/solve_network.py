@@ -998,6 +998,10 @@ def add_space_requirement_constraint(n, max_limit,
 
     # Iterate over each region defined in max_limit.
     for region, limits in max_limit.items():
+        if isinstance(region, bool):
+            logger.warning(f"(add_space_requirement) Detected boolean key {region}; treating it as \"NO\".")
+            region = "NO"
+
         if planning_horizon not in limits:
             logger.warning(
                 f"({space_req_type} - {region}): no limit defined for planning horizon "
@@ -1404,7 +1408,7 @@ if __name__ == "__main__":
             clusters="adm",
             ll="v1.1",
             sector_opts="none",
-            planning_horizons="2020",
+            planning_horizons="2030",
             run="ref-constr50",
             configfiles="config/config.personal_jeckstadt.yaml",
         )
