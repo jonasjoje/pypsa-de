@@ -56,7 +56,7 @@ if __name__ == "__main__":
 
         snakemake = mock_snakemake(
             "evaluate_space_requirement_run",
-            run = "ref-constr50",
+            run = "ref-constr20",
         )
 
     configure_logging(snakemake)
