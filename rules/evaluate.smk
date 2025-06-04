@@ -48,6 +48,8 @@ rule evaluate_general_scenario_comparison:
         "../scripts/evaluate_general_scenario_comparison.py"
 
 rule evaluate_FEC_comparison:
+    params:
+        planning_horizons = config_provider("scenario","planning_horizons"),
     input:
         networks = expand(
             RESULTS + "networks/base_s_{clusters}_{opts}_{sector_opts}_{planning_horizons}.nc",
@@ -55,6 +57,10 @@ rule evaluate_FEC_comparison:
             opts=config["scenario"]["opts"],
             sector_opts=config["scenario"]["sector_opts"],
             planning_horizons=config["scenario"]["planning_horizons"],
+            run=config["run"]["name"]
+        ),
+        statistics_withdrawal_csvs = expand(
+            RESULTS + "csvs/statistics_withdrawal_load_buscarrier.csv",
             run=config["run"]["name"]
         )
     output:

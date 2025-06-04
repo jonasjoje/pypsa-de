@@ -16,7 +16,17 @@ def load_networks_from_path_list(path_list):
         nn.setdefault(run, {})[year] = net
     return nn
 
-def compare_value(get_value, nn):
+def load_csvs_from_path_list(path_list):
+    cc = {}
+    for filepath in path_list:
+        parts = filepath.split(os.sep)
+        idx_csvs = parts.index("csvs")
+        run = parts[idx_csvs - 1]
+        df = pd.read_csv(filepath, index_col=0)
+        cc[run] = df
+    return cc
+
+def compare_value_networks(get_value, nn):
     """
     Vergleicht einen bestimmten Wert aus den Netzwerken.
 
@@ -38,9 +48,40 @@ def compare_value(get_value, nn):
     df = df.sort_index()  # Sortiere nach planning_horizons (Zeilen)
     return df
 
-def plot_line_comparison(nn, title, expr, output):
+def compare_value(get_series, cc):
+    """
+    Vergleicht eine Zeitreihe, die aus jedem Run-DataFrame extrahiert wird.
+
+    Parameter:
+      get_series: Funktion, die ein DataFrame (für einen Run) entgegennimmt
+                  und eine pandas.Series zurückgibt:
+                    - Index = Jahr (z. B. [2020, 2025, 2030, …])
+                    - Werte = die Kennzahl für dieses Jahr (float).
+
+      cc: Dictionary { run_name: DataFrame, … }
+
+    Rückgabe:
+      DataFrame mit
+        - Index = Jahr (z. B. 2020, 2025, 2030, …)
+        - Spalten = run_names (z. B. "reference", "scenarioB", …)
+      Jede Zelle = Wert, den get_series(df_run) für das jeweilige Jahr zurückliefert.
+    """
+    results = {}
+    for run_name, df_run in cc.items():
+        # get_series(df_run) muss eine Series liefern, deren Index Jahre sind:
+        #   z. B. pd.Series(index=[2020,2025,2030], values=[..., ..., ...])
+        series = get_series(df_run)
+        results[run_name] = series
+
+    # Aus dem Dict aus Series wird ein DataFrame: Index=Jahre, Spalten=run_names
+    df_compare = pd.DataFrame(results)
+    df_compare.sort_index(inplace=True)
+    return df_compare
+
+
+def plot_line_comparison(cc, title, expr, output):
     logger.info(f"Create  plot {title}")
-    df = compare_value(expr, nn)
+    df = compare_value(expr, cc)
     ax = df.plot.line()
     plt.ylabel(title)
     fig = ax.get_figure()
