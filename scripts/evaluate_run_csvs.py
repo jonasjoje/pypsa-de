@@ -38,18 +38,24 @@ if __name__ == "__main__":
         net.statistics
         .capex(groupby=["bus", "carrier"])
         .to_frame("value")
-        .reset_index(level=0, drop=True)
         .reset_index()
-        .assign(idx=lambda x: x["bus"] + "_" + x["carrier"])
+        .assign(idx=lambda x: x["component"] + "_" + x["bus"] + "_" + x["carrier"])
         .set_index("idx")
     )
     expr_opex = lambda net: (
         net.statistics
         .opex(groupby=["bus", "carrier"])
         .to_frame("value")
-        .reset_index(level=0, drop=True)
         .reset_index()
-        .assign(idx=lambda x: x["bus"] + "_" + x["carrier"])
+        .assign(idx=lambda x: x["component"] + "_" + x["bus"] + "_" + x["carrier"])
+        .set_index("idx")
+    )
+    expr_optimalcapacity = lambda net: (
+        net.statistics
+        .optimal_capacity(groupby=["bus", "carrier"])
+        .to_frame("value")
+        .reset_index()
+        .assign(idx=lambda x: x["component"] + "_" + x["bus"] + "_" + x["carrier"])
         .set_index("idx")
     )
 
@@ -87,6 +93,7 @@ if __name__ == "__main__":
             "name": "statistics_capex_buscarrier",
             "index_func": lambda net: expr_capex(net).index,
             "static": {
+                "component": lambda net: expr_capex(net)["component"],
                 "bus": lambda net: expr_capex(net)["bus"],
                 "carrier": lambda net: expr_capex(net)["carrier"],
                 "country": lambda net: expr_capex(net)["bus"].str[:2],
@@ -101,6 +108,7 @@ if __name__ == "__main__":
             "name": "statistics_opex_buscarrier",
             "index_func": lambda net: expr_opex(net).index,
             "static": {
+                "component": lambda net: expr_opex(net)["component"],
                 "bus": lambda net: expr_opex(net)["bus"],
                 "carrier": lambda net: expr_opex(net)["carrier"],
                 "country": lambda net: expr_opex(net)["bus"].str[:2],
@@ -110,6 +118,21 @@ if __name__ == "__main__":
             },
             "fillna": 0,
             "output_path": snakemake.output.statistics_opex_buscarrier_csv,
+        },
+        {
+            "name": "statistics_optimalcapacity_buscarrier",
+            "index_func": lambda net: expr_optimalcapacity(net).index,
+            "static": {
+                "component": lambda net: expr_optimalcapacity(net)["component"],
+                "bus": lambda net: expr_optimalcapacity(net)["bus"],
+                "carrier": lambda net: expr_optimalcapacity(net)["carrier"],
+                "country": lambda net: expr_optimalcapacity(net)["bus"].str[:2],
+            },
+            "variable": {
+                "s_nom": lambda net: expr_optimalcapacity(net)["value"],
+            },
+            "fillna": 0,
+            "output_path": snakemake.output.statistics_optimalcapacity_buscarrier_csv,
         },
         # Hier kannst Du beliebig weitere DataFrame-Definitionen anhängen:
         # {

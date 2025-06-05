@@ -3,7 +3,7 @@ import re
 import pypsa
 import logging
 import matplotlib.pyplot as plt
-from scripts._evaluation_helpers import load_networks_from_path_list, compare_value, plot_line_comparison
+from scripts._evaluation_helpers import load_networks_from_path_list, load_csvs_from_path_list, compare_value, plot_line_comparison
 from scripts._helpers import configure_logging
 
 logger = logging.getLogger(__name__)
@@ -22,18 +22,38 @@ if __name__ == "__main__":
     configure_logging(snakemake)
 
     logger.info("loading networks")
-    nn = load_networks_from_path_list(snakemake.input.networks)
+    #nn = load_networks_from_path_list(snakemake.input.networks)
+    cc_capex = load_csvs_from_path_list(snakemake.input.statistics_capex_buscarrier_csv)
+    cc_opex = load_csvs_from_path_list(snakemake.input.statistics_opex_buscarrier_csv)
+    cc_optimalcapacity = load_csvs_from_path_list(snakemake.input.statistics_optimalcapacity_buscarrier_csv)
+
+    planning_horizons = snakemake.params.planning_horizons
 
     # ─────────────────────────────────────────────────────────────────────────────
     #  CAPEX + OPEX
     # ─────────────────────────────────────────────────────────────────────────────
 
-    expr = lambda n: (n.statistics.capex().sum() + n.statistics.opex().sum()) * 1e-9
+    cc_capex_opex = {}
+    for run, df_cap in cc_capex.items():
+        df_ope = cc_opex[run]
+        year_cols = [str(y) for y in planning_horizons]
+        df_sum = df_cap[year_cols].copy()
+        for yr in year_cols:
+            df_sum[yr] = df_cap[yr] + df_ope[yr]
+        cc_capex_opex[run] = df_sum
+
+
+    def get_capex_opex_series(df_run):
+        s = df_run.sum(axis=0)
+        s.index = s.index.astype(int)
+        return s.sort_index() * 1e-9
+
     plot_line_comparison(
-                    nn = nn,
-                    title="CAPEX + OPEX (Bn. Euro)",
-                    expr=expr,
-                    output=snakemake.output.total_capexopex_graph)
+        cc=cc_capex_opex,
+        title="CAPEX + OPEX (Bn. Euro)",
+        expr=get_capex_opex_series,
+        output=snakemake.output.total_capexopex_graph,
+    )
 
     # ─────────────────────────────────────────────────────────────────────────────
     #  Generation

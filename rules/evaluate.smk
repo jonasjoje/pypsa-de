@@ -24,15 +24,20 @@ rule test:
 
 GENERAL_COMPARISON = EVALUATION + "general_comparison/"
 rule evaluate_general_scenario_comparison:
+    params:
+        planning_horizons=config_provider("scenario","planning_horizons"),
     input:
-        networks = expand(
-            RESULTS + "networks/base_s_{clusters}_{opts}_{sector_opts}_{planning_horizons}.nc",
-            clusters=config["scenario"]["clusters"],
-            opts=config["scenario"]["opts"],
-            sector_opts=config["scenario"]["sector_opts"],
-            planning_horizons=config["scenario"]["planning_horizons"],
-            run=config["run"]["name"]
-        )
+        # networks = expand(
+        #     RESULTS + "networks/base_s_{clusters}_{opts}_{sector_opts}_{planning_horizons}.nc",
+        #     clusters=config["scenario"]["clusters"],
+        #     opts=config["scenario"]["opts"],
+        #     sector_opts=config["scenario"]["sector_opts"],
+        #     planning_horizons=config["scenario"]["planning_horizons"],
+        #     run=config["run"]["name"]
+        # ),
+        statistics_capex_buscarrier_csv= expand(RESULTS + "csvs/statistics_capex_buscarrier.csv", run=config["run"]["name"]),
+        statistics_opex_buscarrier_csv= expand(RESULTS + "csvs/statistics_opex_buscarrier.csv", run=config["run"]["name"]),
+        statistics_optimalcapacity_buscarrier_csv= expand(RESULTS + "csvs/statistics_optimalcapacity_buscarrier.csv", run=config["run"]["name"]),
     output:
         total_capexopex_graph = GENERAL_COMPARISON + "total_capexopex_graph.png",
         gen_solar_graph = GENERAL_COMPARISON +"gen_solar_graph.png",
@@ -89,6 +94,7 @@ rule evaluate_run_csvs:
         statistics_withdrawal_load_buscarrier_csv = RESULTS + "csvs/statistics_withdrawal_load_buscarrier.csv",
         statistics_capex_buscarrier_csv = RESULTS + "csvs/statistics_capex_buscarrier.csv",
         statistics_opex_buscarrier_csv = RESULTS + "csvs/statistics_opex_buscarrier.csv",
+        statistics_optimalcapacity_buscarrier_csv= RESULTS + "csvs/statistics_optimalcapacity_buscarrier.csv",
     threads: 2
     resources:
         mem_mb=10000,
