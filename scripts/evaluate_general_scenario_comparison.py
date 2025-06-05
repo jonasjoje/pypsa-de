@@ -21,7 +21,7 @@ if __name__ == "__main__":
 
     configure_logging(snakemake)
 
-    logger.info("loading networks")
+    logger.info("loading data.")
     #nn = load_networks_from_path_list(snakemake.input.networks)
     cc_capex = load_csvs_from_path_list(snakemake.input.statistics_capex_buscarrier_csv)
     cc_opex = load_csvs_from_path_list(snakemake.input.statistics_opex_buscarrier_csv)
@@ -60,40 +60,62 @@ if __name__ == "__main__":
     # ─────────────────────────────────────────────────────────────────────────────
 
     # Solar
-    expr = lambda n: n.statistics.optimal_capacity().loc[("Generator", "Solar")] * 1e-3
+    def get_solar_capacity_series(df_run):
+        mask = (df_run["component"] == "Generator") & (df_run["carrier"] == "Solar")
+        yrs = [str(y) for y in planning_horizons]
+        s = df_run.loc[mask, yrs].sum(axis=0)
+        s.index = [int(year) for year in s.index]
+        return s.sort_index() * 1e-3
     plot_line_comparison(
-                    nn = nn,
-                    title="Solar capacity (GW)",
-                    expr=expr,
-                    output=snakemake.output.gen_solar_graph)
+        cc=cc_optimalcapacity,
+        title="Solar capacity (GW)",
+        expr=get_solar_capacity_series,
+        output=snakemake.output.gen_solar_graph,
+    )
 
-    # Onwind
-    expr = lambda n: n.statistics.optimal_capacity().loc[("Generator", "Onshore Wind")] * 1e-3
+
+    #  Onshore Wind
+    def get_onwind_capacity_series(df_run):
+        mask = (df_run["component"] == "Generator") & (df_run["carrier"] == "Onshore Wind")
+        yrs = [str(y) for y in planning_horizons]
+        s = df_run.loc[mask, yrs].sum(axis=0)
+        s.index = [int(year) for year in s.index]
+        return s.sort_index() * 1e-3
     plot_line_comparison(
-                    nn = nn,
-                    title="Onshore Wind capacity (GW)",
-                    expr=expr,
-                    output=snakemake.output.gen_onwind_graph)
+        cc=cc_optimalcapacity,
+        title="Onshore Wind capacity (GW)",
+        expr=get_onwind_capacity_series,
+        output=snakemake.output.gen_onwind_graph,
+    )
 
-    # Offshore Wind AC
-    expr = lambda n: n.statistics.optimal_capacity().loc[("Generator", "Offshore Wind (AC)")] * 1e-3
+
+    #  Offshore Wind (AC)
+    def get_offwind_ac_capacity_series(df_run):
+        mask = (df_run["component"] == "Generator") & (df_run["carrier"] == "Offshore Wind (AC)")
+        yrs = [str(y) for y in planning_horizons]
+        s = df_run.loc[mask, yrs].sum(axis=0)
+        s.index = [int(year) for year in s.index]
+        return s.sort_index() * 1e-3
     plot_line_comparison(
-                    nn = nn,
-                    title="Offshore Wind AC capacity (GW)",
-                    expr=expr,
-                    output=snakemake.output.gen_offwind_ac_graph
-                )
+        cc=cc_optimalcapacity,
+        title="Offshore Wind AC capacity (GW)",
+        expr=get_offwind_ac_capacity_series,
+        output=snakemake.output.gen_offwind_ac_graph,
+    )
 
-    # Offshore Wind DC
-    expr = lambda n: n.statistics.optimal_capacity().loc[("Generator", "Offshore Wind (DC)")] * 1e-3
+
+    #  Offshore Wind (DC)
+    def get_offwind_dc_capacity_series(df_run):
+        mask = (df_run["component"] == "Generator") & (df_run["carrier"] == "Offshore Wind (DC)")
+        yrs = [str(y) for y in planning_horizons]
+        s = df_run.loc[mask, yrs].sum(axis=0)
+        s.index = [int(year) for year in s.index]
+        return s.sort_index() * 1e-3
     plot_line_comparison(
-                    nn = nn,
-                    title="Offshore Wind DC capacity (GW)",
-                    expr=expr,
-                    output=snakemake.output.gen_offwind_dc_graph
-                )
-
-
-
+        cc=cc_optimalcapacity,
+        title="Offshore Wind DC capacity (GW)",
+        expr=get_offwind_dc_capacity_series,
+        output=snakemake.output.gen_offwind_dc_graph,
+    )
 
     logger.info("All general scenario comparisons done.")
