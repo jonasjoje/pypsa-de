@@ -34,6 +34,25 @@ if __name__ == "__main__":
         .assign(idx=lambda x: x["bus"] + "_" + x["carrier"])
         .set_index("idx")
     )
+    expr_capex = lambda net: (
+        net.statistics
+        .capex(groupby=["bus", "carrier"])
+        .to_frame("value")
+        .reset_index(level=0, drop=True)
+        .reset_index()
+        .assign(idx=lambda x: x["bus"] + "_" + x["carrier"])
+        .set_index("idx")
+    )
+    expr_opex = lambda net: (
+        net.statistics
+        .opex(groupby=["bus", "carrier"])
+        .to_frame("value")
+        .reset_index(level=0, drop=True)
+        .reset_index()
+        .assign(idx=lambda x: x["bus"] + "_" + x["carrier"])
+        .set_index("idx")
+    )
+
     dataframes_config = [
         {
             "name": "space_requirements_DLU",
@@ -52,7 +71,6 @@ if __name__ == "__main__":
         },
         {
             "name": "statistics_withdrawal_load_buscarrier",
-            # hier „expr_withdrawal(net)“ aufrufen, um das DataFrame zu kriegen:
             "index_func": lambda net: expr_withdrawal(net).index,
             "static": {
                 "bus": lambda net: expr_withdrawal(net)["bus"],
@@ -64,6 +82,34 @@ if __name__ == "__main__":
             },
             "fillna": 0,
             "output_path": snakemake.output.statistics_withdrawal_load_buscarrier_csv,
+        },
+        {
+            "name": "statistics_capex_buscarrier",
+            "index_func": lambda net: expr_capex(net).index,
+            "static": {
+                "bus": lambda net: expr_capex(net)["bus"],
+                "carrier": lambda net: expr_capex(net)["carrier"],
+                "country": lambda net: expr_capex(net)["bus"].str[:2],
+            },
+            "variable": {
+                "s_nom": lambda net: expr_capex(net)["value"],
+            },
+            "fillna": 0,
+            "output_path": snakemake.output.statistics_capex_buscarrier_csv,
+        },
+        {
+            "name": "statistics_opex_buscarrier",
+            "index_func": lambda net: expr_opex(net).index,
+            "static": {
+                "bus": lambda net: expr_opex(net)["bus"],
+                "carrier": lambda net: expr_opex(net)["carrier"],
+                "country": lambda net: expr_opex(net)["bus"].str[:2],
+            },
+            "variable": {
+                "s_nom": lambda net: expr_opex(net)["value"],
+            },
+            "fillna": 0,
+            "output_path": snakemake.output.statistics_opex_buscarrier_csv,
         },
         # Hier kannst Du beliebig weitere DataFrame-Definitionen anhängen:
         # {

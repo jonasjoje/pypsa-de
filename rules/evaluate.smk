@@ -87,6 +87,8 @@ rule evaluate_run_csvs:
     output:
         space_requirements_DLU_csv = RESULTS + "csvs/space_requirements_DLU.csv",
         statistics_withdrawal_load_buscarrier_csv = RESULTS + "csvs/statistics_withdrawal_load_buscarrier.csv",
+        statistics_capex_buscarrier_csv = RESULTS + "csvs/statistics_capex_buscarrier.csv",
+        statistics_opex_buscarrier_csv = RESULTS + "csvs/statistics_opex_buscarrier.csv",
     threads: 2
     resources:
         mem_mb=10000,
