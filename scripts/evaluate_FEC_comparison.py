@@ -49,32 +49,34 @@ if __name__ == "__main__":
     # ─────────────────────────────────────────────────────────────────────────────
     sector_map = {
         # Residential
-        'electricity': 'residential',
-        'rural heat': 'residential',
-        'urban central heat': 'residential',
-        'urban decentral heat': 'residential',
-        # Transport domestic
-        'land transport EV': 'transport domestic',
-        'land transport fuel cell': 'transport domestic',
-        'land transport oil': 'transport domestic',
-        # Transport international
-        'kerosene for aviation': 'transport international',
-        'shipping methanol': 'transport international',
-        'shipping oil': 'transport international',
+        'electricity': 'Residential',
+        'residential rural heat': 'Residential',
+        'urban central heat': 'Residential',
+        'residential urban decentral heat': 'Residential',
+        # Domestic transport
+        'land transport EV': 'Domestic transport',
+        'land transport fuel cell': 'Domestic transport',
+        'land transport oil': 'Domestic transport',
+        # International transport
+        'kerosene for aviation': 'International transport',
+        'shipping methanol': 'International transport',
+        'shipping oil': 'International transport',
         # Industry
-        'industry electricity': 'industry',
-        'low-temperature heat for industry': 'industry',
-        'H2 for industry': 'industry',
-        'coal for industry': 'industry',
-        'gas for industry': 'industry',
-        'industry methanol': 'industry',
-        'naphtha for industry': 'industry',
-        'solid biomass for industry': 'industry',
-        'process emissions': 'industry',
+        'industry electricity': 'Industry',
+        'low-temperature heat for industry': 'Industry',
+        'H2 for industry': 'Industry',
+        'coal for industry': 'Industry',
+        'gas for industry': 'Industry',
+        'industry methanol': 'Industry',
+        'naphtha for industry': 'Industry',
+        'solid biomass for industry': 'Industry',
+        # Tertiary
+        'services rural heat': 'Tertiary',
+        'services urban decentral heat': 'Tertiary',
         # Agriculture
-        'agriculture electricity': 'agriculture',
-        'agriculture heat': 'agriculture',
-        'agriculture machinery oil': 'agriculture',
+        'agriculture electricity': 'Agriculture',
+        'agriculture heat': 'Agriculture',
+        'agriculture machinery oil': 'Agriculture',
     }
     unique_sectors = set(sector_map.values())
 
