@@ -32,8 +32,8 @@ rule evaluate_run_csvs:
         statistics_capex_buscarrier_csv = RESULTS + "csvs/statistics_capex_buscarrier.csv",
         statistics_opex_buscarrier_csv = RESULTS + "csvs/statistics_opex_buscarrier.csv",
         statistics_optimalcapacity_buscarrier_csv= RESULTS + "csvs/statistics_optimalcapacity_buscarrier.csv",
-        generators_e_sum_min = RESULTS + "csvs/generators_e_sum_min",
-        generators_e_sum_max = RESULTS + "csvs/generators_e_sum_max",
+        generators_e_sum_min = RESULTS + "csvs/generators_e_sum_min.csv",
+        generators_e_sum_max = RESULTS + "csvs/generators_e_sum_max.csv",
     threads: 2
     resources:
         mem_mb=10000,
