@@ -10,7 +10,8 @@ EVALUATION = "results/" + run["prefix"] + "/EVALUATION/"
 rule evaluate_all:
     input:
         expand(".tmp/{rule}.done", rule=config["evaluation"]["enable"]),
-        expand(".tmp/evaluate_space_requirement_run_{run}.done", run=config["run"]["name"])
+        expand(".tmp/evaluate_space_requirement_run_{run}.done", run=config["run"]["name"]),
+        expand(".tmp/evaluate_biomass_run_{run}.done", run=config["run"]["name"]),
     output:
         touch(".tmp/all_evaluations.done")
 
@@ -107,6 +108,22 @@ rule evaluate_space_requirement_run:
     resources:
         mem_mb=10000,
     log:
-        RESULTS + "logs/evaluate_space_requirement_run.log"
+        RESULTS + "logs/evaluate_space_requirement_run_{run}.log"
     script:
         "../scripts/evaluate_space_requirement_run.py"
+
+rule evaluate_biomass_run:
+    params:
+        planning_horizons = config_provider("scenario","planning_horizons")
+    input:
+        e_sum_min_csv = RESULTS + "csvs/generators_e_sum_min.csv",
+        e_sum_max_csv = RESULTS + "csvs/generators_e_sum_max.csv",
+        statistics_supply_csv = RESULTS + "csvs/statistics_supply_generator_buscarrier.csv"
+    output:
+        total_biomass = RESULTS + "graphs/total_biomass.png",
+        done = touch(".tmp/evaluate_biomass_run_{run}.done"),
+    log:
+        RESULTS + "logs/evaluate_biomass_run_{run}.log"
+    script:
+        "../scripts/evaluate_biomass_run.py"
+
