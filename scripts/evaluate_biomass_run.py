@@ -214,7 +214,8 @@ if __name__ == "__main__":
     biomass_config = snakemake.params.biomass
 
     globalconstraint_unsus_solid_biomass_min = global_constraints_constant_df.loc["unsustainable biomass min"]
-    e_min_usb_DE = calculate_e_min_unsus_solid_DE(e_sum_max_df, biomass_config, planning_horizons)
+    #e_min_usb_DE = calculate_e_min_unsus_solid_DE(e_sum_max_df, biomass_config, planning_horizons)
+    e_min_usb_DE = 0 # if biomass_spatial is deactivated in config. else activate previous line instead.
 
     fig, axes = plt.subplots(nrows=2, ncols=4, figsize=(20, 10))
     axes = axes.flatten()
