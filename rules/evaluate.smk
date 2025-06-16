@@ -116,14 +116,24 @@ rule evaluate_space_requirement_run:
 
 rule evaluate_biomass_run:
     params:
-        planning_horizons = config_provider("scenario","planning_horizons")
+        planning_horizons = config_provider("scenario","planning_horizons"),
+        biomass = config_provider("biomass")
     input:
         e_sum_min_csv = RESULTS + "csvs/generators_e_sum_min.csv",
         e_sum_max_csv = RESULTS + "csvs/generators_e_sum_max.csv",
-        statistics_supply_csv = RESULTS + "csvs/statistics_supply_generator_buscarrier.csv"
+        statistics_supply_csv = RESULTS + "csvs/statistics_supply_generator_buscarrier.csv",
+        globalconstraints_constant_csv = RESULTS + "csvs/globalconstraints_constant.csv",
     output:
-        total_biomass = RESULTS + "graphs/total_biomass.png",
-        total_biocrops = RESULTS + "graphs/total_biocrops.png",
+        total_biomass=RESULTS + "graphs/total_biomass.png",
+        DE_biomass=RESULTS + "graphs/DE_biomass.png",
+        total_biocrops=RESULTS + "graphs/total_biocrops.png",
+        DE_biocrops=RESULTS + "graphs/DE_biocrops.png",
+        total_biomass_stack=RESULTS + "graphs/total_biomass_stack.png",
+        DE_biomass_stack=RESULTS + "graphs/DE_biomass_stack.png",
+        total_unsustainable_solid_biomass=RESULTS + "graphs/total_unsustainable_solid_biomass.png",
+        DE_unsustainable_solid_biomass=RESULTS + "graphs/DE_unsustainable_solid_biomass.png",
+        raster_biomass = RESULTS + "graphs/raster_biomass.png",
+
         done = touch(".tmp/evaluate_biomass_run_{run}.done"),
     log:
         RESULTS + "logs/evaluate_biomass_run_{run}.log"
