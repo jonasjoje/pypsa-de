@@ -185,6 +185,30 @@ if __name__ == "__main__":
             "fillna": float("nan"),
             "output_path": snakemake.output.generators_e_sum_max,
         },
+        {
+            "name": "globalconstraints_constant",
+            "index_func": lambda net: net.global_constraints.index,
+            "static": {
+                "sense": lambda net: net.global_constraints["sense"],
+            },
+            "variable": {
+                "constant": lambda net: net.global_constraints["constant"],
+            },
+            "fillna": float("nan"),
+            "output_path": snakemake.output.globalconstraints_constant,
+        },
+        {
+            "name": "globalconstraints_mu",
+            "index_func": lambda net: net.global_constraints.index,
+            "static": {
+                "sense": lambda net: net.global_constraints["sense"],
+            },
+            "variable": {
+                "mu": lambda net: net.global_constraints["mu"],
+            },
+            "fillna": float("nan"),
+            "output_path": snakemake.output.globalconstraints_mu,
+        },
         # Hier kannst Du beliebig weitere DataFrame-Definitionen anhängen:
         # {
         #     "name": "another_table",

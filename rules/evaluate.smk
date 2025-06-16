@@ -35,6 +35,8 @@ rule evaluate_run_csvs:
         statistics_optimalcapacity_buscarrier_csv= RESULTS + "csvs/statistics_optimalcapacity_buscarrier.csv",
         generators_e_sum_min = RESULTS + "csvs/generators_e_sum_min.csv",
         generators_e_sum_max = RESULTS + "csvs/generators_e_sum_max.csv",
+        globalconstraints_constant = RESULTS + "csvs/globalconstraints_constant.csv",
+        globalconstraints_mu = RESULTS + "csvs/globalconstraints_mu.csv",
     threads: 2
     resources:
         mem_mb=10000,
@@ -121,6 +123,7 @@ rule evaluate_biomass_run:
         statistics_supply_csv = RESULTS + "csvs/statistics_supply_generator_buscarrier.csv"
     output:
         total_biomass = RESULTS + "graphs/total_biomass.png",
+        total_biocrops = RESULTS + "graphs/total_biocrops.png",
         done = touch(".tmp/evaluate_biomass_run_{run}.done"),
     log:
         RESULTS + "logs/evaluate_biomass_run_{run}.log"
