@@ -34,6 +34,15 @@ if __name__ == "__main__":
         .assign(idx=lambda x: x["bus"] + "_" + x["carrier"])
         .set_index("idx")
     )
+    expr_supply = lambda net: (
+        net.statistics
+        .supply(groupby=["bus", "carrier"], comps=["Generator"])
+        .to_frame("value")
+        .reset_index(level=0, drop=True)
+        .reset_index()
+        .assign(idx=lambda x: x["bus"] + "_" + x["carrier"])
+        .set_index("idx")
+    )
     expr_capex = lambda net: (
         net.statistics
         .capex(groupby=["bus", "carrier"])
@@ -90,6 +99,20 @@ if __name__ == "__main__":
             "output_path": snakemake.output.statistics_withdrawal_load_buscarrier_csv,
         },
         {
+            "name": "statistics_supply_generator_buscarrier",
+            "index_func": lambda net: expr_supply(net).index,
+            "static": {
+                "bus": lambda net: expr_supply(net)["bus"],
+                "carrier": lambda net: expr_supply(net)["carrier"],
+                "country": lambda net: expr_supply(net)["bus"].str[:2],
+            },
+            "variable": {
+                "s_nom": lambda net: expr_supply(net)["value"],
+            },
+            "fillna": 0,
+            "output_path": snakemake.output.statistics_supply_generator_buscarrier_csv,
+        },
+        {
             "name": "statistics_capex_buscarrier",
             "index_func": lambda net: expr_capex(net).index,
             "static": {
@@ -133,6 +156,34 @@ if __name__ == "__main__":
             },
             "fillna": 0,
             "output_path": snakemake.output.statistics_optimalcapacity_buscarrier_csv,
+        },
+        {
+            "name": "generators_e_sum_min",
+            "index_func": lambda net: net.generators[net.generators["e_sum_min"] != -float("inf")].index,
+            "static": {
+                "bus": lambda net: net.generators["bus"],
+                "carrier": lambda net: net.generators["carrier"],
+                "country": lambda net: net.generators["bus"].str[:2],
+            },
+            "variable": {
+                "s_nom": lambda net: net.generators["e_sum_min"],
+            },
+            "fillna": float("nan"),
+            "output_path": snakemake.output.generators_e_sum_min,
+        },
+        {
+            "name": "generators_e_sum_max",
+            "index_func": lambda net: net.generators[net.generators["e_sum_max"] != float("inf")].index,
+            "static": {
+                "bus": lambda net: net.generators["bus"],
+                "carrier": lambda net: net.generators["carrier"],
+                "country": lambda net: net.generators["bus"].str[:2],
+            },
+            "variable": {
+                "s_nom": lambda net: net.generators["e_sum_max"],
+            },
+            "fillna": float("nan"),
+            "output_path": snakemake.output.generators_e_sum_max,
         },
         # Hier kannst Du beliebig weitere DataFrame-Definitionen anhängen:
         # {
