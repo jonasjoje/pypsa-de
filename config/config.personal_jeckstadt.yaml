@@ -104,7 +104,7 @@ sector:
   gas_network: false
   regional_gas_demand: true
   cluster_heat_buses: false
-  biomass_spatial: false
+  biomass_spatial: true
 
 clustering:
   mode: administrative
