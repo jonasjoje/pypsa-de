@@ -15,11 +15,29 @@ rule evaluate_all:
         touch(".tmp/all_evaluations.done")
 
 
-rule test:
+rule evaluate_run_csvs:
+    params:
+        planning_horizons = config_provider("scenario","planning_horizons")
     input:
-        data = "results/20250411_reference/reference/networks/base_s_adm__none_2050.nc"
+        network_list = expand(
+            RESULTS
+            + "networks/base_s_{clusters}_{opts}_{sector_opts}_{planning_horizons}.nc",
+            **config["scenario"],
+            allow_missing=True,
+        )
     output:
-        touch(".tmp/test.done")
+        space_requirements_DLU_csv = RESULTS + "csvs/space_requirements_DLU.csv",
+        statistics_withdrawal_load_buscarrier_csv = RESULTS + "csvs/statistics_withdrawal_load_buscarrier.csv",
+        statistics_capex_buscarrier_csv = RESULTS + "csvs/statistics_capex_buscarrier.csv",
+        statistics_opex_buscarrier_csv = RESULTS + "csvs/statistics_opex_buscarrier.csv",
+        statistics_optimalcapacity_buscarrier_csv= RESULTS + "csvs/statistics_optimalcapacity_buscarrier.csv",
+    threads: 2
+    resources:
+        mem_mb=10000,
+    log:
+        RESULTS + "logs/evaluate_run_csvs.log",
+    script:
+        "../scripts/evaluate_run_csvs.py"
 
 
 GENERAL_COMPARISON = EVALUATION + "general_comparison/"
@@ -27,14 +45,6 @@ rule evaluate_general_scenario_comparison:
     params:
         planning_horizons=config_provider("scenario","planning_horizons"),
     input:
-        # networks = expand(
-        #     RESULTS + "networks/base_s_{clusters}_{opts}_{sector_opts}_{planning_horizons}.nc",
-        #     clusters=config["scenario"]["clusters"],
-        #     opts=config["scenario"]["opts"],
-        #     sector_opts=config["scenario"]["sector_opts"],
-        #     planning_horizons=config["scenario"]["planning_horizons"],
-        #     run=config["run"]["name"]
-        # ),
         statistics_capex_buscarrier_csv= expand(RESULTS + "csvs/statistics_capex_buscarrier.csv", run=config["run"]["name"]),
         statistics_opex_buscarrier_csv= expand(RESULTS + "csvs/statistics_opex_buscarrier.csv", run=config["run"]["name"]),
         statistics_optimalcapacity_buscarrier_csv= expand(RESULTS + "csvs/statistics_optimalcapacity_buscarrier.csv", run=config["run"]["name"]),
@@ -79,29 +89,6 @@ rule evaluate_FEC_comparison:
     script:
         "../scripts/evaluate_FEC_comparison.py"
 
-rule evaluate_run_csvs:
-    params:
-        planning_horizons = config_provider("scenario","planning_horizons")
-    input:
-        network_list = expand(
-            RESULTS
-            + "networks/base_s_{clusters}_{opts}_{sector_opts}_{planning_horizons}.nc",
-            **config["scenario"],
-            allow_missing=True,
-        )
-    output:
-        space_requirements_DLU_csv = RESULTS + "csvs/space_requirements_DLU.csv",
-        statistics_withdrawal_load_buscarrier_csv = RESULTS + "csvs/statistics_withdrawal_load_buscarrier.csv",
-        statistics_capex_buscarrier_csv = RESULTS + "csvs/statistics_capex_buscarrier.csv",
-        statistics_opex_buscarrier_csv = RESULTS + "csvs/statistics_opex_buscarrier.csv",
-        statistics_optimalcapacity_buscarrier_csv= RESULTS + "csvs/statistics_optimalcapacity_buscarrier.csv",
-    threads: 2
-    resources:
-        mem_mb=10000,
-    log:
-        RESULTS + "logs/evaluate_run_csvs.log",
-    script:
-        "../scripts/evaluate_run_csvs.py"
 
 rule evaluate_space_requirement_run:
     params:
