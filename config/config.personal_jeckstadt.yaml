@@ -218,14 +218,13 @@ land_use_module:
 #            2040: 27.3e9
 #            2050: 27.3e9
     dist:  # disturbed area
-      power_specific_generators: [onwind]  # space_req_pu is taken from DEA-Dataset if not overwritten below.
+      power_specific_generators: [solar]  # space_req_pu is taken from DEA-Dataset if not overwritten below.
       overwrite_values:  # unit: m2/MW
-          onwind:
-            2020: 10020.0
-            2030: 10030.0
-            2040: 10040.0
-            2045: 10045.0
-            2050: 10050.0
+          onwind: # from DEA
+            2020: 366519.143
+            2030: 307876.080
+            2040: 279887.346
+            2050: 256563.400
       energy_specific_generators: # unit: m2/MWh. space_req_pu is manually defined here
         unsustainable solid biomass: 434.8  # woody biocrops
         unsustainable biogas: 120.5  # digestible biocrops
