@@ -125,11 +125,15 @@ if __name__ == "__main__":
 
     # --- Shared legend (outside plot) with matching order ---
     legend_handles = [mpatches.Patch(label=k, color=color_map[k]) for k in reversed(sorted_carriers)]
-
     fig.legend(handles=legend_handles,
                loc="center left",
                bbox_to_anchor=(0.85, 0.5),
                title="Technology Group")
+
+    # Add run label as top-right title
+    fig.text(0.98, 0.98, f"Run: {snakemake.wildcards.run}",
+             ha="right", va="top", fontsize=12)
+
     plt.tight_layout(rect=[0, 0, 0.8, 1])
     plt.show()
     plt.savefig(snakemake.output.total_and_DE_capex_opex_graph)
