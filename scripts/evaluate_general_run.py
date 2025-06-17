@@ -46,35 +46,101 @@ if __name__ == "__main__":
         "fossil plants": [
             "gas", "coal", "oil", "lignite", "CCGT", "Open-Cycle Gas", "Combined-Cycle Gas",
             "urban central gas CHP", "urban central oil CHP", "urban central coal CHP",
-            "urban central lignite CHP", "CHP"
+            "urban central lignite CHP", "CHP", "gas primary", "oil primary", "coal for industry",
+            "gas for industry", "gas for industry CC", "oil refining"
         ],
         "sustainable biomass": [
-            "biogas", "solid biomass", "biomass to liquid"
+            "biogas", "solid biomass", "biomass to liquid",
+            "biogas to gas", "biogas to gas CC", "biomass to liquid CC", "solid biomass for industry",
+            "solid biomass for industry CC"
         ],
         "unsustainable biomass": [
             "unsustainable", "unsustainable biogas", "unsustainable solid biomass", "unsustainable bioliquids"
         ],
         "onshore wind": ["onshore wind"],
-        "offshore wind": ["offshore wind"],
+        "offshore wind": ["offshore wind", "offshore wind (AC)", "offshore wind (DC)"],
         "solar": ["solar"],
         "solar rooftop": ["solar rooftop"],
-        "hydro power": ["run of river", "reservoir", "pumped hydro storage", "dam", "hydro"],
-        "heat systems": ["heat", "boiler", "resistive heater", "air heat pump", "water tanks", "vent"],
-        "storage": ["battery", "H2 store", "thermal storage", "home battery", "water tanks", "hydrogen storage"],
+        "hydro power": ["run of river", "reservoir", "dam", "hydro", "reservoir & dam", "Pumped Hydro Storage"],
+
+        "boiler": [
+            "boiler",
+            "residential rural biomass boiler", "residential rural gas boiler", "residential rural oil boiler",
+            "residential urban decentral biomass boiler", "residential urban decentral gas boiler",
+            "residential urban decentral oil boiler",
+            "services rural biomass boiler", "services rural gas boiler", "services rural oil boiler",
+            "services urban decentral biomass boiler", "services urban decentral gas boiler",
+            "services urban decentral oil boiler",
+            "urban central gas boiler"
+        ],
+        "heat pump": [
+            "air heat pump", "ground heat pump",
+            "residential rural air heat pump", "residential rural ground heat pump",
+            "residential urban decentral air heat pump",
+            "services rural air heat pump", "services rural ground heat pump",
+            "services urban decentral air heat pump",
+            "urban central air heat pump"
+        ],
+        # "other heating": [
+        #     "heat", "vent", "resistive heater", "water tanks",
+        #     "residential rural heat vent", "residential rural resistive heater", "residential rural water tanks",
+        #     "residential rural water tanks charger", "residential rural water tanks discharger",
+        #     "residential urban decentral heat vent", "residential urban decentral resistive heater",
+        #     "residential urban decentral water tanks", "residential urban decentral water tanks charger",
+        #     "residential urban decentral water tanks discharger",
+        #     "services rural heat vent", "services rural resistive heater", "services rural water tanks",
+        #     "services rural water tanks charger", "services rural water tanks discharger",
+        #     "services urban decentral heat vent", "services urban decentral resistive heater",
+        #     "services urban decentral water tanks", "services urban decentral water tanks charger",
+        #     "services urban decentral water tanks discharger",
+        #     "urban central heat vent", "urban central resistive heater", "urban central water tanks",
+        #     "urban central water tanks charger", "urban central water tanks discharger"
+        # ],
+
         "hydrogen": [
-            "H2", "hydrogen", "electrolysis", "fuel cell", "SMR", "sabatier"#, "methanol", "methanolisation"
+            "H2", "hydrogen", "electrolysis", "fuel cell", "sabatier",
+            "H2 Electrolysis", "H2 Fuel Cell", "H2 OCGT", "SMR", "SMR CC",
+            "H2 pipeline", "H2 pipeline (Kernnetz)", "H2 pipeline retrofitted", "H2 Store"
         ],
         "nuclear": ["nuclear", "uranium"],
-        "CO2 removal": ["DAC", "co2 sequestered", "co2 stored", "process emissions"],
-        "electricity grid": ["electricity distribution grid"]#, "AC", "DC"],
+        # "CO2 removal": [
+        #     "DAC", "co2 sequestered", "co2 stored", "process emissions",
+        #     "co2", "process emissions CC"
+        # ],
+        "electricity grid": [
+            "electricity distribution grid"
+        ],
+        "electricity": [
+            "AC", "DC"
+        ],
+
+        # "storage": [
+        #     "battery", "thermal storage", "home battery", "hydrogen storage",
+        #     "Battery Storage", "battery charger", "battery discharger",
+        #     "home battery charger", "home battery discharger"
+        # ],
+        # "mobility": [
+        #     "BEV charger", "land transport oil", "kerosene for aviation", "shipping methanol", "shipping oil",
+        #     "agriculture machinery oil"
+        # ],
+        # "methanol": [
+        #     "methanol", "methanolisation", "industry methanol"
+        # ],
+        # "HVC": ["HVC to air"],
+        # "waste": ["waste CHP", "waste CHP CC"],
+        # "renewable fuels": ["renewable gas", "renewable oil", "Fischer-Tropsch"],
+        # "naphtha": ["naphtha for industry"]
     }
 
 
     def assign_group(carrier):
+        c = carrier.lower().strip()
         for group, keywords in carrier_group_map.items():
-            if any(k.lower() in carrier.lower() for k in keywords):
-                return group
+            for k in keywords:
+                if c == k.lower().strip():
+                    return group
         return "other"
+
 
     combined_df["carrier_grouped"] = combined_df["carrier"].apply(assign_group)
 

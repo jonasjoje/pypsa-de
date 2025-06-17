@@ -59,6 +59,7 @@ rule evaluate_general_scenario_comparison:
         #total_capexopex_graph = GENERAL_COMPARISON + "total_capexopex_graph.png",
         #DE_capexopex_graph= GENERAL_COMPARISON + "DE_capexopex_graph.png",
         total_and_DE_capexopex_graph= GENERAL_COMPARISON + "total_and_DE_capexopex_graph.png",
+        total_and_DE_capexopex_stackplot_2050 = GENERAL_COMPARISON + "total_and_DE_capexopex_stackplot_2050.png",
         gen_solar_graph = GENERAL_COMPARISON +"gen_solar_graph.png",
         gen_onwind_graph = GENERAL_COMPARISON +"gen_onwind_graph.png",
         gen_offwind_ac_graph= GENERAL_COMPARISON +"gen_offwind_ac_graph.png",
