@@ -34,13 +34,23 @@ if __name__ == "__main__":
     # ─────────────────────────────────────────────────────────────────────────────
 
     cc_capex_opex = {}
-    for run, df_cap in cc_capex.items():
+    cc_capex_opex_de = {}
+
+    for run in cc_capex:
+        df_cap = cc_capex[run]
         df_ope = cc_opex[run]
         year_cols = [str(y) for y in planning_horizons]
-        df_sum = df_cap[year_cols].copy()
-        for yr in year_cols:
-            df_sum[yr] = df_cap[yr] + df_ope[yr]
-        cc_capex_opex[run] = df_sum
+
+        # Gesamt
+        df_all = df_cap[year_cols].add(df_ope[year_cols], fill_value=0)
+        cc_capex_opex[run] = df_all
+
+        # Nur DE
+        df_cap_de = df_cap[df_cap["country"] == "DE"]
+        df_ope_de = df_ope[df_ope["country"] == "DE"]
+
+        df_de = df_cap_de[year_cols].add(df_ope_de[year_cols], fill_value=0)
+        cc_capex_opex_de[run] = df_de
 
 
     def get_capex_opex_series(df_run):
@@ -48,12 +58,27 @@ if __name__ == "__main__":
         s.index = s.index.astype(int)
         return s.sort_index() * 1e-9
 
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
+
     plot_line_comparison(
         cc=cc_capex_opex,
-        title="CAPEX + OPEX (Bn. Euro)",
+        title="CAPEX + OPEX Total (Bn. Euro)",
         expr=get_capex_opex_series,
-        output=snakemake.output.total_capexopex_graph,
+        #output=snakemake.output.total_capexopex_graph,
+        ax=ax1,
     )
+
+    plot_line_comparison(
+        cc=cc_capex_opex_de,
+        title="CAPEX + OPEX DE (Bn. Euro)",
+        expr=get_capex_opex_series,
+        #output=snakemake.output.DE_capexopex_graph,
+        ax=ax2,
+    )
+
+    fig.tight_layout()
+    fig.savefig(snakemake.output.total_and_DE_capexopex_graph)
+    logger.info(f"Created plot Total and DE capexopex graph and saved to {snakemake.output.total_and_DE_capexopex_graph}")
 
     # ─────────────────────────────────────────────────────────────────────────────
     #  Generation

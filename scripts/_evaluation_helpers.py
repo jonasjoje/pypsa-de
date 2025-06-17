@@ -79,14 +79,24 @@ def compare_value(get_series, cc):
     return df_compare
 
 
-def plot_line_comparison(cc, title, expr, output):
-    logger.info(f"Create  plot {title}")
+def plot_line_comparison(cc, title, expr, output=None, ax=None):
+    logger.info(f"Create plot {title}")
     df = compare_value(expr, cc)
-    ax = df.plot.line()
-    plt.ylabel(title)
-    fig = ax.get_figure()
-    fig.savefig(output)
-    logger.info(f"Created plot {title} and saved to {output}")
+
+    if ax is None:
+        ax = df.plot.line()
+        fig = ax.get_figure()
+    else:
+        df.plot.line(ax=ax)
+        fig = ax.get_figure()
+
+    ax.set_ylabel(title)
+    ax.set_title(title)
+
+    if output:
+        fig.savefig(output)
+        logger.info(f"Created plot {title} and saved to {output}")
+
 
 def filter_statistics_by_country(n, country):
     df = n.statistics(groupby=["bus","carrier"])

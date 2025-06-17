@@ -10,6 +10,7 @@ EVALUATION = "results/" + run["prefix"] + "/EVALUATION/"
 rule evaluate_all:
     input:
         expand(".tmp/{rule}.done", rule=config["evaluation"]["enable"]),
+        expand(".tmp/evaluate_general_run_{run}.done", run=config["run"]["name"]),
         expand(".tmp/evaluate_space_requirement_run_{run}.done", run=config["run"]["name"]),
         expand(".tmp/evaluate_biomass_run_{run}.done", run=config["run"]["name"]),
     output:
@@ -55,7 +56,9 @@ rule evaluate_general_scenario_comparison:
         statistics_opex_buscarrier_csv= expand(RESULTS + "csvs/statistics_opex_buscarrier.csv", run=config["run"]["name"]),
         statistics_optimalcapacity_buscarrier_csv= expand(RESULTS + "csvs/statistics_optimalcapacity_buscarrier.csv", run=config["run"]["name"]),
     output:
-        total_capexopex_graph = GENERAL_COMPARISON + "total_capexopex_graph.png",
+        #total_capexopex_graph = GENERAL_COMPARISON + "total_capexopex_graph.png",
+        #DE_capexopex_graph= GENERAL_COMPARISON + "DE_capexopex_graph.png",
+        total_and_DE_capexopex_graph= GENERAL_COMPARISON + "total_and_DE_capexopex_graph.png",
         gen_solar_graph = GENERAL_COMPARISON +"gen_solar_graph.png",
         gen_onwind_graph = GENERAL_COMPARISON +"gen_onwind_graph.png",
         gen_offwind_ac_graph= GENERAL_COMPARISON +"gen_offwind_ac_graph.png",
@@ -94,6 +97,21 @@ rule evaluate_FEC_comparison:
         EVALUATION + "logs/evaluate_FEC_comparison.log"
     script:
         "../scripts/evaluate_FEC_comparison.py"
+
+
+rule evaluate_general_run:
+    params:
+        planning_horizons = config_provider("scenario","planning_horizons"),
+    input:
+        capex_csv = RESULTS + "csvs/statistics_capex_buscarrier.csv",
+        opex_csv= RESULTS + "csvs/statistics_opex_buscarrier.csv",
+    output:
+        total_and_DE_capex_opex_graph = RESULTS + "graphs/total_and_DE_capex_opex.png",
+        done= touch(".tmp/evaluate_general_run_{run}.done"),
+    log:
+        RESULTS + "logs/evaluate_general_run_{run}.log"
+    script:
+        "../scripts/evaluate_general_run.py"
 
 
 rule evaluate_space_requirement_run:
