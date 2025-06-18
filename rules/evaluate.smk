@@ -10,6 +10,7 @@ EVALUATION = "results/" + run["prefix"] + "/EVALUATION/"
 rule evaluate_all:
     input:
         expand(".tmp/{rule}.done", rule=config["evaluation"]["enable"]),
+        ".tmp/evaluate_space_requirement_comparison.done",
         expand(".tmp/evaluate_general_run_{run}.done", run=config["run"]["name"]),
         expand(".tmp/evaluate_space_requirement_run_{run}.done", run=config["run"]["name"]),
         expand(".tmp/evaluate_biomass_run_{run}.done", run=config["run"]["name"]),
@@ -98,6 +99,22 @@ rule evaluate_FEC_comparison:
         EVALUATION + "logs/evaluate_FEC_comparison.log"
     script:
         "../scripts/evaluate_FEC_comparison.py"
+
+rule evaluate_space_requirement_comparison:
+    params:
+        planning_horizons=config_provider("scenario","planning_horizons"),
+    input:
+        space_requirements_DLU_csv = expand(RESULTS + "csvs/space_requirements_DLU.csv",run=config["run"]["name"]),
+    output:
+        DLU_vs_constraint_stack = GENERAL_COMPARISON + "DLU_vs_constraint_stack.png",
+        done = touch(".tmp/evaluate_space_requirement_comparison.done")
+    resources:
+        mem = 30000
+    log:
+        EVALUATION + "logs/evaluate_space_requirement_comparison.log"
+    script:
+        "../scripts/evaluate_space_requirement_comparison.py"
+
 
 
 rule evaluate_general_run:

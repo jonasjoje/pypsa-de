@@ -1,0 +1,103 @@
+import os
+import re
+import logging
+import pandas as pd
+import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
+from scripts._helpers import configure_logging
+
+logger = logging.getLogger(__name__)
+
+if __name__ == "__main__":
+    if "snakemake" not in globals():
+        from scripts._helpers import mock_snakemake
+        snakemake = mock_snakemake("evaluate_space_requirement_comparison")
+
+    configure_logging(snakemake)
+
+    # ─────────────────────────────────────────────────────────────────────────────
+    # Load data
+    # ─────────────────────────────────────────────────────────────────────────────
+    df_list = []
+    for path in snakemake.input.space_requirements_DLU_csv:
+        run_name = os.path.basename(os.path.dirname(os.path.dirname(path)))
+        df = pd.read_csv(path)
+        df["run"] = run_name
+        df_list.append(df)
+
+    df_all = pd.concat(df_list, ignore_index=True)
+
+    # Filter only 2050
+    df_all = df_all[df_all["year"] == 2050]
+
+    # Extract constraint from run name (e.g. "clever_constr50" → 50)
+    def extract_constraint(run):
+        match = re.search(r"constr(\d+)", run)
+        if match:
+            return int(match.group(1))
+        return 100
+
+    df_all["constraint"] = df_all["run"].apply(extract_constraint)
+
+    # Filter carriers with total area > 0
+    carriers_with_area = (
+        df_all.groupby("carrier")["area_km2"].sum().loc[lambda s: s > 0].index.tolist()
+    )
+    df_all = df_all[df_all["carrier"].isin(carriers_with_area)]
+
+    # Prepare subset
+    def subset(df, prefix, countries):
+        sub = df[df["run"].str.startswith(prefix)]
+        if countries is not None:
+            sub = sub[sub["country"].isin(countries)]
+        grouped = sub.groupby(["constraint", "carrier"])["area_km2"].sum().unstack().fillna(0) / 1e3
+        return grouped
+
+    ref_all = subset(df_all, "ref", None)
+    cle_all = subset(df_all, "cle", None)
+    ref_de = subset(df_all, "ref", ["DE"])
+    cle_de = subset(df_all, "cle", ["DE"])
+
+    # Carrier order by total area
+    all_data = pd.concat([ref_all, cle_all, ref_de, cle_de])
+    carrier_order = all_data.sum().sort_values(ascending=False).index.tolist()
+
+    # ─────────────────────────────────────────────────────────────────────────────
+    # Plotting
+    # ─────────────────────────────────────────────────────────────────────────────
+    fig, axs = plt.subplots(2, 2, figsize=(14, 10), sharey=True, sharex='col')
+
+    plot_data = [
+        (ref_all, "Reference – All Countries", axs[0, 0]),
+        (cle_all, "Clever – All Countries", axs[0, 1]),
+        (ref_de, "Reference – Germany", axs[1, 0]),
+        (cle_de, "Clever – Germany", axs[1, 1]),
+    ]
+
+    color_map = {}
+
+    for data, title, ax in plot_data:
+        data = data.reindex(columns=carrier_order, fill_value=0)
+        x = data.index
+        y = data.values.T
+        polys = ax.stackplot(x, y, labels=data.columns)
+
+        if not color_map:
+            color_map = {name: poly.get_facecolor()[0] for name, poly in zip(data.columns, polys)}
+        else:
+            for poly, name in zip(polys, data.columns):
+                poly.set_color(color_map[name])
+
+        ax.set_title(title)
+        ax.set_ylabel("Constraint (%)")
+        ax.set_xlabel("Land Area (1000 km²)")
+        ax.set_ylim(105, 0)  # reverse constraint axis
+        ax.set_xlim(left=0)
+
+    handles = [mpatches.Patch(label=k, color=color_map[k]) for k in reversed(carrier_order)]
+    fig.legend(handles=handles, loc="center left", bbox_to_anchor=(0.85, 0.5), title="Carrier")
+
+    fig.tight_layout(rect=[0, 0, 0.83, 1])
+    plt.show()
+    fig.savefig(snakemake.output.DLU_vs_constraint_stack)
+    logger.info(f"Saved plot to {snakemake.output.DLU_vs_constraint_stack}")
