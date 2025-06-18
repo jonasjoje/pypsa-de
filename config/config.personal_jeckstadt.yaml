@@ -104,7 +104,7 @@ sector:
   gas_network: false
   regional_gas_demand: true
   cluster_heat_buses: false
-  biomass_spatial: true
+  biomass_spatial: true # Transport deactivated by changing code in scripts/prepare_sector_network.py:3585
 
 clustering:
   mode: administrative
