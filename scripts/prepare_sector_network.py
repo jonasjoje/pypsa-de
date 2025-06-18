@@ -3591,16 +3591,16 @@ def add_biomass(
         )
         average_distance = 200  # km #TODO: validate this assumption
 
-        n.add(
-            "Generator",
-            spatial.biomass.nodes,
-            suffix=" transported",
-            bus=spatial.biomass.nodes,
-            carrier="solid biomass",
-            p_nom=0, #10000, Set to 0 to deactivate transported biomass
-            marginal_cost=costs.at["solid biomass", "fuel"]
-            + bus_transport_costs * average_distance,
-        )
+        # n.add(
+        #     "Generator",
+        #     spatial.biomass.nodes,
+        #     suffix=" transported",
+        #     bus=spatial.biomass.nodes,
+        #     carrier="solid biomass",
+        #     p_nom=0, #10000, Set to 0 to deactivate transported biomass
+        #     marginal_cost=costs.at["solid biomass", "fuel"]
+        #     + bus_transport_costs * average_distance,
+        # )
         # n.add(
         #     "GlobalConstraint",
         #     "biomass limit",
@@ -3609,71 +3609,71 @@ def add_biomass(
         #     constant=biomass_potentials["solid biomass"].sum(),
         #     type="operational_limit",
         # )
-        if biomass_potentials["unsustainable solid biomass"].sum() > 0:
-            n.add(
-                "Generator",
-                spatial.biomass.nodes_unsustainable,
-                suffix=" transported",
-                bus=spatial.biomass.nodes,
-                carrier="unsustainable solid biomass",
-                p_nom=0, #10000, Set to 0 to deactivate transported biomass
-                marginal_cost=costs.at["fuelwood", "fuel"]
-                + bus_transport_costs.rename(
-                    dict(
-                        zip(spatial.biomass.nodes, spatial.biomass.nodes_unsustainable)
-                    )
-                )
-                * average_distance,
-            )
-            # # Set e_sum_min to 0 to allow for the faux biomass transport
-            # n.generators.loc[
-            #     n.generators.carrier == "unsustainable solid biomass", "e_sum_min"
-            # ] = 0
-            #
-            # n.add(
-            #     "GlobalConstraint",
-            #     "unsustainable biomass limit",
-            #     carrier_attribute="unsustainable solid biomass",
-            #     sense="<=",
-            #     constant=biomass_potentials["unsustainable solid biomass"].sum(),
-            #     type="operational_limit",
-            # )
-            #
-            # n.add(
-            #     "GlobalConstraint",
-            #     "unsustainable biomass min",
-            #     carrier_attribute="unsustainable solid biomass",
-            #     sense=">=",
-            #     constant=biomass_potentials["unsustainable solid biomass"].sum() * share_unsustainable_min,
-            #     type="operational_limit",
-            # )
-
-        if options["municipal_solid_waste"]:
-            # Add municipal solid waste
-            n.add(
-                "Generator",
-                spatial.msw.nodes,
-                suffix=" transported",
-                bus=spatial.msw.nodes,
-                carrier="municipal solid waste",
-                p_nom=10000,
-                marginal_cost=0  # costs.at["municipal solid waste", "fuel"]
-                + bus_transport_costs.rename(
-                    dict(zip(spatial.biomass.nodes, spatial.msw.nodes))
-                )
-                * average_distance,
-            )
-            n.generators.loc[
-                n.generators.carrier == "municipal solid waste", "e_sum_min"
-            ] = 0
-            n.add(
-                "GlobalConstraint",
-                "msw limit",
-                carrier_attribute="municipal solid waste",
-                sense="==",
-                constant=biomass_potentials["municipal solid waste"].sum(),
-                type="operational_limit",
-            )
+        # if biomass_potentials["unsustainable solid biomass"].sum() > 0:
+        #     n.add(
+        #         "Generator",
+        #         spatial.biomass.nodes_unsustainable,
+        #         suffix=" transported",
+        #         bus=spatial.biomass.nodes,
+        #         carrier="unsustainable solid biomass",
+        #         p_nom=0, #10000, Set to 0 to deactivate transported biomass
+        #         marginal_cost=costs.at["fuelwood", "fuel"]
+        #         + bus_transport_costs.rename(
+        #             dict(
+        #                 zip(spatial.biomass.nodes, spatial.biomass.nodes_unsustainable)
+        #             )
+        #         )
+        #         * average_distance,
+        #     )
+        #     # Set e_sum_min to 0 to allow for the faux biomass transport
+        #     n.generators.loc[
+        #         n.generators.carrier == "unsustainable solid biomass", "e_sum_min"
+        #     ] = 0
+        #
+        #     n.add(
+        #         "GlobalConstraint",
+        #         "unsustainable biomass limit",
+        #         carrier_attribute="unsustainable solid biomass",
+        #         sense="<=",
+        #         constant=biomass_potentials["unsustainable solid biomass"].sum(),
+        #         type="operational_limit",
+        #     )
+        #
+        #     n.add(
+        #         "GlobalConstraint",
+        #         "unsustainable biomass min",
+        #         carrier_attribute="unsustainable solid biomass",
+        #         sense=">=",
+        #         constant=biomass_potentials["unsustainable solid biomass"].sum() * share_unsustainable_min,
+        #         type="operational_limit",
+        #     )
+        #
+        # if options["municipal_solid_waste"]:
+        #     # Add municipal solid waste
+        #     n.add(
+        #         "Generator",
+        #         spatial.msw.nodes,
+        #         suffix=" transported",
+        #         bus=spatial.msw.nodes,
+        #         carrier="municipal solid waste",
+        #         p_nom=10000,
+        #         marginal_cost=0  # costs.at["municipal solid waste", "fuel"]
+        #         + bus_transport_costs.rename(
+        #             dict(zip(spatial.biomass.nodes, spatial.msw.nodes))
+        #         )
+        #         * average_distance,
+        #     )
+        #     n.generators.loc[
+        #         n.generators.carrier == "municipal solid waste", "e_sum_min"
+        #     ] = 0
+        #     n.add(
+        #         "GlobalConstraint",
+        #         "msw limit",
+        #         carrier_attribute="municipal solid waste",
+        #         sense="==",
+        #         constant=biomass_potentials["municipal solid waste"].sum(),
+        #         type="operational_limit",
+        #     )
 
     # AC buses with district heating
     urban_central = n.buses.index[n.buses.carrier == "urban central heat"]
