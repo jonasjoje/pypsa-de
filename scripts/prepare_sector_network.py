@@ -3597,7 +3597,7 @@ def add_biomass(
             suffix=" transported",
             bus=spatial.biomass.nodes,
             carrier="solid biomass",
-            p_nom=0, #10000, Set to 0 to deactivate transported biomass
+            p_nom=100, #10000, Set to 100 to deactivate transported biomass
             marginal_cost=costs.at["solid biomass", "fuel"]
             + bus_transport_costs * average_distance,
         )
@@ -3616,7 +3616,7 @@ def add_biomass(
                 suffix=" transported",
                 bus=spatial.biomass.nodes,
                 carrier="unsustainable solid biomass",
-                p_nom=0, #10000, Set to 0 to deactivate transported biomass
+                p_nom=100, #10000, Set to 100 to deactivate transported biomass
                 marginal_cost=costs.at["fuelwood", "fuel"]
                 + bus_transport_costs.rename(
                     dict(
