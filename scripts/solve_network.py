@@ -1022,8 +1022,10 @@ def add_space_requirement_constraint(n, max_limit,
         space_in_use_power = (power_specific_gens["p_nom"] * power_specific_gens[space_req_col]).sum()
 
         # Calculate used space for energy-specific generators with defined e_sum_min.
-        energy_specific_mask = region_gens["carrier"].isin(energy_specific_carriers) & region_gens[
-            "e_sum_min"].notnull()
+        energy_specific_mask = (
+                region_gens["carrier"].isin(energy_specific_carriers)
+                & (region_gens["e_sum_min"] > 0)
+        )
         energy_specific_gens = region_gens[energy_specific_mask]
         space_in_use_energy = (energy_specific_gens["e_sum_min"] * energy_specific_gens[space_req_col]).sum()
 
@@ -1408,8 +1410,8 @@ if __name__ == "__main__":
             clusters="adm",
             ll="v1.1",
             sector_opts="none",
-            planning_horizons="2030",
-            run="ref-constr50",
+            planning_horizons="2040",
+            run="ref-constr01",
             configfiles="config/config.personal_jeckstadt.yaml",
         )
     configure_logging(snakemake)
