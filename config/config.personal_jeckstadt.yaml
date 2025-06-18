@@ -15,19 +15,19 @@ remote:
 run:
   prefix: 20250430_low_res
   name:
-  - 8Gt_Bal_v3
+#  - 8Gt_Bal_v3
   - reference  # reference scenario is necessary for get_FEC_reference (used in clever)
   - clever
-  - ref-constr50  # based on reference scenario, each country has 50% of their 2020 space requirement in 2050
-  - ref-constr25
+#  - ref-constr50  # based on reference scenario, each country has 50% of their 2020 space requirement in 2050
+#  - ref-constr25
 #  - ref-constr20
 #  - ref-constr15
 #  - ref-constr10
 #  - ref-constr05
   - ref-constr01
-  - cle-constr50
-  - cle-constr25
-  - cle-constr01
+#  - cle-constr50
+#  - cle-constr25
+#  - cle-constr01
   scenarios:
     enable: true
     manual_file: config/scenarios.personal_jeckstadt.yaml
