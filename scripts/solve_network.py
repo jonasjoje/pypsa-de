@@ -1042,13 +1042,18 @@ def add_space_requirement_constraint(n, max_limit,
         if max_land_use_additional < 0:
             if negative_additional == 'error':
                 logger.error(
-                    f"({space_req_type} - {region}): Max additional land use is negative: {max_land_use_additional} m². Aborting.")
+                    f"({space_req_type} - {region}): Max additional land use is negative: {max_land_use_additional} m2. Aborting.")
                 raise RuntimeError(
-                    f"({space_req_type} - {region}): Max additional land use is negative: {max_land_use_additional} m². Aborting.")
+                    f"({space_req_type} - {region}): Max additional land use is negative: {max_land_use_additional} m2. Aborting.")
             elif negative_additional == 'warning':
                 logger.warning(
-                    f"({space_req_type} - {region}): Max additional land use is negative: {max_land_use_additional} m². Skipping constraint for {region}.")
+                    f"({space_req_type} - {region}): Max additional land use is negative: {max_land_use_additional} m2. Skipping constraint for {region}.")
                 continue
+            elif negative_additional == 'adjust_limit':
+                logger.warning(
+                    f"({space_req_type} - {region}): Max additional land use is negative: {max_land_use_additional} m2. "
+                    f"Adjusting constraint limit to existing space use ({space_in_use} m2) plus 1km2.")
+                max_land_use_additional = 1e6 #allow 1 km2 additional
             else:
                 logger.error("Invalid config parameter for land_use_module, constraint, negative_additional. Aborting.")
                 raise RuntimeError(
