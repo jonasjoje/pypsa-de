@@ -3597,7 +3597,7 @@ def add_biomass(
             suffix=" transported",
             bus=spatial.biomass.nodes,
             carrier="solid biomass",
-            p_nom=100, #10000, Set to 100 to deactivate transported biomass
+            p_nom= options["biomass_transported_p_nom"],  #default 10000, Set to 100 to deactivate transported biomass
             marginal_cost=costs.at["solid biomass", "fuel"]
             + bus_transport_costs * average_distance,
         )
@@ -3616,7 +3616,7 @@ def add_biomass(
                 suffix=" transported",
                 bus=spatial.biomass.nodes,
                 carrier="unsustainable solid biomass",
-                p_nom=100, #10000, Set to 100 to deactivate transported biomass
+                p_nom=options["biomass_transported_p_nom"], #default 10000, Set to 100 to deactivate transported biomass
                 marginal_cost=costs.at["fuelwood", "fuel"]
                 + bus_transport_costs.rename(
                     dict(
@@ -3625,10 +3625,12 @@ def add_biomass(
                 )
                 * average_distance,
             )
-            # Set e_sum_min to 0 to allow for the faux biomass transport
-            # n.generators.loc[
-            #     n.generators.carrier == "unsustainable solid biomass", "e_sum_min"
-            # ] = 0
+
+            if options["biomass_transported_p_nom"] != 100:  # deactivation value
+                #Set e_sum_min to 0 to allow for the faux biomass transport
+                n.generators.loc[
+                    n.generators.carrier == "unsustainable solid biomass", "e_sum_min"
+                ] = 0
 
             n.add(
                 "GlobalConstraint",

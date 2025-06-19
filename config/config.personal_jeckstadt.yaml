@@ -104,7 +104,8 @@ sector:
   gas_network: false
   regional_gas_demand: true
   cluster_heat_buses: false
-  biomass_spatial: true # Transport deactivated by changing code in scripts/prepare_sector_network.py:3585
+  biomass_spatial: true # Transport deactivated by changing code in scripts/prepare_sector_network.py:3585 and parameter below
+  biomass_transported_p_nom: 100  #set to 100 to deactivate, default for 8Gt_Bal_v3 overwritten in scenarios.
 
 clustering:
   mode: administrative

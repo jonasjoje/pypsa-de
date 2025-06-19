@@ -12,6 +12,9 @@
   solving:
     constraints: { }
 
+  sector:
+    biomass_transported_p_nom: 10000  # default value
+
   clever: false
 
   land_use_module:

@@ -27,6 +27,16 @@
         2050:
           DE: -0.046
 
+  sector:
+    biomass_transported_p_nom: 10000  # default value
+
+    aviation_demand_factor:
+      2020: 1.0
+      2025: 0.9321
+      2030: 0.8687
+      2035: 0.7719
+      2040: 0.6926
+      2045: 0.6417
   clever: false
 
   land_use_module:
@@ -64,14 +74,6 @@
 
 
 
-  sector:
-    aviation_demand_factor:
-      2020: 1.0
-      2025: 0.9321
-      2030: 0.8687
-      2035: 0.7719
-      2040: 0.6926
-      2045: 0.6417
 reference:
   iiasa_database:
     reference_scenario: 8Gt_Bal_v3
