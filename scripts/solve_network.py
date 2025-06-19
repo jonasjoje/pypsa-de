@@ -1059,6 +1059,9 @@ def add_space_requirement_constraint(n, max_limit,
                 raise RuntimeError(
                     "Invalid config parameter for land_use_module, constraint, negative_additional. Aborting.")
 
+        # e_sum_min of energy specific generators has to be allocated by optimization problem
+        land_use_avail_for_opt = (max_land_use_additional / space_in_use) + space_in_use_energy
+
         additional_land_use = 0
 
         # Only consider generators in the current region with a defined and positive space requirement.
@@ -1079,7 +1082,7 @@ def add_space_requirement_constraint(n, max_limit,
             additional_land_use += term
 
         lhs = additional_land_use
-        rhs = max_land_use_additional
+        rhs = land_use_avail_for_opt
         constraint_name = f"TotalSpaceRequirement_{space_req_type}_{region}"
         n.model.add_constraints(lhs <= rhs, name=f"GlobalConstraint-{constraint_name}")
         n.add("GlobalConstraint",
