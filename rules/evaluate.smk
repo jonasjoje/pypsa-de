@@ -128,8 +128,13 @@ rule evaluate_general_run:
     input:
         capex_csv = RESULTS + "csvs/statistics_capex_buscarrier.csv",
         opex_csv= RESULTS + "csvs/statistics_opex_buscarrier.csv",
+        generators_p_nom_max_csv = RESULTS + "csvs/generators_p_nom_max.csv",
+        generators_p_nom_min_csv = RESULTS + "csvs/generators_p_nom_min.csv",
+        generators_p_nom_ops_csv = RESULTS + "csvs/generators_p_nom_opt.csv",
     output:
         total_and_DE_capex_opex_graph = RESULTS + "graphs/total_and_DE_capex_opex.png",
+        total_and_DE_solar_capacity_graph = RESULTS + "graphs/total_and_DE_solar_capacity.png",
+        total_and_DE_onwind_capacity_graph = RESULTS + "graphs/total_and_DE_onwind_capacity.png",
         done= touch(".tmp/evaluate_general_run_{run}.done"),
     log:
         RESULTS + "logs/evaluate_general_run_{run}.log"
