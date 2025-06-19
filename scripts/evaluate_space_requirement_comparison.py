@@ -27,25 +27,33 @@ if __name__ == "__main__":
 
     df_all = pd.concat(df_list, ignore_index=True)
 
-    # Filter only 2050
-    df_all = df_all[df_all["year"] == 2050]
+    # Filter only rows with area > 0 in 2050
+    df_all = df_all[df_all["2050"] > 0].copy()
 
-    # Extract constraint from run name (e.g. "clever_constr50" → 50)
+    # Rename "2050" to a consistent column name for plotting
+    df_all = df_all.rename(columns={"2050": "area_km2"})
+
+
+    # Extract constraint value from run name
     def extract_constraint(run):
         match = re.search(r"constr(\d+)", run)
         if match:
             return int(match.group(1))
         return 100
 
+
     df_all["constraint"] = df_all["run"].apply(extract_constraint)
 
-    # Filter carriers with total area > 0
+    # Filter carriers with nonzero total area
     carriers_with_area = (
         df_all.groupby("carrier")["area_km2"].sum().loc[lambda s: s > 0].index.tolist()
     )
     df_all = df_all[df_all["carrier"].isin(carriers_with_area)]
 
-    # Prepare subset
+
+    # ─────────────────────────────────────────────────────────────────────────────
+    # Subsetting for plot panels
+    # ─────────────────────────────────────────────────────────────────────────────
     def subset(df, prefix, countries):
         sub = df[df["run"].str.startswith(prefix)]
         if countries is not None:
@@ -53,19 +61,20 @@ if __name__ == "__main__":
         grouped = sub.groupby(["constraint", "carrier"])["area_km2"].sum().unstack().fillna(0) / 1e3
         return grouped
 
+
     ref_all = subset(df_all, "ref", None)
     cle_all = subset(df_all, "cle", None)
     ref_de = subset(df_all, "ref", ["DE"])
     cle_de = subset(df_all, "cle", ["DE"])
 
-    # Carrier order by total area
+    # Determine carrier plotting order by total area
     all_data = pd.concat([ref_all, cle_all, ref_de, cle_de])
     carrier_order = all_data.sum().sort_values(ascending=False).index.tolist()
 
     # ─────────────────────────────────────────────────────────────────────────────
     # Plotting
     # ─────────────────────────────────────────────────────────────────────────────
-    fig, axs = plt.subplots(2, 2, figsize=(14, 10), sharey=True, sharex='col')
+    fig, axs = plt.subplots(2, 2, figsize=(14, 10), sharex='col')
 
     plot_data = [
         (ref_all, "Reference – All Countries", axs[0, 0]),
@@ -89,10 +98,10 @@ if __name__ == "__main__":
                 poly.set_color(color_map[name])
 
         ax.set_title(title)
-        ax.set_ylabel("Constraint (%)")
-        ax.set_xlabel("Land Area (1000 km²)")
-        ax.set_ylim(105, 0)  # reverse constraint axis
-        ax.set_xlim(left=0)
+        ax.set_xlabel("Constraint (%)")
+        ax.set_ylabel("Land Area (1000 km²)")
+        ax.set_xlim(105, 0)
+        ax.set_xticks(data.index)
 
     handles = [mpatches.Patch(label=k, color=color_map[k]) for k in reversed(carrier_order)]
     fig.legend(handles=handles, loc="center left", bbox_to_anchor=(0.85, 0.5), title="Carrier")
