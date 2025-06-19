@@ -105,8 +105,10 @@ rule evaluate_space_requirement_comparison:
         planning_horizons=config_provider("scenario","planning_horizons"),
     input:
         space_requirements_DLU_csv = expand(RESULTS + "csvs/space_requirements_DLU.csv",run=config["run"]["name"]),
+        constraint_mu_DLU_csv = expand(RESULTS + "csvs/globalconstraints_mu.csv",run=config["run"]["name"]),
     output:
         DLU_vs_constraint_stack = GENERAL_COMPARISON + "DLU_vs_constraint_stack.png",
+        DLU_mu_vs_constraint = GENERAL_COMPARISON + "DLU_mu_vs_constraint.png",
         done = touch(".tmp/evaluate_space_requirement_comparison.done")
     resources:
         mem = 30000

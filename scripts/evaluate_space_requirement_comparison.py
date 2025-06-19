@@ -107,6 +107,58 @@ if __name__ == "__main__":
     fig.legend(handles=handles, loc="center left", bbox_to_anchor=(0.85, 0.5), title="Carrier")
 
     fig.tight_layout(rect=[0, 0, 0.83, 1])
-    plt.show()
+    #plt.show()
     fig.savefig(snakemake.output.DLU_vs_constraint_stack)
     logger.info(f"Saved plot to {snakemake.output.DLU_vs_constraint_stack}")
+
+    # ─────────────────────────────────────────────────────────────────────────────
+    # Plot mu over constraint
+    # ─────────────────────────────────────────────────────────────────────────────
+    mu_list = []
+    for path in snakemake.input.constraint_mu_DLU_csv:
+        run_name = os.path.basename(os.path.dirname(os.path.dirname(path)))
+        df = pd.read_csv(path)
+        df["run"] = run_name
+        mu_list.append(df)
+
+    df_mu = pd.concat(mu_list, ignore_index=True)
+
+    # Filter only TotalSpaceRequirement_DLU constraints
+    df_mu = df_mu[df_mu["index"].str.contains("TotalSpaceRequirement_DLU")].copy()
+
+    # Extract constraint, country, scenario
+    df_mu["constraint"] = df_mu["run"].apply(extract_constraint)
+    df_mu["scenario"] = df_mu["run"].str.extract(r"^(ref|cle)")[0]
+    df_mu["country"] = df_mu["index"].str.extract(r"DLU_([A-Z]{2})")[0].fillna("ALL")
+
+    # Keep only year 2050 and drop NaN mu
+    df_mu = df_mu[["scenario", "constraint", "country", "2050"]].rename(columns={"2050": "mu"})
+    df_mu = df_mu.dropna(subset=["mu"])
+    df_mu["mu"] = -df_mu["mu"]
+
+    # Prepare consistent color mapping
+    countries = sorted(df_mu["country"].unique())
+    color_cycle = plt.cm.get_cmap("tab20", len(countries))
+    color_map = {country: color_cycle(i) for i, country in enumerate(countries)}
+
+    # Plotting
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6), sharey=True)
+
+    for ax, scen in zip((ax1, ax2), ("ref", "cle")):
+        sub = df_mu[df_mu["scenario"] == scen]
+        for country, group in sub.groupby("country"):
+            ax.plot(group["constraint"], group["mu"], label=country, color=color_map[country])
+        ax.set_title(f"{'Reference' if scen == 'ref' else 'Clever'} Scenarios")
+        ax.set_xlabel("Constraint (%)")
+        ax.set_xlim(55, 0)
+        ax.grid(True)
+
+    ax1.set_ylabel("Marignal Value of Land in million EUR/km² (2050)")
+    handles = [plt.Line2D([0], [0], color=color_map[c], label=c) for c in countries]
+    fig.legend(handles=handles, title="Country", loc="center left", bbox_to_anchor=(0.86, 0.5))
+
+    fig.tight_layout(rect=[0, 0, 0.83, 1])
+    plt.show()
+    fig.savefig(snakemake.output.DLU_mu_vs_constraint)
+    logger.info(f"Saved mu plot to {snakemake.output.DLU_mu_vs_constraint}")
+
