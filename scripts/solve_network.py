@@ -1060,7 +1060,7 @@ def add_space_requirement_constraint(n, max_limit,
                     "Invalid config parameter for land_use_module, constraint, negative_additional. Aborting.")
 
         # e_sum_min of energy specific generators has to be allocated by optimization problem
-        land_use_avail_for_opt = (max_land_use_additional / space_in_use) + space_in_use_energy
+        land_use_avail_for_opt = max_land_use_additional + space_in_use_energy
 
         additional_land_use = 0
 
