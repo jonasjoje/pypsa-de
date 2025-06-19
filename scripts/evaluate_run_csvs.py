@@ -158,6 +158,51 @@ if __name__ == "__main__":
             "output_path": snakemake.output.statistics_optimalcapacity_buscarrier_csv,
         },
         {
+            "name": "generators_p_nom_opt",
+            "index_func": lambda net: net.generators.index,
+            "static": {
+                "bus": lambda net: net.generators["bus"],
+                "carrier": lambda net: net.generators["carrier"],
+                "country": lambda net: net.generators["bus"].str[:2],
+                "build_year": lambda net: net.generators["build_year"],
+            },
+            "variable": {
+                "p_nom_opt": lambda net: net.generators["p_nom_opt"],
+            },
+            "fillna": float("nan"),
+            "output_path": snakemake.output.generators_p_nom_opt,
+        },
+        {
+            "name": "generators_p_nom_min",
+            "index_func": lambda net: net.generators.index,
+            "static": {
+                "bus": lambda net: net.generators["bus"],
+                "carrier": lambda net: net.generators["carrier"],
+                "country": lambda net: net.generators["bus"].str[:2],
+                "build_year": lambda net: net.generators["build_year"],
+            },
+            "variable": {
+                "p_nom_min": lambda net: net.generators["p_nom_min"],
+            },
+            "fillna": float("nan"),
+            "output_path": snakemake.output.generators_p_nom_min,
+        },
+        {
+            "name": "generators_p_nom_max",
+            "index_func": lambda net: net.generators.index,
+            "static": {
+                "bus": lambda net: net.generators["bus"],
+                "carrier": lambda net: net.generators["carrier"],
+                "country": lambda net: net.generators["bus"].str[:2],
+                "build_year": lambda net: net.generators["build_year"],
+            },
+            "variable": {
+                "p_nom_max": lambda net: net.generators["p_nom_max"],
+            },
+            "fillna": float("nan"),
+            "output_path": snakemake.output.generators_p_nom_max,
+        },
+        {
             "name": "generators_e_sum_min",
             "index_func": lambda net: net.generators[net.generators["e_sum_min"] != -float("inf")].index,
             "static": {
