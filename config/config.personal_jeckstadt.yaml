@@ -13,7 +13,7 @@ remote:
   path: "scratch/pypsa-de"
 
 run:
-  prefix: 20250430_low_res
+  prefix: 20250430_high_res
   name:
   - 8Gt_Bal_v3
   - reference  # reference scenario is necessary for get_FEC_reference (used in clever)
@@ -116,8 +116,8 @@ clustering:
 
   temporal:
     resolution_elec: false
-    #resolution_sector: 2190seg #169H  # Woche, 2190seg -> ca. 4stündlich lange segmente
-    resolution_sector: 169H
+    resolution_sector: 2190seg #169H  # Woche, 2190seg -> ca. 4stündlich lange segmente
+    #resolution_sector: 169H
 
 solving:
   mem_mb: 100000 #memory in MB; 20 GB enough for 50+B+I+H2; 100 GB for 181+B+I+H2
