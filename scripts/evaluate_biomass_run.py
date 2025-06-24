@@ -27,7 +27,7 @@ def create_total_biomass_graph(e_sum_min_df, e_sum_max_df, supply_df, output_pat
     supply_total = pd.to_numeric(supply_biomass[year_columns].sum(), errors="coerce")
     e_max = pd.to_numeric(e_sum_max_biomass[year_columns].sum(), errors="coerce")
     e_min = pd.to_numeric(e_sum_min_biomass[year_columns].sum(), errors="coerce")
-    e_min += pd.to_numeric(globalconstraint_unsus_solid_biomass_min[year_columns])
+    #e_min += pd.to_numeric(globalconstraint_unsus_solid_biomass_min[year_columns])
     if ax is None:
         fig, ax = plt.subplots(figsize=(8, 5))
     ax.fill_between(year_columns, e_min, e_max, color="gray", alpha=0.3, label="Potential range")
@@ -50,7 +50,7 @@ def create_DE_biomass_graph(e_sum_min_df, e_sum_max_df, supply_df, output_path=N
     supply_total = pd.to_numeric(supply_biomass[year_columns].sum(), errors="coerce")
     e_max = pd.to_numeric(e_sum_max_biomass[year_columns].sum(), errors="coerce")
     e_min = pd.to_numeric(e_sum_min_biomass[year_columns].sum(), errors="coerce")
-    e_min += e_min_usb_DE
+    #e_min += e_min_usb_DE
     if ax is None:
         fig, ax = plt.subplots(figsize=(8, 5))
     ax.fill_between(year_columns, e_min, e_max, color="gray", alpha=0.3, label="Potential range")
@@ -73,7 +73,7 @@ def create_total_biocrops_graph(e_sum_min_df, e_sum_max_df, supply_df, output_pa
     supply_total = pd.to_numeric(supply_biocrops[year_columns].sum(), errors="coerce")
     e_max = pd.to_numeric(e_sum_max_biocrops[year_columns].sum(), errors="coerce")
     e_min = pd.to_numeric(e_sum_min_biocrops[year_columns].sum(), errors="coerce")
-    e_min += pd.to_numeric(globalconstraint_unsus_solid_biomass_min[year_columns])
+    #e_min += pd.to_numeric(globalconstraint_unsus_solid_biomass_min[year_columns])
     if ax is None:
         fig, ax = plt.subplots(figsize=(8, 5))
     ax.fill_between(year_columns, e_min, e_max, color="gray", alpha=0.3, label="Potential range")
@@ -96,7 +96,7 @@ def create_DE_biocrops_graph(e_sum_min_df, e_sum_max_df, supply_df, output_path=
     supply_total = pd.to_numeric(supply_biocrops[year_columns].sum(), errors="coerce")
     e_max = pd.to_numeric(e_sum_max_biocrops[year_columns].sum(), errors="coerce")
     e_min = pd.to_numeric(e_sum_min_biocrops[year_columns].sum(), errors="coerce")
-    e_min += e_min_usb_DE
+    #e_min += e_min_usb_DE
     if ax is None:
         fig, ax = plt.subplots(figsize=(8, 5))
     ax.fill_between(year_columns, e_min, e_max, color="gray", alpha=0.3, label="Potential range")
@@ -161,7 +161,7 @@ def create_total_unsustainable_solid_biomass_graph(e_sum_min_df, e_sum_max_df, s
     supply_total = pd.to_numeric(supply_biocrops[year_columns].sum(), errors="coerce")
     e_max = pd.to_numeric(e_sum_max_biocrops[year_columns].sum(), errors="coerce")
     e_min = pd.to_numeric(e_sum_min_biocrops[year_columns].sum(), errors="coerce")
-    e_min += pd.to_numeric(globalconstraint_unsus_solid_biomass_min[year_columns])
+    #e_min += pd.to_numeric(globalconstraint_unsus_solid_biomass_min[year_columns])
 
     if ax is None:
         fig, ax = plt.subplots(figsize=(8, 5))
