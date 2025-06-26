@@ -131,6 +131,7 @@ rule evaluate_general_run:
         generators_p_nom_max_csv = RESULTS + "csvs/generators_p_nom_max.csv",
         generators_p_nom_min_csv = RESULTS + "csvs/generators_p_nom_min.csv",
         generators_p_nom_ops_csv = RESULTS + "csvs/generators_p_nom_opt.csv",
+        globalconstraints_constant_csv= RESULTS + "csvs/globalconstraints_constant.csv",
     output:
         total_and_DE_capex_opex_graph = RESULTS + "graphs/total_and_DE_capex_opex.png",
         total_and_DE_solar_capacity_graph = RESULTS + "graphs/total_and_DE_solar_capacity.png",
