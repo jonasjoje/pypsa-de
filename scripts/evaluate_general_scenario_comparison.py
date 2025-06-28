@@ -514,7 +514,7 @@ if __name__ == "__main__":
     )
 
     fig.tight_layout(rect=[0, 0, 0.85, 1])
-    plt.show()
+    #plt.show()
     fig.savefig(snakemake.output.total_and_DE_capexopex_absolute_change_2050)
 
 

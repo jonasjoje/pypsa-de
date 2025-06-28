@@ -136,6 +136,8 @@ if __name__ == "__main__":
     df_mu = df_mu.dropna(subset=["mu"])
     df_mu["mu"] = -df_mu["mu"]
 
+    df_mu = df_mu[df_mu["country"] != "CH"]  # Ausreisser rausnehmen
+
     # Prepare consistent color mapping
     countries = sorted(df_mu["country"].unique())
     color_cycle = plt.cm.get_cmap("tab20", len(countries))
@@ -151,6 +153,7 @@ if __name__ == "__main__":
         ax.set_title(f"{'Reference' if scen == 'ref' else 'Clever'} Scenarios")
         ax.set_xlabel("Constraint (%)")
         ax.set_xlim(55, 0)
+        ax.set_xticks([50, 25, 1])
         ax.grid(True)
 
     ax1.set_ylabel("Marignal Value of Land in million EUR/km² (2050)")
@@ -158,7 +161,7 @@ if __name__ == "__main__":
     fig.legend(handles=handles, title="Country", loc="center left", bbox_to_anchor=(0.86, 0.5))
 
     fig.tight_layout(rect=[0, 0, 0.83, 1])
-    plt.show()
+    #plt.show()
     fig.savefig(snakemake.output.DLU_mu_vs_constraint)
     logger.info(f"Saved mu plot to {snakemake.output.DLU_mu_vs_constraint}")
 
