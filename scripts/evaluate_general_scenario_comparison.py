@@ -3,6 +3,7 @@ import re
 import pypsa
 import logging
 import pandas as pd
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 from scripts._evaluation_helpers import load_networks_from_path_list, load_csvs_from_path_list, compare_value, plot_line_comparison
@@ -153,17 +154,14 @@ if __name__ == "__main__":
         #     "co2", "process emissions CC"
         # ],
         "electricity grid": [
-            "electricity distribution grid"
-        ],
-        "electricity": [
-            "AC", "DC"
+            "electricity distribution grid", "AC", "DC"
         ],
 
-        # "storage": [
-        #     "battery", "thermal storage", "home battery", "hydrogen storage",
-        #     "Battery Storage", "battery charger", "battery discharger",
-        #     "home battery charger", "home battery discharger"
-        # ],
+        "storage": [
+            "battery", "thermal storage", "home battery", "hydrogen storage",
+            "Battery Storage", "battery charger", "battery discharger",
+            "home battery charger", "home battery discharger"
+        ],
         # "mobility": [
         #     "BEV charger", "land transport oil", "kerosene for aviation", "shipping methanol", "shipping oil",
         #     "agriculture machinery oil"
@@ -198,16 +196,37 @@ if __name__ == "__main__":
     # --- Prepare input data (CAPEX + OPEX in 2050) ---
     def get_combined_2050(cc_capex, cc_opex):
         combined = {}
+
         for run in cc_capex:
-            cap = cc_capex[run].copy()
-            ope = cc_opex[run].copy()
-            cap["opex"] = ope["2050"]
-            cap["capex"] = cap["2050"]
-            cap["total"] = cap["capex"] + cap["opex"]
-            cap["carrier_grouped"] = cap["carrier"].apply(assign_group)
-            cap["constraint"] = extract_constraint_from_run(run)
-            cap["run"] = run
-            combined[run] = cap
+            df_cap = cc_capex[run][["carrier", "country", "2050"]].rename(
+                columns={"2050": "capex"}
+            )
+            df_ope = cc_opex[run][["carrier", "country", "2050"]].rename(
+                columns={"2050": "opex"}
+            )
+
+            # Outer merge, damit auch Carrier ohne capex (nur opex) und umgekehrt drinbleiben
+            df = pd.merge(
+                df_cap,
+                df_ope,
+                on=["carrier", "country"],
+                how="outer"
+            )
+
+            # Fehlende Werte auf 0 setzen
+            df["capex"] = df["capex"].fillna(0)
+            df["opex"] = df["opex"].fillna(0)
+
+            # Gesamtkosten
+            df["total"] = df["capex"] + df["opex"]
+
+            # Gruppierung und Metadaten
+            df["carrier_grouped"] = df["carrier"].apply(assign_group)
+            df["constraint"] = extract_constraint_from_run(run)
+            df["run"] = run
+
+            combined[run] = df
+
         return combined
 
 
@@ -272,9 +291,231 @@ if __name__ == "__main__":
     fig.legend(handles=handles, loc="center left", bbox_to_anchor=(0.85, 0.5), title="Technology Group")
 
     fig.tight_layout(rect=[0, 0, 0.85, 1])
-    plt.show()
+    #plt.show()
     fig.savefig(snakemake.output.total_and_DE_capexopex_stackplot_2050)
     logger.info(f"Saved stackplot of 2050 technologies to {snakemake.output.total_and_DE_capexopex_stackplot_2050}")
+
+
+    # ─────────────────────────────────────────────────────────────────────────────
+    #  CAPEX + OPEX Relative Lineplot
+    # ─────────────────────────────────────────────────────────────────────────────
+
+    # 1) Compute relative series
+    def compute_relative(df, ref100):
+        return df.div(ref100, axis=1) * 100
+
+
+    ref_all_100 = reference_all.loc[100]
+    clever_all_100 = clever_all.loc[100]
+    ref_de_100 = reference_de.loc[100]
+    clever_de_100 = clever_de.loc[100]
+
+    rel_ref_all = compute_relative(reference_all, ref_all_100)
+    rel_clever_all = compute_relative(clever_all, clever_all_100)
+    rel_ref_de = compute_relative(reference_de, ref_de_100)
+    rel_clever_de = compute_relative(clever_de, clever_de_100)
+
+    # 2) Define paired groups for shared colors & linestyles
+    pair_groups = [
+        ("onshore wind", "offshore wind"),
+        ("electricity grid", "storage"),
+        ("solar", "solar rooftop"),
+        ("heat pump", "boiler"),
+        ("sustainable biomass", "unsustainable biomass"),
+        ("nuclear", "fossil plants"),
+    ]
+
+    paired = {c for pair in pair_groups for c in pair}
+    others = [c for c in carrier_order if c not in paired]
+
+    cmap = plt.get_cmap("tab20")
+    n_colors = len(pair_groups) + len(others)
+    colors = [cmap(i % cmap.N) for i in range(n_colors)]
+
+    color_map = {}
+    for idx, (c1, c2) in enumerate(pair_groups):
+        color_map[c1] = colors[idx]
+        color_map[c2] = colors[idx]
+    for j, c in enumerate(others, start=len(pair_groups)):
+        color_map[c] = colors[j]
+
+    linestyle_map = {}
+    for c1, c2 in pair_groups:
+        linestyle_map[c1] = "-"
+        linestyle_map[c2] = "--"
+    for c in others:
+        linestyle_map[c] = "-"
+
+    # 3) Plotting: 2×2 grid
+    fig, axs = plt.subplots(2, 2, figsize=(14, 10), sharex=True, sharey=True)
+    panels = [
+        (rel_ref_all, "Reference – All Countries", axs[0, 0]),
+        (rel_clever_all, "Clever – All Countries", axs[0, 1]),
+        (rel_ref_de, "Reference – Germany", axs[1, 0]),
+        (rel_clever_de, "Clever – Germany", axs[1, 1]),
+    ]
+
+    for df_rel, title, ax in panels:
+        df = df_rel.reindex(columns=carrier_order, fill_value=0)
+        for carrier in carrier_order:
+            ax.plot(
+                df.index,
+                df[carrier],
+                color=color_map[carrier],
+                linestyle=linestyle_map[carrier],
+                label=carrier
+            )
+        ax.set_title(title)
+        ax.set_xlabel("Constraint (%)")
+        ax.set_xticks([1, 25, 50, 100])
+        ax.set_xlim(105, 0)
+        ax.set_ylim(0, 250)
+        ax.grid(True)
+
+    # Common y-label
+    axs[0, 0].set_ylabel("Relative to 100% baseline (%)")
+
+    # Build legend handles with pairs grouped together
+    legend_order = []
+    for c1, c2 in pair_groups:
+        legend_order += [c1, c2]
+    legend_order += others
+
+    handles = [
+        mpl.lines.Line2D([0], [0],
+                         color=color_map[carrier],
+                         linestyle=linestyle_map[carrier],
+                         lw=2)
+        for carrier in legend_order
+    ]
+
+    fig.legend(
+        handles,
+        legend_order,
+        loc="center left",
+        bbox_to_anchor=(0.88, 0.5),
+        title="Technology Group"
+    )
+
+    fig.tight_layout(rect=[0, 0, 0.85, 1])
+    #plt.show()
+    fig.savefig(snakemake.output.total_and_DE_capexopex_relative_change_2050)
+
+    # ─────────────────────────────────────────────────────────────────────────────
+    #  CAPEX + OPEX Absolute Change Lineplot
+    # ─────────────────────────────────────────────────────────────────────────────
+
+    import matplotlib.pyplot as plt
+    import matplotlib as mpl
+
+
+    # 1) Compute absolute change series (Bn EUR) vs. 100% constraint baseline
+    def compute_absolute_change(df, base100):
+        """
+        Subtract the 100% constraint values (base100) from each series.
+        Result is absolute change in Bn EUR.
+        """
+        return df.sub(base100, axis=1)
+
+
+    # Baselines at 100% constraint
+    base_ref_all = reference_all.loc[100]
+    base_clever_all = clever_all.loc[100]
+    base_ref_de = reference_de.loc[100]
+    base_clever_de = clever_de.loc[100]
+
+    # Absolute change DataFrames
+    abs_ref_all = compute_absolute_change(reference_all, base_ref_all)
+    abs_clever_all = compute_absolute_change(clever_all, base_clever_all)
+    abs_ref_de = compute_absolute_change(reference_de, base_ref_de)
+    abs_clever_de = compute_absolute_change(clever_de, base_clever_de)
+
+    # 2) Paired groups for shared colors & linestyles (reuse from relative plot)
+    pair_groups = [
+        ("onshore wind", "offshore wind"),
+        ("electricity grid", "storage"),
+        ("solar", "solar rooftop"),
+        ("heat pump", "boiler"),
+        ("sustainable biomass", "unsustainable biomass"),
+        ("nuclear", "fossil plants"),
+    ]
+
+    paired = {c for pair in pair_groups for c in pair}
+    others = [c for c in carrier_order if c not in paired]
+
+    cmap = plt.get_cmap("tab20")
+    n_colors = len(pair_groups) + len(others)
+    colors = [cmap(i % cmap.N) for i in range(n_colors)]
+
+    color_map = {}
+    for idx, (c1, c2) in enumerate(pair_groups):
+        color_map[c1] = colors[idx]
+        color_map[c2] = colors[idx]
+    for j, c in enumerate(others, start=len(pair_groups)):
+        color_map[c] = colors[j]
+
+    linestyle_map = {}
+    for c1, c2 in pair_groups:
+        linestyle_map[c1] = "-"
+        linestyle_map[c2] = "--"
+    for c in others:
+        linestyle_map[c] = "-"
+
+    # 3) Plotting: 2×2 grid of absolute-change lineplots
+    fig, axs = plt.subplots(2, 2, figsize=(14, 10), sharex=True, sharey=True)
+    panels = [
+        (abs_ref_all, "Reference – All Countries", axs[0, 0]),
+        (abs_clever_all, "Clever – All Countries", axs[0, 1]),
+        (abs_ref_de, "Reference – Germany", axs[1, 0]),
+        (abs_clever_de, "Clever – Germany", axs[1, 1]),
+    ]
+
+    for df_abs, title, ax in panels:
+        df = df_abs.reindex(columns=carrier_order, fill_value=0)
+        for carrier in carrier_order:
+            ax.plot(
+                df.index,
+                df[carrier],
+                color=color_map[carrier],
+                linestyle=linestyle_map[carrier],
+                label=carrier
+            )
+        ax.set_title(title)
+        ax.set_xlabel("Constraint (%)")
+        ax.set_xticks([1, 25, 50, 100])
+        ax.set_xlim(105, 0)
+        ax.grid(True)
+
+    # Common y-label for absolute change
+    axs[0, 0].set_ylabel("Absolute change from 100% baseline (Bn EUR)")
+
+    # Build and place legend with paired groups together
+    legend_order = []
+    for c1, c2 in pair_groups:
+        legend_order += [c1, c2]
+    legend_order += others
+
+    handles = [
+        mpl.lines.Line2D(
+            [0], [0],
+            color=color_map[carrier],
+            linestyle=linestyle_map[carrier],
+            lw=2
+        )
+        for carrier in legend_order
+    ]
+
+    fig.legend(
+        handles,
+        legend_order,
+        loc="center left",
+        bbox_to_anchor=(0.88, 0.5),
+        title="Technology Group"
+    )
+
+    fig.tight_layout(rect=[0, 0, 0.85, 1])
+    plt.show()
+    fig.savefig(snakemake.output.total_and_DE_capexopex_absolute_change_2050)
 
 
     # ─────────────────────────────────────────────────────────────────────────────
