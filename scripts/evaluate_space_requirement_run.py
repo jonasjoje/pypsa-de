@@ -90,7 +90,7 @@ def space_req_DLU_DE(df_DLU_country, run_label=""):
         fig.text(0.98, 0.98, f"Run: {run_label}", ha="right", va="top", fontsize=12)
 
     plt.tight_layout(rect=[0, 0, 0.75, 1])
-    plt.show()
+    #plt.show()
     fig.savefig(snakemake.output.DLU_DE, dpi=300, bbox_inches="tight")
     plt.close()
 

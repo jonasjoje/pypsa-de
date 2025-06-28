@@ -85,6 +85,21 @@ if __name__ == "__main__":
             "output_path": snakemake.output.space_requirements_DLU_csv,
         },
         {
+            "name": "space_requirements_dist",
+            "index_func": lambda net: net.generators.index,
+            "static": {
+                "bus": lambda net: net.generators["bus"],
+                "carrier": lambda net: net.generators["carrier"],
+                # Beispiel für berechnetes Attribut
+                "country": lambda net: net.generators["bus"].str[:2],
+            },
+            "variable": {
+                "space_req_dist_opt": lambda net: net.generators["space_req_dist_opt"],
+            },
+            "fillna": 0,
+            "output_path": snakemake.output.space_requirements_dist_csv,
+        },
+        {
             "name": "statistics_withdrawal_load_buscarrier",
             "index_func": lambda net: expr_withdrawal(net).index,
             "static": {

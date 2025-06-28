@@ -30,6 +30,7 @@ rule evaluate_run_csvs:
         )
     output:
         space_requirements_DLU_csv = RESULTS + "csvs/space_requirements_DLU.csv",
+        space_requirements_dist_csv = RESULTS + "csvs/space_requirements_dist.csv",
         statistics_withdrawal_load_buscarrier_csv = RESULTS + "csvs/statistics_withdrawal_load_buscarrier.csv",
         statistics_supply_generator_buscarrier_csv= RESULTS + "csvs/statistics_supply_generator_buscarrier.csv",
         statistics_capex_buscarrier_csv = RESULTS + "csvs/statistics_capex_buscarrier.csv",
@@ -110,10 +111,12 @@ rule evaluate_space_requirement_comparison:
         planning_horizons=config_provider("scenario","planning_horizons"),
     input:
         space_requirements_DLU_csv = expand(RESULTS + "csvs/space_requirements_DLU.csv",run=config["run"]["name"]),
+        space_requirements_dist_csv = expand(RESULTS + "csvs/space_requirements_dist.csv",run=config["run"]["name"]),
         constraint_mu_DLU_csv = expand(RESULTS + "csvs/globalconstraints_mu.csv",run=config["run"]["name"]),
     output:
         DLU_vs_constraint_stack = GENERAL_COMPARISON + "DLU_vs_constraint_stack.png",
         DLU_mu_vs_constraint = GENERAL_COMPARISON + "DLU_mu_vs_constraint.png",
+        dist_vs_constraint_stack= GENERAL_COMPARISON + "dist_vs_constraint_stack.png",
         done = touch(".tmp/evaluate_space_requirement_comparison.done")
     resources:
         mem = 30000

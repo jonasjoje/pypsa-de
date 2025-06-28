@@ -264,5 +264,5 @@ if __name__ == "__main__":
     )
 
     plt.tight_layout()
-    plt.show()
+    #plt.show()
     fig.savefig(snakemake.output.raster_biomass, dpi=300, bbox_inches="tight")
