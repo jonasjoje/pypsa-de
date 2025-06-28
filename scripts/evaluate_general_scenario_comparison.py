@@ -393,7 +393,7 @@ if __name__ == "__main__":
         handles,
         legend_order,
         loc="center left",
-        bbox_to_anchor=(0.88, 0.5),
+        bbox_to_anchor=(0.84, 0.5),
         title="Technology Group"
     )
 
@@ -509,7 +509,7 @@ if __name__ == "__main__":
         handles,
         legend_order,
         loc="center left",
-        bbox_to_anchor=(0.88, 0.5),
+        bbox_to_anchor=(0.84, 0.5),
         title="Technology Group"
     )
 
