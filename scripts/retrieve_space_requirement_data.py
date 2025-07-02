@@ -135,7 +135,7 @@ def apply_overwrite_values(df, overwrite_config, planning_year):
                     'technology': tech,
                     'parameter': 'Space requirement',
                     'value': override_val,
-                    'unit': 'm2/MWh',
+                    'unit': 'm2/MW',
                     'source': f"Config override: {override_val} m2/MW for {tech}",
                     'further description': None,
                     'currency_year': None
@@ -152,7 +152,7 @@ if __name__ == "__main__":
         snakemake = mock_snakemake(
             "retrieve_space_requirement_data",
             planning_horizons="2030",
-            space_req_type="DLU",
+            space_req_type="dist",
             run="reference",
         )
         rootpath = ".."
@@ -177,7 +177,6 @@ if __name__ == "__main__":
 
     # Filter rows where the "par" column contains "Space requirement" and "cat" equals "Energy/technical data"
     sr = data[(data['par'].str.contains("Space requirement", na=False)) & (data['cat'] == "Energy/technical data")]
-    #flh = data[(data['par'].str.contains("Average annual full-load hours", na=False)) & (~data['par'].str.contains("DC"))]  # todo: solar, wind specific, has to be tested for other technologies
 
     # Adjust the space requirement values and unit strings
     sr = adjust_space_requirement_values(sr)
