@@ -3205,6 +3205,7 @@ def add_biomass(
     biomass_potentials_file,
     biomass_transport_costs_file=None,
     share_unsustainable_min=1,
+    unsustainable_solid_biomass_marginal_cost_factor=1.0,
 ):
     """
     Add biomass-related components to the PyPSA network.
@@ -3450,7 +3451,7 @@ def add_biomass(
             carrier="unsustainable solid biomass",
             p_nom=unsustainable_solid_biomass_potentials_spatial,
             p_nom_extendable=False,
-            marginal_cost=costs.at["fuelwood", "fuel"],
+            marginal_cost=costs.at["fuelwood", "fuel"] * unsustainable_solid_biomass_marginal_cost_factor,
             e_sum_min=unsustainable_solid_biomass_potentials_spatial * share_unsustainable_min,
             e_sum_max=unsustainable_solid_biomass_potentials_spatial,
         )
@@ -3617,7 +3618,7 @@ def add_biomass(
                 bus=spatial.biomass.nodes,
                 carrier="unsustainable solid biomass",
                 p_nom=options["biomass_transported_p_nom"], #default 10000, Set to 100 to deactivate transported biomass
-                marginal_cost=costs.at["fuelwood", "fuel"]
+                marginal_cost=costs.at["fuelwood", "fuel"] * unsustainable_solid_biomass_marginal_cost_factor
                 + bus_transport_costs.rename(
                     dict(
                         zip(spatial.biomass.nodes, spatial.biomass.nodes_unsustainable)
@@ -5633,6 +5634,7 @@ if __name__ == "__main__":
             biomass_potentials_file=snakemake.input.biomass_potentials,
             biomass_transport_costs_file=snakemake.input.biomass_transport_costs,
             share_unsustainable_min=snakemake.params.biomass["share_unsustainable_min"][investment_year],
+            unsustainable_solid_biomass_marginal_cost_factor=snakemake.params.biomass["unsustainable_solid_biomass_marginal_cost_factor"],
         )
 
     if options["ammonia"]:

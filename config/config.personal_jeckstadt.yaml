@@ -24,6 +24,10 @@ run:
   - cle-constr50
   - cle-constr25
   - cle-constr01
+#  - sens1.5-reference
+#  - sens1.5-ref-constr01
+#  - sens2.0-reference
+#  - sens2.0-ref-constr01
   scenarios:
     enable: true
     manual_file: config/scenarios.personal_jeckstadt.yaml
@@ -230,8 +234,8 @@ land_use_module:
         enable: false
 
 
-biomass:  # reference biomass potentials for all scenarios. 8Gt_Bal_v3 overwritten with default in scenario.
-  share_unsustainable_use_retained:
+biomass:
+  share_unsustainable_use_retained: # reference biomass potentials for all scenarios. 8Gt_Bal_v3 overwritten with default in scenario.
     2020: 1
     2025: 1
     2030: 1
@@ -255,4 +259,5 @@ biomass:  # reference biomass potentials for all scenarios. 8Gt_Bal_v3 overwritt
     2040: 0
     2045: 0
     2050: 0
+  unsustainable_solid_biomass_marginal_cost_factor: 1.0  # for sensitivity analysis
 
