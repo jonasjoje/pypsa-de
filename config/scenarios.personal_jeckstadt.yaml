@@ -541,3 +541,202 @@ cle-constr01:
               2030: 32698.9e6
               2040: 16593.5e6
               2050: 488.0e6
+
+
+sens1.5-reference:
+  iiasa_database:
+    reference_scenario: 8Gt_Bal_v3
+    fallback_reference_scenario: 8Gt_Bal_v3
+  co2_budget_DE_source: KSG
+  solving:
+    constraints: { }
+
+  clever: false
+
+  land_use_module:
+    types:
+      DLU:
+        constraint:
+          enable: false
+
+  biomass:
+    unsustainable_solid_biomass_marginal_cost_factor: 1.5
+
+
+sens1.5-ref-constr01:
+  iiasa_database:
+    reference_scenario: 8Gt_Bal_v3
+    fallback_reference_scenario: 8Gt_Bal_v3
+  co2_budget_DE_source: KSG
+  solving:
+    constraints: { }
+  clever: false
+  land_use_module:
+    types:
+      DLU:
+        constraint:
+          enable: true
+          max_limit:
+            AT:
+              2030: 16407.2e6
+              2040: 8326.0e6
+              2050: 244.9e6
+            BE:
+              2030: 4745.5e6
+              2040: 2408.2e6
+              2050: 70.8e6
+            CH:
+              2030: 27.4e6
+              2040: 13.9e6
+              2050: 0.4e6
+            CZ:
+              2030: 12245.7e6
+              2040: 6214.2e6
+              2050: 182.8e6
+            DE:
+              2030: 54250.3e6
+              2040: 27530.0e6
+              2050: 809.7e6
+            DK:
+              2030: 5443.1e6
+              2040: 2762.2e6
+              2050: 81.2e6
+            ES:
+              2030: 19382.4e6
+              2040: 9835.8e6
+              2050: 289.3e6
+            FR:
+              2030: 38472.9e6
+              2040: 19523.6e6
+              2050: 574.2e6
+            GB:
+              2030: 19215.7e6
+              2040: 9751.3e6
+              2050: 286.8e6
+            IT:
+              2030: 27693.1e6
+              2040: 14053.2e6
+              2050: 413.3e6
+            LU:
+              2030: 404.7e6
+              2040: 205.4e6
+              2050: 6.0e6
+            NL:
+              2030: 6989.0e6
+              2040: 3546.7e6
+              2050: 104.3e6
+            'NO':
+              2030: 3316.9e6
+              2040: 1683.2e6
+              2050: 49.5e6
+            PL:
+              2030: 31751.9e6
+              2040: 16112.9e6
+              2050: 473.9e6
+            SE:
+              2030: 32698.9e6
+              2040: 16593.5e6
+              2050: 488.0e6
+
+  biomass:
+    unsustainable_solid_biomass_marginal_cost_factor: 1.5
+
+
+
+sens2.0-reference:
+  iiasa_database:
+    reference_scenario: 8Gt_Bal_v3
+    fallback_reference_scenario: 8Gt_Bal_v3
+  co2_budget_DE_source: KSG
+  solving:
+    constraints: { }
+
+  clever: false
+
+  land_use_module:
+    types:
+      DLU:
+        constraint:
+          enable: false
+
+  biomass:
+    unsustainable_solid_biomass_marginal_cost_factor: 2.0
+
+
+sens2.0-ref-constr01:
+  iiasa_database:
+    reference_scenario: 8Gt_Bal_v3
+    fallback_reference_scenario: 8Gt_Bal_v3
+  co2_budget_DE_source: KSG
+  solving:
+    constraints: { }
+  clever: false
+  land_use_module:
+    types:
+      DLU:
+        constraint:
+          enable: true
+          max_limit:
+            AT:
+              2030: 16407.2e6
+              2040: 8326.0e6
+              2050: 244.9e6
+            BE:
+              2030: 4745.5e6
+              2040: 2408.2e6
+              2050: 70.8e6
+            CH:
+              2030: 27.4e6
+              2040: 13.9e6
+              2050: 0.4e6
+            CZ:
+              2030: 12245.7e6
+              2040: 6214.2e6
+              2050: 182.8e6
+            DE:
+              2030: 54250.3e6
+              2040: 27530.0e6
+              2050: 809.7e6
+            DK:
+              2030: 5443.1e6
+              2040: 2762.2e6
+              2050: 81.2e6
+            ES:
+              2030: 19382.4e6
+              2040: 9835.8e6
+              2050: 289.3e6
+            FR:
+              2030: 38472.9e6
+              2040: 19523.6e6
+              2050: 574.2e6
+            GB:
+              2030: 19215.7e6
+              2040: 9751.3e6
+              2050: 286.8e6
+            IT:
+              2030: 27693.1e6
+              2040: 14053.2e6
+              2050: 413.3e6
+            LU:
+              2030: 404.7e6
+              2040: 205.4e6
+              2050: 6.0e6
+            NL:
+              2030: 6989.0e6
+              2040: 3546.7e6
+              2050: 104.3e6
+            'NO':
+              2030: 3316.9e6
+              2040: 1683.2e6
+              2050: 49.5e6
+            PL:
+              2030: 31751.9e6
+              2040: 16112.9e6
+              2050: 473.9e6
+            SE:
+              2030: 32698.9e6
+              2040: 16593.5e6
+              2050: 488.0e6
+
+  biomass:
+    unsustainable_solid_biomass_marginal_cost_factor: 2.0
