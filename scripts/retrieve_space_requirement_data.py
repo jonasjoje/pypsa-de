@@ -1,18 +1,9 @@
-# todo: documentation
 # retrieve from data set from danish energy agency
 # https://ens.dk/en/analyses-and-statistics/technology-data-generation-electricity-and-district-heating
 # brings data in form of costs.csv
 # creates separate csv for every available year and for mean, optimist, pessimist
 
-# prio 1
-#
-# prio 2
-# todo: vergleichen mit anderen retrieve skripts
-# todo: mehr technologien mappen
-# prio 3
-# todo: verallgemeinerung auf andere Datensätze?
-# todo: aktuellste version des Datensatzes erkennen
-# todo: progressbar bei download
+# todo: fix error with retrieve-parameter
 
 import urllib.request
 import os
@@ -130,10 +121,27 @@ def apply_overwrite_values(df, overwrite_config, planning_year):
     for tech, year_overrides in overwrite_config.items():
         if planning_year in year_overrides:
             override_val = year_overrides[planning_year]
-            # Überschreiben der Werte für Zeilen, wo die Technologie übereinstimmt
-            df.loc[df['technology'] == tech, 'value'] = override_val
-            # Optional: Quelle anpassen, um den Override kenntlich zu machen
-            df.loc[df['technology'] == tech, 'source'] = f"Config override: {override_val} m2/MW for {tech}"
+            mask = df['technology'] == tech
+
+            if mask.any():
+                # Existierende Zeilen überschreiben
+                df.loc[mask, 'value'] = override_val
+                df.loc[mask, 'source'] = (
+                    f"Config override: {override_val} m2/MW for {tech}"
+                )
+            else:
+                # Neue Zeile anfügen
+                new_row = {
+                    'technology': tech,
+                    'parameter': 'Space requirement',
+                    'value': override_val,
+                    'unit': 'm2/MWh',
+                    'source': f"Config override: {override_val} m2/MW for {tech}",
+                    'further description': None,
+                    'currency_year': None
+                }
+                df = pd.concat([df, pd.DataFrame([new_row])],
+                               ignore_index=True)
     return df
 
 
