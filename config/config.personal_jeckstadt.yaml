@@ -219,7 +219,7 @@ land_use_module:
 #            2040: 27.3e9
 #            2050: 27.3e9
     dist:  # disturbed area
-      power_specific_generators: [solar]  # space_req_pu is taken from DEA-Dataset if not overwritten below.
+      power_specific_generators: [onwind, solar]  # space_req_pu is taken from DEA-Dataset if not overwritten below.
       overwrite_values:  # unit: m2/MW
           onwind: # from DEA
             2020: 366519.143
