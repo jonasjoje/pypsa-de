@@ -154,6 +154,7 @@ if __name__ == "__main__":
         ax.set_xlabel("Constraint (%)")
         ax.set_xlim(55, 0)
         ax.set_xticks([50, 25, 1])
+        ax.set_ylim(0, 2)
         ax.grid(True)
 
     ax1.set_ylabel("Marignal Value of Land in million EUR/km² (2050)")

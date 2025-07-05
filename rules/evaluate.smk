@@ -83,21 +83,12 @@ rule evaluate_FEC_comparison:
     params:
         planning_horizons = config_provider("scenario","planning_horizons"),
     input:
-        networks = expand(
-            RESULTS + "networks/base_s_{clusters}_{opts}_{sector_opts}_{planning_horizons}.nc",
-            clusters=config["scenario"]["clusters"],
-            opts=config["scenario"]["opts"],
-            sector_opts=config["scenario"]["sector_opts"],
-            planning_horizons=config["scenario"]["planning_horizons"],
-            run=config["run"]["name"]
-        ),
         statistics_withdrawal_csvs = expand(
             RESULTS + "csvs/statistics_withdrawal_load_buscarrier.csv",
             run=config["run"]["name"]
         )
     output:
-        total_FEC_graph = GENERAL_COMPARISON + "total_FEC_graph.png",
-        DE_FEC_graph = GENERAL_COMPARISON + "DE_FEC_graph.png",
+        total_and_DE_FEC_graph = GENERAL_COMPARISON + "total_and_DE_FEC_graph.png",
         done = touch(".tmp/evaluate_FEC_comparison.done")
     resources:
         mem = 30000

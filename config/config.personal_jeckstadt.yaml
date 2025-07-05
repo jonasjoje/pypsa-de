@@ -24,10 +24,10 @@ run:
   - cle-constr50
   - cle-constr25
   - cle-constr01
-  - sens1.5-reference
-  - sens1.5-ref-constr01
-  - sens2.0-reference
-  - sens2.0-ref-constr01
+#  - sens1.5-reference
+#  - sens1.5-ref-constr01
+#  - sens2.0-reference
+#  - sens2.0-ref-constr01
   scenarios:
     enable: true
     manual_file: config/scenarios.personal_jeckstadt.yaml

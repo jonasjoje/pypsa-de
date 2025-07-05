@@ -1,67 +1,79 @@
+#!/usr/bin/env python3
 import os
-import re
-import pypsa
 import logging
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-from scripts._evaluation_helpers import load_networks_from_path_list, compare_value, plot_line_comparison, filter_statistics_by_country, load_csvs_from_path_list
+plt.rcParams['font.size'] = 7
+
+from scripts._evaluation_helpers import (
+    load_csvs_from_path_list,
+)
 from scripts._helpers import configure_logging
 
 logger = logging.getLogger(__name__)
 
 if __name__ == "__main__":
+    # Snakemake stub
     if "snakemake" not in globals():
         from scripts._helpers import mock_snakemake
-
-        snakemake = mock_snakemake(
-            "evaluate_FEC_comparison",
-        )
+        snakemake = mock_snakemake("evaluate_FEC_comparison")
 
     configure_logging(snakemake)
+    logger.info("Loading data")
 
-    logger.info("loading data")
-    #nn = load_networks_from_path_list(snakemake.input.networks)
-    cc_withdrawal = load_csvs_from_path_list(snakemake.input.statistics_withdrawal_csvs)
+    # load withdrawal statistics
+    cc_withdrawal = load_csvs_from_path_list(
+        snakemake.input.statistics_withdrawal_csvs
+    )
+
+    # filter scenarios to only 'reference' and 'clever'
+    desired = {"reference", "clever"}
+    cc_withdrawal = {
+        name: df for name, df in cc_withdrawal.items()
+        if name in desired
+    }
 
     planning_horizons = snakemake.params.planning_horizons
+    years = list(map(str, planning_horizons))
+    base_dir = os.path.dirname(snakemake.output.total_and_DE_FEC_graph)
 
+    # helper functions
+    def get_total_FEC(df):
+        s = df.loc[:, df.columns.intersection(years)].sum(axis=0)
+        s.index = [int(y) for y in s.index]
+        return s.sort_index() * 1e-6
 
-    # ─────────────────────────────────────────────────────────────────────────────
-    #  Total FEC from statistics
-    # ─────────────────────────────────────────────────────────────────────────────
+    def get_country_FEC(df, country='DE'):
+        mask = df['country'] == country
+        s = df.loc[mask, years].sum(axis=0)
+        s.index = [int(y) for y in s.index]
+        return s.sort_index() * 1e-6
 
-    def get_total_FEC_in_twh(df_run):
-        s = (
-            df_run
-            .loc[:, df_run.columns.intersection(map(str, planning_horizons))]
-            .sum(axis=0)
-        )
-        return s * 1e-6
-    plot_line_comparison(
-                    cc = cc_withdrawal,
-                    title="Total FEC in TWh",
-                    expr=get_total_FEC_in_twh,
-                    output=snakemake.output.total_FEC_graph)
+    def get_sector_FEC(df, sector, sector_map):
+        mask = df['carrier'].map(sector_map) == sector
+        s = df.loc[mask, years].sum(axis=0)
+        s.index = [int(y) for y in s.index]
+        return s.sort_index() * 1e-6
 
-    # ─────────────────────────────────────────────────────────────────────────────
-    #  Sector FEC from statistics
-    # ─────────────────────────────────────────────────────────────────────────────
+    def get_country_sector_FEC(df, sector, country, sector_map):
+        mask = (df['country'] == country) & (df['carrier'].map(sector_map) == sector)
+        s = df.loc[mask, years].sum(axis=0)
+        s.index = [int(y) for y in s.index]
+        return s.sort_index() * 1e-6
+
+    # sector map from original script
     sector_map = {
-        # Residential
         'electricity': 'Residential',
         'residential rural heat': 'Residential',
         'urban central heat': 'Residential',
         'residential urban decentral heat': 'Residential',
-        # Domestic transport
         'land transport EV': 'Domestic transport',
         'land transport fuel cell': 'Domestic transport',
         'land transport oil': 'Domestic transport',
-        # International transport
         'kerosene for aviation': 'International transport',
         'shipping methanol': 'International transport',
         'shipping oil': 'International transport',
-        # Industry
         'industry electricity': 'Industry',
         'low-temperature heat for industry': 'Industry',
         'H2 for industry': 'Industry',
@@ -70,82 +82,83 @@ if __name__ == "__main__":
         'industry methanol': 'Industry',
         'naphtha for industry': 'Industry',
         'solid biomass for industry': 'Industry',
-        # Tertiary
         'services rural heat': 'Tertiary',
         'services urban decentral heat': 'Tertiary',
-        # Agriculture
         'agriculture electricity': 'Agriculture',
         'agriculture heat': 'Agriculture',
         'agriculture machinery oil': 'Agriculture',
     }
-    unique_sectors = set(sector_map.values())
+    unique_sectors = sorted(set(sector_map.values()))
 
-    base_dir = os.path.dirname(snakemake.output.total_FEC_graph)
+    # Combined Total and DE FEC
+    logger.info("Plotting combined Total and DE FEC")
+    fig, axes = plt.subplots(1, 2, figsize=(5.46, 2.5),
+                         sharey=True)   # Ratio 12:5
 
+    for label, df in cc_withdrawal.items():
+        total = get_total_FEC(df)
+        de = get_country_FEC(df, country='DE')
+        axes[0].plot(total.index, total.values, label=label)
+        axes[1].plot(de.index, de.values, label=label)
 
-    def get_sector_FEC_series(df_run, sector):
-        mask = df_run["carrier"].map(sector_map) == sector
-        yrs = list(map(str, planning_horizons))
-        s = df_run.loc[mask, yrs].sum(axis=0)
-        s.index = [int(y) for y in s.index]
-        return s.sort_index() * 1e-6
+    axes[0].set_title("All Countries")
+    axes[1].set_title("Germany")
 
+    for ax in axes:
+        ax.set_xlabel("Year")
+        ax.set_ylabel("FEC in TWh")
+        ax.set_ylim(bottom=0)
+        ax.set_xticks([2020, 2030, 2040, 2050])
+        ax.grid(True, linestyle='--')
 
+    # Gemeinsame Legende unten
+    handles, labels = axes[0].get_legend_handles_labels()
+    fig.legend(handles, labels,
+               loc='lower center',
+               ncol=len(labels),
+               frameon=False,
+               bbox_to_anchor=(0.5, 0.0))
+
+    fig.tight_layout()
+    fig.subplots_adjust(bottom=0.25)  # Platz für die Legende
+    plt.savefig(snakemake.output.total_and_DE_FEC_graph, dpi=300)
+    plt.close(fig)
+
+    # Combined Sector FEC plots (All Countries vs Germany)
+    logger.info("Plotting combined sector FEC comparisons")
     for sector in unique_sectors:
-        expr = lambda df_run, sector=sector: get_sector_FEC_series(df_run, sector)
-        plot_line_comparison(
-            cc=cc_withdrawal,
-            title=f"{sector} FEC in TWh",
-            expr=expr,
-            output=os.path.join(base_dir, f"total_FEC_{sector}_graph.png"),
-        )
-        #print(f"{sector} done")
+        fig, axes = plt.subplots(1, 2, figsize=(5.46, 2.5),
+                         sharey=True)
 
-    # ─────────────────────────────────────────────────────────────────────────────
-    #  DE FEC from statistics
-    # ─────────────────────────────────────────────────────────────────────────────
-    country = 'DE'
+        for label, df in cc_withdrawal.items():
+            tot_sec = get_sector_FEC(df, sector, sector_map)
+            de_sec = get_country_sector_FEC(df, sector, 'DE', sector_map)
+            axes[0].plot(tot_sec.index, tot_sec.values, label=label)
+            axes[1].plot(de_sec.index, de_sec.values, label=label)
 
-    def get_country_FEC_series(df_run, country):
-        mask = df_run["country"] == country
-        yrs = list(map(str, planning_horizons))
-        s = df_run.loc[mask, yrs].sum(axis=0)
-        s.index = [int(y) for y in s.index]
-        return s.sort_index() * 1e-6
+        axes[0].set_title(f"All Countries - {sector}")
+        axes[1].set_title("Germany")
 
-    expr = lambda df_run, country=country: get_country_FEC_series(df_run, country)
-    plot_line_comparison(
-        cc=cc_withdrawal,
-        title=f"{country} FEC in TWh",
-        expr=expr,
-        output=snakemake.output.DE_FEC_graph,
-    )
+        for ax in axes:
+            ax.set_xlabel("Year")
+            ax.set_ylabel(f"{sector} FEC in TWh")
+            ax.set_ylim(bottom=0)
+            ax.set_xticks([2020, 2030, 2040, 2050])
+            ax.grid(True, linestyle='--')
 
+        # Gemeinsame Legende unten
+        handles, labels = axes[0].get_legend_handles_labels()
+        fig.legend(handles, labels,
+                   loc='lower center',
+                   ncol=len(labels),
+                   frameon=False,
+                   bbox_to_anchor=(0.5, 0.0))
 
-    # ─────────────────────────────────────────────────────────────────────────────
-    #  DE Sector FEC from statistics
-    # ─────────────────────────────────────────────────────────────────────────────
-    def get_country_sector_FEC_series(df_run, sector, country):
-        mask_country = df_run["country"] == country
-        mask_sector = df_run.loc[mask_country, "carrier"].map(sector_map) == sector
-        yrs = list(map(str, planning_horizons))
-        sub = df_run.loc[mask_country & mask_sector, yrs]
-        s = sub.sum(axis=0)
-        s.index = [int(y) for y in s.index]
-        return s.sort_index() * 1e-6
+        fig.tight_layout()
+        fig.subplots_adjust(bottom=0.25)
+        out_path = os.path.join(base_dir, f"FEC_comparison_{sector}.png")
+        plt.savefig(out_path, dpi=300)
+        plt.close(fig)
+        logger.info(f"Saved combined plot for sector: {sector}")
 
-    country = 'DE'
-
-    for sector in unique_sectors:
-        expr = lambda df_run, sector=sector, country=country: get_country_sector_FEC_series(df_run, sector, country)
-
-        plot_line_comparison(
-            cc=cc_withdrawal,
-            title=f"{country} {sector} FEC in TWh",
-            expr=expr,
-            output=os.path.join(base_dir, f"{country}_FEC_{sector}_graph.png"),
-        )
-        print(f"{sector} done")
-
-
-    logger.info("All FEC comparisons done.")
+    logger.info("All combined FEC comparisons done.")
