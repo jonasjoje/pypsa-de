@@ -11,6 +11,7 @@ rule evaluate_all:
     input:
         expand(".tmp/{rule}.done", rule=config["evaluation"]["enable"]),
         ".tmp/evaluate_space_requirement_comparison.done",
+        ".tmp/evaluate_sensitivity_analysis_comparison.done",
         expand(".tmp/evaluate_general_run_{run}.done", run=config["run"]["name"]),
         expand(".tmp/evaluate_space_requirement_run_{run}.done", run=config["run"]["name"]),
         expand(".tmp/evaluate_biomass_run_{run}.done", run=config["run"]["name"]),
@@ -115,6 +116,30 @@ rule evaluate_space_requirement_comparison:
         EVALUATION + "logs/evaluate_space_requirement_comparison.log"
     script:
         "../scripts/evaluate_space_requirement_comparison.py"
+
+
+rule evaluate_sensitivity_analysis_comparison:
+    params:
+        scenarios = [
+            "reference",
+            "ref-constr01",
+            "sens1.5-reference",
+            "sens1.5-ref-constr01",
+            "sens2.0-reference",
+            "sens2.0-ref-constr01",
+        ],
+    input:
+        space_requirements_DLU_csv = expand(RESULTS + "csvs/space_requirements_DLU.csv",run=config["run"]["name"]),
+    output:
+        sensitivity_analysis_plot = GENERAL_COMPARISON + "sensitivity_analysis_comparison.png",
+        done = touch(".tmp/evaluate_sensitivity_analysis_comparison.done")
+    resources:
+        mem = 30000
+    log:
+        EVALUATION + "logs/evaluate_sensitivity_analysis_comparison.log"
+    script:
+        "../scripts/evaluate_sensitivity_analysis_comparison.py"
+
 
 
 
