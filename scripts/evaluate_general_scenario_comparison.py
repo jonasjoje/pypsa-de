@@ -61,31 +61,84 @@ if __name__ == "__main__":
         s.index = s.index.astype(int)
         return s.sort_index() * 1e-9
 
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
 
+    # ── Globale Einstellungen ──
+    plt.rcParams['font.size'] = 7
+    plt.rcParams['savefig.dpi'] = 300
+
+    # ── Figure mit 5.46" Breite und altem 12:5-Verhältnis ──
+    width = 5.46
+    height = width * (5 / 8)
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(width, height))
+
+    # ── Linker Plot: alle Länder ──
     plot_line_comparison(
         cc=cc_capex_opex,
-        title="CAPEX + OPEX Total (Bn. Euro)",
+        title="All countries",
         expr=get_capex_opex_series,
-        #output=snakemake.output.total_capexopex_graph,
         ax=ax1,
     )
+    ax1.set_ylabel("CAPEX + OPEX in Bn. Euro")
+    ax1.set_xticks([2020, 2030, 2040, 2050])
+    ax1.set_xlabel("Year")
+    ax1.grid(True, linestyle='--', linewidth=0.5)  # gestricheltes Grid
 
+    # ── Rechter Plot: nur Deutschland ──
     plot_line_comparison(
         cc=cc_capex_opex_de,
-        title="CAPEX + OPEX DE (Bn. Euro)",
+        title="Germany",
         expr=get_capex_opex_series,
-        #output=snakemake.output.DE_capexopex_graph,
         ax=ax2,
     )
+    ax2.set_ylabel("CAPEX + OPEX in Bn. Euro")
+    ax2.set_xticks([2020, 2030, 2040, 2050])
+    ax2.set_xlabel("Year")
+    ax2.grid(True, linestyle='--', linewidth=0.5)
 
+    # ── Linienbreiten halbieren ──
+    for ax in (ax1, ax2):
+        for line in ax.get_lines():
+            line.set_linewidth(line.get_linewidth() / 2)
+
+    # ── Gemeinsame Legende ──
+    # erst Handles/Labels einsammeln, dann einzelne Legenden entfernen
+    handles, labels = ax1.get_legend_handles_labels()
+    ax1.get_legend().remove()
+    ax2.get_legend().remove()
+
+    fig.legend(
+        handles, labels,
+        loc='lower center',
+        ncol=3,  # <— hier 3 Spalten erzwingen
+        bbox_to_anchor=(0.5, 0.0),
+        columnspacing=5.0,  # optional: Abstand zwischen Spalten
+    )
+
+    # ── Layout anpassen und speichern ──
     fig.tight_layout()
-    fig.savefig(snakemake.output.total_and_DE_capexopex_graph)
-    logger.info(f"Created plot Total and DE capexopex graph and saved to {snakemake.output.total_and_DE_capexopex_graph}")
+    fig.subplots_adjust(bottom=0.3)  # Platz für Legende
+    #plt.show()
+    fig.savefig(
+        snakemake.output.total_and_DE_capexopex_graph,
+        dpi=300
+    )
+    logger.info(
+        f"Created plot Total and DE capexopex graph and saved to "
+        f"{snakemake.output.total_and_DE_capexopex_graph}"
+    )
 
     # ─────────────────────────────────────────────────────────────────────────────
     #  CAPEX + OPEX Stackplot Raster
     # ─────────────────────────────────────────────────────────────────────────────
+
+    # ── Globale Einstellungen ──
+    plt.rcParams['font.size'] = 7
+    plt.rcParams['savefig.dpi'] = 300
+
+    # ── Figure mit 5.46" Breite und 1:1-Verhältnis ──
+    width = 5.46
+    height = width * (7 / 5)
+    fig, axs = plt.subplots(2, 2, figsize=(width, height), sharex=True, sharey=True)
 
     # --- carrier_group_map wie in deinem zweiten Skript ---
     carrier_group_map = {
@@ -255,10 +308,7 @@ if __name__ == "__main__":
     all_carriers = pd.concat([reference_all, reference_de, clever_all, clever_de])
     carrier_order = all_carriers.sum().sort_values(ascending=False).index.tolist()
 
-    # --- Plotting: 2×2 Grid ---
-    fig, axs = plt.subplots(2, 2, figsize=(14, 10), sharex=True, sharey='row')
-
-    # Geänderte Rasterlogik: Oben = All, Unten = DE; Links = ref, Rechts = clever
+    # --- Plotting: 2×2 Grid Stackplots ---
     plot_data = [
         (reference_all, "Reference – All Countries", axs[0, 0]),
         (clever_all, "Clever – All Countries", axs[0, 1]),
@@ -267,40 +317,70 @@ if __name__ == "__main__":
     ]
 
     color_map = {}
-
     for data, title, ax in plot_data:
         data = data.reindex(columns=carrier_order, fill_value=0)
         x = data.index
         y = data.values.T
+
+        # Stackplot zeichnen
         polys = ax.stackplot(x, y, labels=data.columns)
 
+        # Farben konsistent setzen
         if not color_map:
             color_map = {name: poly.get_facecolor()[0] for name, poly in zip(data.columns, polys)}
         else:
             for poly, name in zip(polys, data.columns):
                 poly.set_color(color_map[name])
 
+        # Titel & Achsen
         ax.set_title(title)
-        ax.set_xlabel("Constraint (%)")
-        ax.set_ylabel("CAPEX + OPEX in 2050 (Bn. EUR)")
         ax.set_xticks([1, 25, 50, 100])
-        ax.set_xlim(105, 0)  # ← ACHTUNG: Achse umgedreht
+        ax.set_xlim(105, 0)
+        ax.grid(True, linestyle='--', linewidth=0.5)
 
-    # Gemeinsame Legende (reversed für passende Stapelreihenfolge)
+    # Obere Reihe: keine X-Achsen-Beschriftung
+    for ax in axs[0, :]:
+        ax.tick_params(labelbottom=False)
+        ax.set_xlabel("")
+
+    # Gemeinsame X-Beschriftung unten
+    for ax in axs[1, :]:
+        ax.set_xlabel("Constraint (%)")
+
+    # Gemeinsame Y-Beschriftung links unten
+    axs[1, 0].set_ylabel("CAPEX + OPEX in 2050 (Bn. EUR)")
+
+    # Legend unten zentriert mit 4 Spalten wie beim Lineplot
     handles = [mpatches.Patch(label=k, color=color_map[k]) for k in reversed(carrier_order)]
-    fig.legend(handles=handles, loc="center left", bbox_to_anchor=(0.85, 0.5), title="Technology Group")
+    fig.legend(
+        handles=handles,
+        loc="lower center",
+        bbox_to_anchor=(0.5, 0.0),
+        title="Technology Group (from top to bottom)",
+        ncol=1,
+        columnspacing=2.0
+    )
 
-    fig.tight_layout(rect=[0, 0, 0.85, 1])
-    #plt.show()
+    # Layout anpassen und speichern
+    fig.tight_layout(rect=[0, 0, 0.95, 1])
+    fig.subplots_adjust(bottom=0.4)
     fig.savefig(snakemake.output.total_and_DE_capexopex_stackplot_2050)
-    logger.info(f"Saved stackplot of 2050 technologies to {snakemake.output.total_and_DE_capexopex_stackplot_2050}")
-
 
     # ─────────────────────────────────────────────────────────────────────────────
-    #  CAPEX + OPEX Relative Lineplot
+    #  CAPEX + OPEX Relative Change Lineplot
     # ─────────────────────────────────────────────────────────────────────────────
 
-    # 1) Compute relative series
+    # ── Globale Einstellungen ──
+    plt.rcParams['font.size'] = 7
+    plt.rcParams['savefig.dpi'] = 300
+
+    # ── Figure mit 5.46" Breite und 1:1-Verhältnis ──
+    width = 5.46
+    height = width * (5 / 5)
+    fig, axs = plt.subplots(2, 2, figsize=(width, height), sharex=True, sharey=True)
+
+
+    # 1) Compute relative series vs. 100% baseline
     def compute_relative(df, ref100):
         return df.div(ref100, axis=1) * 100
 
@@ -315,7 +395,7 @@ if __name__ == "__main__":
     rel_ref_de = compute_relative(reference_de, ref_de_100)
     rel_clever_de = compute_relative(clever_de, clever_de_100)
 
-    # 2) Define paired groups for shared colors & linestyles
+    # 2) Farben & Linestyles vorbereiten (wie oben beim Absolute-Plot)
     pair_groups = [
         ("onshore wind", "offshore wind"),
         ("electricity grid", "storage"),
@@ -324,7 +404,6 @@ if __name__ == "__main__":
         ("sustainable biomass", "unsustainable biomass"),
         ("nuclear", "fossil plants"),
     ]
-
     paired = {c for pair in pair_groups for c in pair}
     others = [c for c in carrier_order if c not in paired]
 
@@ -346,8 +425,7 @@ if __name__ == "__main__":
     for c in others:
         linestyle_map[c] = "-"
 
-    # 3) Plotting: 2×2 grid
-    fig, axs = plt.subplots(2, 2, figsize=(14, 10), sharex=True, sharey=True)
+    # 3) Plotting: 2×2 Grid, relative Werte
     panels = [
         (rel_ref_all, "Reference – All Countries", axs[0, 0]),
         (rel_clever_all, "Clever – All Countries", axs[0, 1]),
@@ -363,19 +441,25 @@ if __name__ == "__main__":
                 df[carrier],
                 color=color_map[carrier],
                 linestyle=linestyle_map[carrier],
-                label=carrier
+                lw=1
             )
         ax.set_title(title)
-        ax.set_xlabel("Constraint (%)")
+        # X-Ticks & Achsenbegrenzung
         ax.set_xticks([1, 25, 50, 100])
         ax.set_xlim(105, 0)
-        ax.set_ylim(0, 250)
-        ax.grid(True)
+        ax.set_ylim(0,300)
+        # gestricheltes Raster
+        ax.grid(True, linestyle='--', linewidth=0.5)
 
-    # Common y-label
-    axs[0, 0].set_ylabel("Relative to 100% baseline (%)")
+    # Obere Reihe: keine X-Achsenbeschriftung
+    for ax in axs[0, :]:
+        ax.tick_params(labelbottom=False)
+        ax.set_xlabel("")
 
-    # Build legend handles with pairs grouped together
+    # Gemeinsame Y-Beschriftung links unten
+    axs[1, 0].set_ylabel("Relative to 100% baseline (%)")
+
+    # 4) Legende wie beim Absolute-Plot
     legend_order = []
     for c1, c2 in pair_groups:
         legend_order += [c1, c2]
@@ -385,52 +469,56 @@ if __name__ == "__main__":
         mpl.lines.Line2D([0], [0],
                          color=color_map[carrier],
                          linestyle=linestyle_map[carrier],
-                         lw=2)
+                         lw=1)
         for carrier in legend_order
     ]
 
     fig.legend(
         handles,
         legend_order,
-        loc="center left",
-        bbox_to_anchor=(0.84, 0.5),
-        title="Technology Group"
+        loc="lower center",
+        bbox_to_anchor=(0.5, 0.0),
+        title="Technology Group",
+        ncol=4,
+        columnspacing=2.0
     )
 
-    fig.tight_layout(rect=[0, 0, 0.85, 1])
-    #plt.show()
+    # Layout & Speichern
+    fig.tight_layout(rect=[0, 0, 0.95, 1])
+    fig.subplots_adjust(bottom=0.25)
     fig.savefig(snakemake.output.total_and_DE_capexopex_relative_change_2050)
 
     # ─────────────────────────────────────────────────────────────────────────────
     #  CAPEX + OPEX Absolute Change Lineplot
     # ─────────────────────────────────────────────────────────────────────────────
 
-    import matplotlib.pyplot as plt
-    import matplotlib as mpl
+
+    # ── Globale Einstellungen ──
+    plt.rcParams['font.size'] = 7
+    plt.rcParams['savefig.dpi'] = 300
+
+    # ── Figure mit 5.46" Breite und altem 12:5-Verhältnis ──
+    width = 5.46
+    height = width * (5 / 5)
+    fig, axs = plt.subplots(2, 2, figsize=(width, height), sharex=True, sharey=True)
 
 
     # 1) Compute absolute change series (Bn EUR) vs. 100% constraint baseline
     def compute_absolute_change(df, base100):
-        """
-        Subtract the 100% constraint values (base100) from each series.
-        Result is absolute change in Bn EUR.
-        """
         return df.sub(base100, axis=1)
 
 
-    # Baselines at 100% constraint
     base_ref_all = reference_all.loc[100]
     base_clever_all = clever_all.loc[100]
     base_ref_de = reference_de.loc[100]
     base_clever_de = clever_de.loc[100]
 
-    # Absolute change DataFrames
     abs_ref_all = compute_absolute_change(reference_all, base_ref_all)
     abs_clever_all = compute_absolute_change(clever_all, base_clever_all)
     abs_ref_de = compute_absolute_change(reference_de, base_ref_de)
     abs_clever_de = compute_absolute_change(clever_de, base_clever_de)
 
-    # 2) Paired groups for shared colors & linestyles (reuse from relative plot)
+    # 2) Farben & Linestyles vorbereiten
     pair_groups = [
         ("onshore wind", "offshore wind"),
         ("electricity grid", "storage"),
@@ -439,7 +527,6 @@ if __name__ == "__main__":
         ("sustainable biomass", "unsustainable biomass"),
         ("nuclear", "fossil plants"),
     ]
-
     paired = {c for pair in pair_groups for c in pair}
     others = [c for c in carrier_order if c not in paired]
 
@@ -462,7 +549,6 @@ if __name__ == "__main__":
         linestyle_map[c] = "-"
 
     # 3) Plotting: 2×2 grid of absolute-change lineplots
-    fig, axs = plt.subplots(2, 2, figsize=(14, 10), sharex=True, sharey=True)
     panels = [
         (abs_ref_all, "Reference – All Countries", axs[0, 0]),
         (abs_clever_all, "Clever – All Countries", axs[0, 1]),
@@ -484,12 +570,24 @@ if __name__ == "__main__":
         ax.set_xlabel("Constraint (%)")
         ax.set_xticks([1, 25, 50, 100])
         ax.set_xlim(105, 0)
-        ax.grid(True)
+        # gestricheltes Raster
+        ax.grid(True, linestyle='--', linewidth=0.5)
 
-    # Common y-label for absolute change
-    axs[0, 0].set_ylabel("Absolute change from 100% baseline (Bn EUR)")
+    for ax in axs[0, :]:
+        ax.tick_params(labelbottom=False)
+        ax.set_xlabel("")
 
-    # Build and place legend with paired groups together
+    # halbe Linienbreite in allen Subplots
+    for ax in axs.flat:
+        for line in ax.get_lines():
+            line.set_linewidth(line.get_linewidth() / 2)
+
+    axs[1, 0].set_ylabel(
+        "Absolute change from\n100% baseline in Bn. Euro",
+        #labelpad=8  # optional: Abstand zum Plot-Rand
+    )
+
+    # Build and place legend
     legend_order = []
     for c1, c2 in pair_groups:
         legend_order += [c1, c2]
@@ -500,7 +598,7 @@ if __name__ == "__main__":
             [0], [0],
             color=color_map[carrier],
             linestyle=linestyle_map[carrier],
-            lw=2
+            lw=1  # passt zur halbierten Linienbreite
         )
         for carrier in legend_order
     ]
@@ -508,14 +606,17 @@ if __name__ == "__main__":
     fig.legend(
         handles,
         legend_order,
-        loc="center left",
-        bbox_to_anchor=(0.84, 0.5),
-        title="Technology Group"
+        loc="lower center",
+        bbox_to_anchor=(0.5, 0.0),
+        title="Technology Group",
+        ncol=4,
+        columnspacing=2.0
     )
 
-    fig.tight_layout(rect=[0, 0, 0.85, 1])
+    fig.tight_layout(rect=[0, 0, 0.95, 1])
+    fig.subplots_adjust(bottom=0.25)
     #plt.show()
-    fig.savefig(snakemake.output.total_and_DE_capexopex_absolute_change_2050)
+    fig.savefig(snakemake.output.total_and_DE_capexopex_absolute_change_2050, dpi=300)
 
 
     # ─────────────────────────────────────────────────────────────────────────────

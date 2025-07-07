@@ -32,6 +32,8 @@ if __name__ == "__main__":
 
     # Rename "2050" to a consistent column name for plotting
     df_all = df_all.rename(columns={"2050": "area_km2"})
+    # area_km2 war in m² – erst in km², dann in 1000 km² umrechnen:
+    df_all['area_km2'] = df_all['area_km2'] * 1e-6  # m² → km²
 
 
     # Extract constraint value from run name
@@ -74,7 +76,16 @@ if __name__ == "__main__":
     # ─────────────────────────────────────────────────────────────────────────────
     # Plotting
     # ─────────────────────────────────────────────────────────────────────────────
-    fig, axs = plt.subplots(2, 2, figsize=(14, 10), sharex='col')
+    # Globale Plot-Einstellungen
+    plt.rcParams.update({
+        'font.size': 7,
+        'axes.titlesize': 7,
+        'lines.linewidth': 0.5,  # Linien nur halb so dick
+    })
+
+    new_width = 5.46
+    new_height = new_width * 10 / 14  # erhaltenes Seitenverhältnis: ~3.9
+    fig, axs = plt.subplots(2, 2, figsize=(new_width, new_height), sharex='col')
 
     plot_data = [
         (ref_all, "Reference – All Countries", axs[0, 0]),
@@ -99,17 +110,47 @@ if __name__ == "__main__":
 
         ax.set_title(title)
         ax.set_xlabel("Constraint (%)")
-        ax.set_ylabel("Land Area (1000 km²)")
+        ax.set_ylabel("Land Area in 1000 km²")
+        ax.ticklabel_format(style='plain', axis='y')  # keine wissenschaftliche Notation
+
         ax.set_xlim(105, 0)
         ax.set_xticks(data.index)
 
+    # Legende unter den Plots
     handles = [mpatches.Patch(label=k, color=color_map[k]) for k in reversed(carrier_order)]
-    fig.legend(handles=handles, loc="center left", bbox_to_anchor=(0.85, 0.5), title="Carrier")
+    fig.legend(
+        handles=handles,
+        title="Carrier",
+        loc='lower center',
+        ncol=5,
+        bbox_to_anchor=(0.5, -0.18),
+        frameon=False
+    )
 
-    fig.tight_layout(rect=[0, 0, 0.83, 1])
-    #plt.show()
-    fig.savefig(snakemake.output.DLU_vs_constraint_stack)
+    # Mehr Platz für Legende und X-Achsentitel
+    fig.subplots_adjust(
+        bottom=0.1,  # schiebt die gesamte Grafik nach oben
+        left=0.08,
+        right=0.98,
+        top=0.95,
+        hspace=0.3,  # vertikaler Abstand zwischen den Subplots
+        wspace=0.25  # horizontaler Abstand
+    )
+
+    # Speichern mit tight bbox, damit auch die Legende außen mitgedruckt wird
+    fig.savefig(
+        snakemake.output.DLU_vs_constraint_stack,
+        dpi=300,
+        bbox_inches='tight'
+    )
     logger.info(f"Saved plot to {snakemake.output.DLU_vs_constraint_stack}")
+
+
+
+    # Globale Einstellungen
+    plt.rcParams['font.size'] = 7
+    plt.rcParams['axes.titlesize'] = 7
+    plt.rcParams['lines.linewidth'] = 0.5  # Linien nur halb so dick
 
     # ─────────────────────────────────────────────────────────────────────────────
     # Plot mu over constraint
@@ -136,7 +177,7 @@ if __name__ == "__main__":
     df_mu = df_mu.dropna(subset=["mu"])
     df_mu["mu"] = -df_mu["mu"]
 
-    df_mu = df_mu[df_mu["country"] != "CH"]  # Ausreisser rausnehmen
+    df_mu = df_mu[df_mu["country"] != "CH"]  # Ausreißer rausnehmen
 
     # Prepare consistent color mapping
     countries = sorted(df_mu["country"].unique())
@@ -144,7 +185,16 @@ if __name__ == "__main__":
     color_map = {country: color_cycle(i) for i, country in enumerate(countries)}
 
     # Plotting
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6), sharey=True)
+    # Breite 5.46 inch, Höhe beibehalten
+    old_width, old_height = 14, 6
+    new_width = 5.46
+    new_height = new_width * old_height / old_width
+
+    fig, (ax1, ax2) = plt.subplots(
+        1, 2,
+        figsize=(new_width, new_height),
+        sharey=True
+    )
 
     for ax, scen in zip((ax1, ax2), ("ref", "cle")):
         sub = df_mu[df_mu["scenario"] == scen]
@@ -154,18 +204,34 @@ if __name__ == "__main__":
         ax.set_xlabel("Constraint (%)")
         ax.set_xlim(55, 0)
         ax.set_xticks([50, 25, 1])
-        ax.set_ylim(0, 2)
-        ax.grid(True)
+        ax.set_yscale('log')
+        #ax.set_ylim(0, 2)
+        ax.grid(True, linestyle='--', linewidth=0.3)
 
-    ax1.set_ylabel("Marignal Value of Land in million EUR/km² (2050)")
+    ax1.set_ylabel("Marginal Value of Land (2050)\nin million EUR/km²")
+
+    # Legende unterhalb, 5 Spalten, außerhalb des Graphen
     handles = [plt.Line2D([0], [0], color=color_map[c], label=c) for c in countries]
-    fig.legend(handles=handles, title="Country", loc="center left", bbox_to_anchor=(0.86, 0.5))
+    fig.legend(
+        handles=handles,
+        title="Country",
+        loc='lower center',
+        ncol=7,
+        bbox_to_anchor=(0.5, -0.25),
+        frameon=False
+    )
 
-    fig.tight_layout(rect=[0, 0, 0.83, 1])
-    #plt.show()
-    fig.savefig(snakemake.output.DLU_mu_vs_constraint)
+    # Mehr Platz unten lassen
+    fig.tight_layout(rect=[0, 0.0, 1, 1])
+
+    # Speichern in 300 dpi
+    fig.savefig(
+        snakemake.output.DLU_mu_vs_constraint,
+        dpi=300,
+        bbox_inches='tight'
+    )
+
     logger.info(f"Saved mu plot to {snakemake.output.DLU_mu_vs_constraint}")
-
 
     # ─────────────────────────────────────────────────────────────────────────────
     # Disturbed
@@ -184,6 +250,8 @@ if __name__ == "__main__":
 
     # Rename "2050" to a consistent column name for plotting
     df_all = df_all.rename(columns={"2050": "area_km2"})
+    # area_km2 war in m² – in km² umrechnen
+    df_all["area_km2"] = df_all["area_km2"] * 1e-6
 
 
     # Extract constraint value from run name
@@ -223,7 +291,10 @@ if __name__ == "__main__":
 
 
     # Plotting
-    fig, axs = plt.subplots(2, 2, figsize=(14, 10), sharex='col')
+    # Plotting im gleichen Stil wie der mu-Plot
+    new_width = 5.46
+    new_height = new_width * 10 / 14
+    fig, axs = plt.subplots(2, 2, figsize=(new_width, new_height), sharex='col')
 
     plot_data = [
         (ref_all, "Reference – All Countries", axs[0, 0]),
@@ -241,22 +312,50 @@ if __name__ == "__main__":
         polys = ax.stackplot(x, y, labels=data.columns)
 
         if not color_map:
-            color_map = {name: poly.get_facecolor()[0] for name, poly in zip(data.columns, polys)}
+            color_map = {
+                name: poly.get_facecolor()[0]
+                for name, poly in zip(data.columns, polys)
+            }
         else:
             for poly, name in zip(polys, data.columns):
                 poly.set_color(color_map[name])
 
         ax.set_title(title)
         ax.set_xlabel("Constraint (%)")
-        ax.set_ylabel("Land Area (1000 km²)")
+        ax.set_ylabel("Disturbed Area in 1000 km²")
         ax.set_xlim(105, 0)
         ax.set_xticks(data.index)
+        ax.ticklabel_format(style='plain', axis='y')  # keine wissenschaftliche Notation
 
-    handles = [mpatches.Patch(label=k, color=color_map[k]) for k in reversed(carrier_order)]
-    fig.legend(handles=handles, loc="center left", bbox_to_anchor=(0.85, 0.5), title="Carrier")
+    # Legende unter den Plots
+    handles = [
+        mpatches.Patch(label=k, color=color_map[k])
+        for k in reversed(carrier_order)
+    ]
+    fig.legend(
+        handles=handles,
+        title="Carrier",
+        loc='lower center',
+        ncol=5,
+        bbox_to_anchor=(0.5, -0.18),
+        frameon=False
+    )
 
-    fig.tight_layout(rect=[0, 0, 0.83, 1])
-    #plt.show()
-    fig.savefig(snakemake.output.dist_vs_constraint_stack)
+    # Mehr Platz für Legende und X-Achsentitel
+    fig.subplots_adjust(
+        bottom=0.1,  # schiebt die Grafik nach oben
+        left=0.08,
+        right=0.98,
+        top=0.95,
+        hspace=0.3,
+        wspace=0.25
+    )
+
+    # Speichern mit tight bbox
+    fig.savefig(
+        snakemake.output.dist_vs_constraint_stack,
+        dpi=300,
+        bbox_inches='tight'
+    )
     logger.info(f"Saved plot to {snakemake.output.dist_vs_constraint_stack}")
 
