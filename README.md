@@ -1,3 +1,119 @@
+# Master Thesis: The Impact of Sufficiency Strategies on Land‐use in High Renewable Energy Systems
+
+This repository is a fork of [pypsa-de](https://github.com/pypsa/pypsa-de) and contains all code for the master’s thesis project titled **The Impact of Sufficiency Strategies on Land-use in High Renewable Energy Systems**.
+
+## How to Run / Reproduce the Model
+
+Follow the steps below to reproduce the experiments and analyses. Explanations of the added modules and modifications appear further down.
+
+1. **Create the Environment**  
+   Set up your Python environment according to the pypsa-de documentation (see below).
+
+2. **Build Scenarios**  
+   ```bash
+   snakemake build_scenarios
+   ```
+   > **Note:** Public and personal configurations are loaded automatically; you do not need to specify `--configfile`.
+
+3. **Retrieve Data**  
+   In your top‐level personal config file (`config/config.personal_jeckstadt.yaml`), set:
+   ```yaml
+   enable:
+     retrieve: true
+   ```
+   Then run:
+   ```bash
+   snakemake
+   ```
+   This will download all required datasets.
+
+   > **Warning:**  
+   > - The `retrieve_space_requirement_data` rule (in `rules/retrieve.smk:717`) may not fetch the latest DEA datasheet automatically. Either update the download URL in that rule or manually place the file at  
+   >   `data/DEA_electricity_district_heat_data_sheet.xlsx`.  
+   > - After successful download, set `enable.retrieve` back to `false`.
+
+   For the **sufficiency/“clever” option**, manually download the following into `data/CLEVER`:
+   - **Chart data** for these countries from [CLEVER Energy Scenario](https://data.clever-energy-scenario.eu/Results_DE.html):  
+     `AT, BE, CH, CZ, DE, DK, FR, UK, LU, NL, NO, PL, SE, ES, IT`  
+   - **CSV files** starting with `clever_` from the [repo of Tareen](https://github.com/UmairTareen/pypsa-eur/tree/master/data).
+
+4. **Solve Reference Base Year**  
+   To compute the reference final‐energy consumption, you must solve the base year of the reference model:
+   ```bash
+   snakemake results/20250430_high_res/reference/networks/base_s_adm__none_2020.nc
+   ```
+   If you have customized your run prefix or base year, replace `20250430_high_res` and `2020` accordingly.
+
+5. **Complete Run**
+    To execute all scenarios, post-processing, and evaluation in one go, simply run:
+    ```bash
+    snakemake
+    ```
+
+
+## Land-use module
+
+The Land-use Module is configured under the `land_use_module` section of the config. Parameters are described here:
+
+
+**Table: Key configuration parameters for the Land-use Module**
+
+| Parameter                          | Unit       | Example Value                                        | Description                                                                                                                         |
+|------------------------------------|------------|------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------|
+| `enable`                           | Boolean    | `true`                                               | Activates the module; if false, relevant rules and functions are skipped                                                           |
+| `types`                            | –          | `DLU`, `dist`                                        | Dictionary of land-use types, each with its own parameter set. Strings are used to generate dynamic variables and column names.    |
+| `power_specific_generators`        | –          | `[onwind, solar]`                                    | List of generators whose land use is defined per MW. Default values taken from DEA-Dataset.                                         |
+| `overwrite_values`                 | m²/MW      | `onwind: {2020: 1020.0}`                             | Manual override of land-use factors for capacity-based generators.                                                                  |
+| `energy_specific_generators`       | m²/MWh     | `solid biomass: 434.8`                               | Land-use factors for energy-based generators; must be specified explicitly.                                                        |
+| `constraint.enable`                | Boolean    | `false`                                              | Activates land-use constraints for the given type.                                                                                  |
+| `constraint.negative_additional`   | –          | `adjust_limit`                                       | Defines behavior when insufficient area is available (e.g., adjusting the limit to existing occupied area).                         |
+| `constraint.max_limit`             | m²         | `DE: {2020: 17.9e9}`                                 | Maximum land available per region and year; keys can be countries or NUTS1 codes.                                                   |
+
+
+
+- **`retrieve_space_requirement_data` rule**: Downloads DEA “space requirement” data (1000 m²/MW → m²/MW), applies manual overrides and energy-specific factors, and writes per‐type CSVs.  
+- **`scripts.prepare_sector_network.add_space_requirements`**: Function in `prepare_sector_network.py` that assigns land‐use factors to generators (base‐year and brownfield) by adding `space_req_{type}_pu` and `space_req_{type}_opt` columns.  
+- **`scripts.solve_network.add_space_requirement_constraint`**: Function in `solve_network.py` that computes used vs. available area per region, applies the configured land‐use constraint, and adds it to the optimization model.  
+- **`scripts.solve_network.space_req_post_processing`**: Function in `solve_network.py` that calculates actual land consumption from optimized capacities/dispatch, populates `space_req_{type}_opt` in the network file.  
+
+## Demand Modification
+**CLEVER integration**: 
+Uses a `clever` config flag with following influence:
+- extended `build_energy_totals` to overwrite inputs and processing with CLEVER-project CSVs.  
+- disables demand override in `scripts.modify_prenetwork` with Ariadne-specific demand
+- **`get_FEC_reference` rule**: Extracts reference final energy consumption (FEC) and computes sufficiency-adjusted FEC time series per country/sector.  
+- **`scripts/pypsa-de/modify_prenetwork.py:1288`**: Scales processed demand to match the sufficiency-adjusted FEC by country and sector.  
+
+## Other Modifications
+
+- **Scenario biomass flexibility**: Adjusted unsustainable vs. sustainable biomass potentials so unsustainable biomass follows a phased‐out minimum path (via `biomass.share_unsustainable_min`) while its maximum remains at initial deployment, enabling optimisation trade-offs.  
+- **`biomass.share_unsustainable_min`**: New config parameter that sets the minimum unsustainable biomass share over time, creating a growing feasible bandwidth.  
+- **Transported biomass adjustment**: Added `sector.biomass_transported_p_nom` to reduce the impact of transported solid biomass. Implemented in `scripts/prepare_sector_network.py` (line 3585).  
+- **Marginal cost sensitivity**: Added `biomass.unsustainable_solid_biomass_marginal_cost_factor` to scale the marginal cost of unsustainable solid biomass for sensitivity analysis.  
+
+## Evaluation
+
+- **`rules/evaluate.smk`**: Main Snakefile for evaluation, adding extra plots beyond the defaults.  
+- **`evaluate_all` rule**: Toggles which default and custom plots run in a standard execution.  
+- **`evaluate_run_csvs` rule**: Loads networks one by one, extracts key metrics, and stores them in intermediate CSVs (avoiding multiple large networks in memory).  
+- **`*_run` rules**: Perform per-scenario, per-year analyses; outputs go to `results/<run>/<scenario>/graphs`.  
+- **`*_comparison` rules**: Conduct cross-scenario comparisons; results appear in `results/<run>/EVALUATION/general_comparison`.  
+- **`config.evaluation.yaml`**: (Partially implemented) config file intended to control evaluation behavior for few select rules.  
+
+
+## Bugs
+- Upstream issue: Gas CHP cannot be extended.  
+- `retrieve_space_requirement_data` may fail when `enable.retrieve` is toggled.  
+- `land_use_module.types.<type>.overwrite_values` only applies if the carrier is listed under `power_specific_generators`.  
+
+
+
+---
+
+
+
+
+
 # PyPSA-DE - Hochaufgelöstes, sektorengekoppeltes Modell des deutschen Energiesystems
 
 PyPSA-DE ist ein sektorengekoppeltes Energiesystem-Modell auf Basis der Toolbox [PyPSA](https://github.com/PyPSA/pypsa) und des europäischen Modells [PyPSA-Eur](https://github.com/PyPSA/pypsa-eur). Der PyPSA-DE Workflow modelliert das deutsche Energiesystem mit deutschlandspezifischen Datensätzen (MaStR, Netzentwicklungsplan,...) im Verbund mit den direkten Stromnachbarn sowie Spanien und Italien. Der Ausbau und der Betrieb von Kraftwerken, des  Strom- und Wasserstoffübertragunsnetzes und die Energieversorgung aller Sektoren werden dann in einem linearen Optimierungsproblem gelöst, mit hoher zeitlicher und räumlicher Auflösung. PyPSA-DE wurde im Rahmen des Kopernikus-Projekts [Ariadne](https://ariadneprojekt.de/) entwickelt in dem Szenarien für ein klimaneutrales Deutschland untersucht werden, und spielt eine zentrale Rolle im [Ariadne Szenarienreport](https://ariadneprojekt.de/publikation/report-szenarien-zur-klimaneutralitat-2045/), als Leitmodell für den [Sektor Energiewirtschaft und Infrastruktur](https://ariadneprojekt.de/publikation/report-szenarien-zur-klimaneutralitat-2045/#6-sektorale-perspektive-energiewirtschaft) und als eines von drei Gesamtsystemmodellen. Die Ergebnisse aus der Modellierung mit PyPSA-DE werden auch im [Ariadne-Webinar zu den Kernaussagen des Berichts](https://youtu.be/UL3KAH7e0zs) ([Folien](https://ariadneprojekt.de/media/2025/03/Ariadne_Szen2025_Webinar_Folien_Kernaussagen.pdf)) und im [Ariadne-Webinar zur Energiewirtschaft](https://youtu.be/FcmHBL1MKQA) ([Folien](https://ariadneprojekt.de/media/2025/03/Ariadne_Szen2025_Webinar_Folien_Energiewirtschaft.pdf)) vorgestellt

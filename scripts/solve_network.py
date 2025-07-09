@@ -963,27 +963,49 @@ def add_space_requirement_constraint(n, max_limit,
                                      negative_additional='error',
                                      space_req_type=None):
     """
-    Adds space requirement constraints for multiple regions/countries for a specific space requirement type.
+    Add space requirement constraints to the model based on available land.
 
-    The max_limit dictionary should contain keys for different regions (e.g., "EU", "DE", "FR")
-    with corresponding maximum land use limits for each planning horizon.
-    For the "EU" key, the mask includes all generators; for other regions, only generators whose bus name
-    starts with the region code are considered.
+    For each region, compute:
+        A_limit             – maximum allowed area (from max_limit),
+        A_use,P             – area used by existing power-specific generators,
+        A_use,E             – area used by existing energy-specific generators,
+        A_avail = A_limit - (A_use,P + A_use,E)       (must be ≥ 0)
+        RHS     = A_avail + A_use,E
 
-    For each region, the constraint is defined as:
-      additional land use (computed from new generators) <= (region_limit - already used space)
+    If A_avail is negative, handle according to `negative_additional`.
+    Then add a constraint:
+        LHS = sum_{p in P} P_nom,p^opt · μ_p
+            + sum_{e in E} sum_{t in T} w_t · p_opt,e,t · μ_e
+        LHS ≤ RHS
 
-    Parameters:
-      n: The network object containing the generators DataFrame and the optimization model.
-      max_limit: A dictionary with maximum land use limits for each region, e.g.:
-          {
-              "EU": {2020: 50e9, 2030: 50e9, 2040: 50e9},
-              "DE": {2020: 10.7e9, 2030: 10.7e9, 2040: 10.7e9},
-              "FR": {2020: 27.3e9, 2030: 27.3e9, 2040: 27.3e9}
-          }
-      energy_specific_carriers: List of carriers with energy-specific space requirements.
-      planning_horizon: The current planning horizon (e.g., 2020) used to select the corresponding limit.
-      space_req_type: The space requirement type (e.g., "DLU", "dist") that selects the corresponding column.
+    Parameters
+    ----------
+    n
+        Network object with `generators`, `model.variables`, and `snapshot_weightings`.
+    max_limit
+        Dict mapping region codes to {year: max_area}.
+    energy_specific_carriers
+        List of carriers whose land use is computed from time‐series dispatch.
+    planning_horizon
+        Year key to select limits in `max_limit`.
+    negative_additional
+        Behavior if A_avail < 0:
+        - 'error': raise RuntimeError
+        - 'warning': skip region
+        - 'adjust_limit': set small positive allowance
+    space_req_type
+        Suffix for the generator land‐use column, e.g. 'DLU' → `space_req_DLU_pu`.
+
+    Raises
+    ------
+    RuntimeError
+        - Missing `space_req_{space_req_type}_pu` column.
+        - negative_additional='error' and A_avail < 0.
+        - Invalid `negative_additional` value.
+
+    Returns
+    -------
+    The modified network object with added GlobalConstraint entries.
     """
     # Define the specific column name based on the type.
     space_req_col = f"space_req_{space_req_type}_pu"

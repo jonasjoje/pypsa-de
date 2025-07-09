@@ -1286,6 +1286,21 @@ def scale_capacity(n, scaling):
                 ]
 
 def scale_demand_to_clever(n, FEC_reference_path):
+    """
+    Scale network loads to match reference final energy consumption by country and sector.
+
+    Parameters
+    ----------
+    n : pypsa.Network
+        Network whose `loads` and `loads_t` will be adjusted.
+    FEC_reference_path : str or Path
+        Path to CSV with reference FEC indexed by country and sector.
+
+    Returns
+    -------
+    None
+        Modifies `n.loads['p_set']` and `n.loads_t['p_set']` in place.
+    """
     file_path = Path(FEC_reference_path)
     FEC_ref = pd.read_csv(file_path, index_col=0)
 
